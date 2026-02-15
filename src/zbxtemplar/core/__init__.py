@@ -1,0 +1,1 @@
+from zbxtemplar.core.TemplarModule import TemplarModule, load_module
