@@ -20,8 +20,8 @@ def set_template_group(group: str):
     ZBX_TEMPLAR_TEMPLATE_GROUP = group
 
 def _make_uuid(seed: str) -> str:
+    """Deterministic UUID from seed, masked as UUIDv4. Zabbix rejects UUID5 on import."""
     h = uuid.uuid5(_NAMESPACE_UUID, seed).hex
-    # Mask version nibble (pos 12) to 4 and variant nibble (pos 16) to 8-b
     return h[:12] + '4' + h[13:16] + hex(0x8 | (int(h[16], 16) & 0x3))[2:] + h[17:]
 
 def _serialize(value):
@@ -44,6 +44,7 @@ class ZbxEntity:
         self.uuid = _make_uuid(uuid_seed or name)
 
     def to_dict(self) -> dict[str, Any]:
+        # Attributes starting with _ are internal-only (e.g. _host) and skipped here
         result = {}
         for key, value in self.__dict__.items():
             if key.startswith('_'):
