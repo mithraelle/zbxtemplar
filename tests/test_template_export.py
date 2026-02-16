@@ -1,3 +1,7 @@
+from pathlib import Path
+
+import yaml
+
 from zbxtemplar.core import TemplarModule
 from zbxtemplar.core.ZbxEntity import YesNo
 from zbxtemplar.entities import Template, Item, Trigger, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
@@ -7,8 +11,10 @@ from zbxtemplar.entities.DashboardWidget.ItemHistory import ItemHistory, ItemHis
 from zbxtemplar.entities.DashboardWidget.SimpleGraph import SimpleGraph
 from zbxtemplar.entities.Item import ItemType
 
+REFERENCE_PATH = Path(__file__).parent / "reference_template.yml"
 
-class SampleTemplate(TemplarModule):
+
+class TestTemplate(TemplarModule):
     def __init__(self):
         super().__init__()
 
@@ -53,12 +59,16 @@ class SampleTemplate(TemplarModule):
         second_page.add_widget(SimpleGraph(name="Graph for Item1", item=item1, x=0, y=0, width=36, height=5))
         second_page.add_widget(SimpleGraph(item=item2, x=36, y=0, width=36, height=5))
 
-        dashboard = Dashboard(name = "Sample Dashboard", auto_start=YesNo.NO, display_period=60)
+        dashboard = Dashboard(name="Sample Dashboard", auto_start=YesNo.NO, display_period=60)
         dashboard.add_page(first_page).add_page(second_page)
         template.add_dashboard(dashboard)
 
 
-if __name__ == "__main__":
-    import yaml
-    module = SampleTemplate()
-    print(yaml.dump(module.to_export(), default_flow_style=False, sort_keys=False))
+def test_template_matches_reference():
+    module = TestTemplate()
+    generated = module.to_export()
+
+    with open(REFERENCE_PATH) as f:
+        expected = yaml.safe_load(f)
+
+    assert generated == expected

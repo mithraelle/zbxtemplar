@@ -18,8 +18,9 @@ build/
 venv/
 
 # Output files
-*.yml
 !.github/workflows/*.yml
+/examples/sample_template.yml
+/test.yml
 
 # OS
 .DS_Store
