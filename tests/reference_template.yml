@@ -41,6 +41,8 @@ zabbix_export:
       value_type: UNSIGNED
       history: 90d
       trends: 365d
+      valuemap:
+        name: Test Map
     - tags:
       - tag: Service
         value: Testing 3
@@ -135,6 +137,16 @@ zabbix_export:
             value:
               host: Test Template
               key: item.test[2]
+    valuemaps:
+    - name: Test Map
+      uuid: 8f03d4d366a94523b6070c404ff377a9
+      mappings:
+      - value: '1'
+        newvalue: UP
+        type: EQUAL
+      - value: '0'
+        newvalue: DOWN
+        type: EQUAL
     groups:
     - name: Templar Templates
   triggers:

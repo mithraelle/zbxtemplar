@@ -6,6 +6,7 @@ from zbxtemplar.entities.DashboardWidget import ClassicGraph
 from zbxtemplar.entities.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
 from zbxtemplar.entities.DashboardWidget.SimpleGraph import SimpleGraph
 from zbxtemplar.entities.Item import ItemType
+from zbxtemplar.entities.Template import ValueMap, ValueMapType
 
 
 class SampleTemplate(TemplarModule):
@@ -15,6 +16,9 @@ class SampleTemplate(TemplarModule):
         template = Template(name="Test Template").add_tag("Service", "Testing")
         template.add_macro("MY_MACRO", 1, "Testing The Things")
 
+        value_map = ValueMap("Test Map").add_mapping("1", "UP", ValueMapType.EQUAL).add_mapping("0", "DOWN", ValueMapType.EQUAL)
+        template.add_value_map(value_map)
+
         item1 = Item("Item 1", "item.test[1]", template.name).add_tag("Service", "Testing 1")
         item1.add_trigger(name="Simple trigger", fn="min", op=">",
                           threshold=template.get_macro("MY_MACRO"),
@@ -22,6 +26,8 @@ class SampleTemplate(TemplarModule):
                           fn_args=(10,))
 
         item2 = Item("Item 2", "item.test[2]", template.name, type=ItemType.ZABBIX_ACTIVE).add_tag("Service", "Testing 2")
+        item2.set_value_map(value_map)
+
         item3 = Item(name="Item 3", key="item.test[3]", host=template.name, type=ItemType.TRAP).add_tag("Service", "Testing 3")
 
         template.add_item(item1).add_item(item2).add_item(item3)

@@ -57,6 +57,10 @@ class Item(ZbxEntity, WithTags):
         self.triggers.append(Trigger(name, expression, priority, description))
         return self
 
+    def set_value_map(self, value_map) -> 'Item':
+        self.valuemap = {"name": value_map.name}
+        return self
+
     def expr(self, fn: str, *args) -> str:
         base = f"{fn}(/{self._host}/{self.key})"
         if args:
