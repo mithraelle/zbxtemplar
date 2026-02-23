@@ -7,13 +7,14 @@ class ClassicGraph(Widget):
                  x: int = 0, y: int = 0, width: int = 12, height: int = 5,
                  name: str = ""):
         super().__init__(x, y, width, height, name)
-        self.fields.append(
-            WidgetField(WidgetFieldType.GRAPH, "graphid.0", {"host": template, "name": graph.name})
-        )
+        self._template = template
+        self._graph = graph
 
     @property
     def type(self) -> str:
         return "graph"
 
     def widget_fields(self) -> list:
-        return self.fields
+        return [
+            WidgetField(WidgetFieldType.GRAPH, "graphid.0", {"host": self._template, "name": self._graph.name}),
+        ]

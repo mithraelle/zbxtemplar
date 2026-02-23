@@ -12,26 +12,34 @@ class ItemHistory(Widget):
     def __init__(self, x: int = 0, y: int = 0, width: int = 12, height: int = 5,
                  name: str = ""):
         super().__init__(x, y, width, height, name)
-        self._item_count = 0
+        self._items = []
+        self._show_timestamp = None
+        self._show_column_header = None
 
     @property
     def type(self) -> str:
         return "itemhistory"
 
     def widget_fields(self) -> list:
-        return self.fields
+        fields = []
+        for i, (item, col_name) in enumerate(self._items):
+            prefix = f"columns.{i}."
+            fields.append(WidgetField(WidgetFieldType.ITEM, f"{prefix}itemid", {"host": item._host, "key": item.key}))
+            fields.append(WidgetField(WidgetFieldType.STRING, f"{prefix}name", col_name))
+        if self._show_timestamp is not None:
+            fields.append(WidgetField(WidgetFieldType.INTEGER, "show_timestamp", str(int(self._show_timestamp))))
+        if self._show_column_header is not None:
+            fields.append(WidgetField(WidgetFieldType.INTEGER, "show_column_header", str(self._show_column_header.value)))
+        return fields
 
     def add_item(self, item: Item, name: str = ""):
-        prefix = f"columns.{self._item_count}."
-        self.fields.append(WidgetField(WidgetFieldType.ITEM, f"{prefix}itemid", {"host": item._host, "key": item.key}))
-        self.fields.append(WidgetField(WidgetFieldType.STRING, f"{prefix}name", name))
-        self._item_count += 1
+        self._items.append((item, name))
         return self
 
     def show_timestamp(self, show: bool = True):
-        self.fields.append(WidgetField(WidgetFieldType.INTEGER, "show_timestamp", str(int(show))))
+        self._show_timestamp = show
         return self
 
     def show_column_header(self, header: ItemHistoryHeader = ItemHistoryHeader.NO):
-        self.fields.append(WidgetField(WidgetFieldType.INTEGER, "show_column_header", str(header.value)))
+        self._show_column_header = header
         return self

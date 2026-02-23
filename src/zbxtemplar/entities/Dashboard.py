@@ -79,7 +79,8 @@ class Widget(ABC):
             result["y"] = str(self.y)
         result["width"] = str(self.width)
         result["height"] = str(self.height)
-        result["fields"] = [f.to_dict() for f in self.fields]
+        all_fields = self.fields + self.widget_fields()
+        result["fields"] = [f.to_dict() for f in all_fields]
         return result
 
 
