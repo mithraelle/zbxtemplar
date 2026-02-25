@@ -3,6 +3,7 @@ from zbxtemplar.core.ZbxEntity import YesNo
 from zbxtemplar.entities import Template, Item, Trigger, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
     DashboardPage
 from zbxtemplar.entities.DashboardWidget import ClassicGraph
+from zbxtemplar.entities.DashboardWidget import Graph as dashGraph
 from zbxtemplar.entities.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
 from zbxtemplar.entities.DashboardWidget.SimpleGraph import SimpleGraph
 from zbxtemplar.entities.Item import ItemType
@@ -46,14 +47,31 @@ class SampleTemplate(TemplarModule):
         ]
         self.graphs = [graph]
 
-        graph_widget = ClassicGraph(template=template.name, graph=graph, x=0, y=0, width=36, height=5)
         first_page = DashboardPage(display_period=120)
-        first_page.add_widget(graph_widget)
+
+        classic_graph_widget = ClassicGraph(template=template.name, graph=graph, x=0, y=0, width=36, height=5)
+        first_page.add_widget(classic_graph_widget)
 
         item_history_widget = ItemHistory(x=36, y=0, width=18, height=5)
         item_history_widget.add_item(item2, "Item 2").add_item(item1, "Item 1")
         item_history_widget.show_timestamp(True).show_column_header(ItemHistoryHeader.HORIZONTAL)
         first_page.add_widget(item_history_widget)
+
+        graph_widget = dashGraph.Graph(name="Complex graph", y=5, x=0, width=18, height=8)
+
+        pattern_data_set = dashGraph.ItemPatternSet(label = "The Pattern", palette=0)
+        pattern_data_set.add_pattern("item")
+        pattern_draw_style = dashGraph.Bar()
+        pattern_data_set.set_draw_style(pattern_draw_style)
+        pattern_data_set.set_Y_axis(dashGraph.YAxis.RIGHT)
+        graph_widget.add_data_set(pattern_data_set)
+
+        items_data_set = dashGraph.ItemListSet(label = "Two Items")
+        items_data_set.add_item(item3, "1A7C11").add_item(item2, "274482")
+        graph_widget.add_data_set(items_data_set)
+
+        graph_widget.set_legend(show_stats=True, show_aggregation=True, legend_lines=4, variable_legend_lines=True)
+        first_page.add_widget(graph_widget)
 
         second_page = DashboardPage(name="Individual graphs")
         second_page.add_widget(SimpleGraph(name="Graph for Item1", item=item1, x=0, y=0, width=36, height=5))
