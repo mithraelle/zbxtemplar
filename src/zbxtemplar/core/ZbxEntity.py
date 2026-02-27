@@ -51,10 +51,9 @@ class ZbxEntity:
                 continue
             if value is None or value == {} or value == []:
                 continue
-            if key == 'tags' and hasattr(self, 'tags_to_list'):
-                result[key] = self.tags_to_list()
-            elif key == 'macros' and hasattr(self, 'macros_to_list'):
-                result[key] = self.macros_to_list()
+            list_method = getattr(self, f'{key}_to_list', None)
+            if list_method:
+                result[key] = list_method()
             else:
                 result[key] = _serialize(value)
         return result
@@ -162,4 +161,17 @@ class WithMacros():
     def get_macro(self, name: str) -> Optional[Macro]:
         clean_name = name.replace("{$", "").replace("}", "")
         return self.macros.get(clean_name)
+
+class WithGroups():
+    def __init__(self):
+        super().__init__()
+        self.groups: List[ZbxEntity] = []
+
+    def add_group(self, group: ZbxEntity):
+        if not any(g.name == group.name for g in self.groups):
+            self.groups.append(group)
+        return self
+
+    def groups_to_list(self):
+        return [{"name": g.name} for g in self.groups]
 

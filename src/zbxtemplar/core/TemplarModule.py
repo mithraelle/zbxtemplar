@@ -12,17 +12,17 @@ class TemplarModule:
         self.graphs = []
 
     def to_export(self, version: str = "7.4") -> dict:
-        groups = set()
+        groups = {}
         for t in self.templates:
             for g in t.groups:
-                groups.add(g["name"])
+                groups[g.name] = g
 
         export = {
             "zabbix_export": {
                 "version": version,
                 "template_groups": [
-                    {"uuid": _zbx._make_uuid(g), "name": g}
-                    for g in sorted(groups)
+                    g.to_dict()
+                    for g in sorted(groups.values(), key=lambda g: g.name)
                 ],
                 "templates": [t.to_dict() for t in self.templates],
             }

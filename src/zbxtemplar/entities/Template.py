@@ -2,9 +2,14 @@ from typing import Dict, List, Union
 from enum import Enum
 
 import zbxtemplar.core.ZbxEntity as _zbx
-from zbxtemplar.core.ZbxEntity import ZbxEntity, WithTags, WithMacros
+from zbxtemplar.core.ZbxEntity import ZbxEntity, WithTags, WithMacros, WithGroups
 from zbxtemplar.entities.Dashboard import Widget, Dashboard
 from zbxtemplar.entities.Item import Item
+
+
+class TemplateGroup(ZbxEntity):
+    def __init__(self, name: str):
+        super().__init__(name)
 
 
 class ValueMapType(str, Enum):
@@ -26,27 +31,29 @@ class ValueMap(ZbxEntity):
         return self
 
 
-class Template(ZbxEntity, WithTags, WithMacros):
-    def __init__(self, name: str, groups: Union[None, List[str]] = None):
+class Template(ZbxEntity, WithTags, WithMacros, WithGroups):
+    def __init__(self, name: str, groups: Union[None, List[TemplateGroup]] = None):
         super().__init__(name)
         if groups is None:
-            groups = [_zbx.ZBX_TEMPLAR_TEMPLATE_GROUP]
+            groups = [TemplateGroup(_zbx.ZBX_TEMPLAR_TEMPLATE_GROUP)]
         self.template = name
         self.items: List[Item] = []
         self.dashboards: List[Dashboard] = []
         self.valuemaps: List[ValueMap] = []
-        self.groups = [{"name": g} for g in groups]
+        self.groups = groups
 
     def add_item(self, item: Item):
-        item._host = self.name
-        self.items.append(item)
+        if not any(i.key == item.key for i in self.items):
+            item._host = self.name
+            self.items.append(item)
         return self
 
     def add_dashboard(self, dashboard: Dashboard):
-        self.dashboards.append(dashboard)
+        if not any(d.name == dashboard.name for d in self.dashboards):
+            self.dashboards.append(dashboard)
         return self
 
     def add_value_map(self, value_map: ValueMap):
-        self.valuemaps.append(value_map)
+        if not any(v.name == value_map.name for v in self.valuemaps):
+            self.valuemaps.append(value_map)
         return self
-
