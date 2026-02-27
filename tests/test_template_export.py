@@ -46,12 +46,11 @@ class TestTemplate(TemplarModule):
         graph = Graph("Test Graph", y_min=1, y_max_type=YAxisType.ITEM, y_max=item3)
         graph.add_item(item1, "1A7C11").add_item(item2, "274482", yaxisside=YAxisSide.RIGHT)
 
+        template.add_trigger(name="Complex trigger", expression=trigger_expr,
+                             priority=TriggerPriority.WARNING,
+                             description="Trigger using two items")
+
         self.templates = [template]
-        self.triggers = [
-            Trigger(name="Complex trigger", expression=trigger_expr,
-                    priority=TriggerPriority.WARNING,
-                    description="Trigger using two items"),
-        ]
         self.graphs = [graph]
 
         graph_widget = ClassicGraph(template=template.name, graph=graph, x=0, y=0, width=36, height=5)

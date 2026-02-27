@@ -8,7 +8,6 @@ import zbxtemplar.core.ZbxEntity as _zbx
 class TemplarModule:
     def __init__(self):
         self.templates = []
-        self.triggers = []
         self.graphs = []
 
     def to_export(self, version: str = "7.4") -> dict:
@@ -27,8 +26,11 @@ class TemplarModule:
                 "templates": [t.to_dict() for t in self.templates],
             }
         }
-        if self.triggers:
-            export["zabbix_export"]["triggers"] = [t.to_dict() for t in self.triggers]
+        triggers = []
+        for t in self.templates:
+            triggers += t.triggers
+        if triggers:
+            export["zabbix_export"]["triggers"] = [t.to_dict() for t in triggers]
         if self.graphs:
             export["zabbix_export"]["graphs"] = [g.to_dict() for g in self.graphs]
         return export

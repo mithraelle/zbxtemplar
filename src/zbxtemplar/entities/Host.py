@@ -1,6 +1,7 @@
 from typing import List, Union
 
 from zbxtemplar.core.ZbxEntity import ZbxEntity, WithTags, WithMacros, WithGroups
+from zbxtemplar.entities.Trigger import WithTriggers
 from zbxtemplar.entities.Dashboard import Dashboard
 from zbxtemplar.entities.Item import Item
 from zbxtemplar.entities.Template import ValueMap
@@ -11,7 +12,7 @@ class HostGroup(ZbxEntity):
         super().__init__(name)
 
 
-class Host(ZbxEntity, WithTags, WithMacros, WithGroups):
+class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers):
     def __init__(self, name: str, groups: Union[None, List[HostGroup]] = None):
         super().__init__(name)
         if groups is None:

@@ -3,6 +3,7 @@ from enum import Enum
 
 import zbxtemplar.core.ZbxEntity as _zbx
 from zbxtemplar.core.ZbxEntity import ZbxEntity, WithTags, WithMacros, WithGroups
+from zbxtemplar.entities.Trigger import WithTriggers
 from zbxtemplar.entities.Dashboard import Widget, Dashboard
 from zbxtemplar.entities.Item import Item
 
@@ -31,7 +32,7 @@ class ValueMap(ZbxEntity):
         return self
 
 
-class Template(ZbxEntity, WithTags, WithMacros, WithGroups):
+class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers):
     def __init__(self, name: str, groups: Union[None, List[TemplateGroup]] = None):
         super().__init__(name)
         if groups is None:

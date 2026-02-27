@@ -162,6 +162,8 @@ class WithMacros():
         clean_name = name.replace("{$", "").replace("}", "")
         return self.macros.get(clean_name)
 
+
+
 class WithGroups():
     def __init__(self):
         super().__init__()
