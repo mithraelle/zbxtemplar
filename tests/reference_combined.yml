@@ -1,10 +1,12 @@
 zabbix_export:
   version: '7.4'
   template_groups:
-  - uuid: e8a89d57d35d41eb9fbbe23dbe294a09
-    name: Templar Templates
+  - name: Templar Templates
+    uuid: e8a89d57d35d41eb9fbbe23dbe294a09
   templates:
-  - macros:
+  - groups:
+    - name: Templar Templates
+    macros:
     - macro: '{$MY_MACRO}'
       value: '1'
       description: Testing The Things
@@ -226,8 +228,44 @@ zabbix_export:
       - value: '0'
         newvalue: DOWN
         type: EQUAL
-    groups:
-    - name: Templar Templates
+  host_groups:
+  - name: Templar Hosts
+    uuid: 06fa0ec20ab54eb4843996f8589df4ea
+  hosts:
+  - groups:
+    - name: Templar Hosts
+    macros:
+    - macro: '{$MY_HOST_MACRO}'
+      value: '1'
+      description: Testing The Host Macro
+    name: Templar Host
+    host: Templar Host
+    templates:
+    - name: Test Template
+    interfaces:
+    - type: ZABBIX
+      useip: 'YES'
+      ip: 127.0.0.1
+      dns: ''
+      port: '10050'
+      interface_ref: if1
+      default: 'YES'
+    items:
+    - tags:
+      - tag: Service
+        value: Testing Host
+      name: Item Own
+      key: item.test[own]
+      type: ZABBIX_PASSIVE
+      value_type: UNSIGNED
+      history: 90d
+      trends: 365d
+      triggers:
+      - name: Host Simple trigger
+        expression: min(/Templar Host/item.test[own],10)>None
+        priority: HIGH
+        description: A single host item trigger
+      interface_ref: if1
   triggers:
   - name: Complex trigger
     uuid: bc81a964ebf94fb0926600eb7222a1a7
@@ -235,6 +273,12 @@ zabbix_export:
       < {$MY_MACRO}
     priority: WARNING
     description: Trigger using two items
+  - name: Host Complex trigger
+    uuid: 3963e32bd2ed483b85f9da9b12a88d8e
+    expression: last(/Templar Host/item.test[own])>{$MY_HOST_MACRO} and last(/Test
+      Template/item.test[2]) < {$MY_MACRO}
+    priority: WARNING
+    description: Host trigger using two items
   graphs:
   - name: Test Graph
     uuid: f9fdc63a12ef41599f3ef4bb954fa1ee
@@ -266,3 +310,20 @@ zabbix_export:
       calc_fnc: AVG
       type: SIMPLE
       yaxisside: RIGHT
+  - name: Host Graph
+    uuid: a5f00437fc4f43e580e891b7a2e21edd
+    type: NORMAL
+    show_triggers: 'YES'
+    show_legend: 'YES'
+    ymin_type_1: CALCULATED
+    ymax_type_1: CALCULATED
+    graph_items:
+    - item:
+        host: Templar Host
+        key: item.test[own]
+      color: 1A7C11
+      sortorder: '0'
+      drawtype: SINGLE_LINE
+      calc_fnc: AVG
+      type: SIMPLE
+      yaxisside: LEFT

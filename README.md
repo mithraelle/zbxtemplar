@@ -182,8 +182,7 @@ Widgets are concrete subclasses of `Widget` (abstract). Each widget type lives i
 ## Global Configuration
 
 ```python
-from zbxtemplar.core.ZbxEntity import set_uuid_namespace, set_template_group
+from zbxtemplar.core.ZbxEntity import set_uuid_namespace
 
-set_uuid_namespace("My Company")    # Deterministic UUIDs scoped to namespace
-set_template_group("My Templates")  # Default group for new templates
+set_uuid_namespace("My Company")  # Deterministic UUIDs scoped to namespace
 ```

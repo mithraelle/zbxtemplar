@@ -5,7 +5,9 @@ import yaml
 from zbxtemplar.core import TemplarModule
 from zbxtemplar.core.ZbxEntity import YesNo
 from zbxtemplar.entities import Template, Item, Trigger, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
-    DashboardPage
+    DashboardPage, Host, HostGroup
+from zbxtemplar.entities.Host import AgentInterface
+from zbxtemplar.entities.Template import TemplateGroup
 from zbxtemplar.entities.DashboardWidget import Graph as dashGraph
 from zbxtemplar.entities.DashboardWidget import ClassicGraph
 from zbxtemplar.entities.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
@@ -13,14 +15,16 @@ from zbxtemplar.entities.DashboardWidget.SimpleGraph import SimpleGraph
 from zbxtemplar.entities.Item import ItemType
 from zbxtemplar.entities.Template import ValueMap, ValueMapType
 
-REFERENCE_PATH = Path(__file__).parent / "reference_template.yml"
+REFERENCE_COMBINED = Path(__file__).parent / "reference_combined.yml"
+REFERENCE_TEMPLATES = Path(__file__).parent / "reference_templates.yml"
+REFERENCE_HOSTS = Path(__file__).parent / "reference_hosts.yml"
 
 
 class TestTemplate(TemplarModule):
     def __init__(self):
         super().__init__()
 
-        template = Template(name="Test Template").add_tag("Service", "Testing")
+        template = Template(name="Test Template", groups=[TemplateGroup("Templar Templates")]).add_tag("Service", "Testing")
         template.add_macro("MY_MACRO", 1, "Testing The Things")
 
         value_map = ValueMap("Test Map").add_mapping("1", "UP", ValueMapType.EQUAL).add_mapping("0", "DOWN",
@@ -50,8 +54,9 @@ class TestTemplate(TemplarModule):
                              priority=TriggerPriority.WARNING,
                              description="Trigger using two items")
 
+        template.add_graph(graph)
+
         self.templates = [template]
-        self.graphs = [graph]
 
         graph_widget = ClassicGraph(template=template.name, graph=graph, x=0, y=0, width=36, height=5)
         first_page = DashboardPage(display_period=120)
@@ -86,12 +91,60 @@ class TestTemplate(TemplarModule):
         dashboard.add_page(first_page).add_page(second_page)
         template.add_dashboard(dashboard)
 
+        host = Host("Templar Host", groups=[HostGroup("Templar Hosts")])
+        host.add_macro("MY_HOST_MACRO", 1, "Testing The Host Macro")
+        host.add_template(template)
+        host_item = Item("Item Own", "item.test[own]", host.name).add_tag("Service", "Testing Host")
+        host.add_item(host_item)
+        self.hosts = [host]
+        host_if1 = AgentInterface()
+        host.add_interface(host_if1)
+        host_item.set_interface(host_if1)
+        host_item.add_trigger(name="Host Simple trigger", fn="min", op=">",
+                              threshold=template.get_macro("MY_HOST_MACRO"),
+                              priority=TriggerPriority.HIGH, description="A single host item trigger",
+                              fn_args=(10,))
 
-def test_template_matches_reference():
-    module = TestTemplate()
+        host_graph = Graph("Host Graph")
+        host_graph.add_item(host_item, "1A7C11")
+        host.add_graph(host_graph)
+
+        host_trigger_expr = (host_item.expr("last") + ">" + host.get_macro("MY_HOST_MACRO")
+                             + " and " + item2.expr("last") + " < " + host.get_macro("MY_MACRO"))
+        host.add_trigger(name="Host Complex trigger", expression=host_trigger_expr,
+                         priority=TriggerPriority.WARNING,
+                         description="Host trigger using two items")
+
+
+import pytest
+
+@pytest.fixture(scope="module")
+def module():
+    return TestTemplate()
+
+
+def test_combined_export_matches_reference(module):
     generated = module.to_export()
 
-    with open(REFERENCE_PATH) as f:
+    with open(REFERENCE_COMBINED) as f:
+        expected = yaml.safe_load(f)
+
+    assert generated == expected
+
+
+def test_templates_export_matches_reference(module):
+    generated = module.export_templates()
+
+    with open(REFERENCE_TEMPLATES) as f:
+        expected = yaml.safe_load(f)
+
+    assert generated == expected
+
+
+def test_hosts_export_matches_reference(module):
+    generated = module.export_hosts()
+
+    with open(REFERENCE_HOSTS) as f:
         expected = yaml.safe_load(f)
 
     assert generated == expected

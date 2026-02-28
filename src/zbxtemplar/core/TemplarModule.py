@@ -2,37 +2,64 @@ import inspect
 import importlib.util
 import os
 
-import zbxtemplar.core.ZbxEntity as _zbx
-
 
 class TemplarModule:
     def __init__(self):
         self.templates = []
-        self.graphs = []
+        self.hosts = []
 
-    def to_export(self, version: str = "7.4") -> dict:
+    def _export_templates(self, zx: dict):
+        if not self.templates:
+            return
         groups = {}
         for t in self.templates:
+            if not t.groups:
+                raise ValueError(f"Template '{t.name}' has no groups. Add at least one TemplateGroup.")
             for g in t.groups:
                 groups[g.name] = g
+        zx["template_groups"] = [g.to_dict() for g in sorted(groups.values(), key=lambda g: g.name)]
+        zx["templates"] = [t.to_dict() for t in self.templates]
 
-        export = {
-            "zabbix_export": {
-                "version": version,
-                "template_groups": [
-                    g.to_dict()
-                    for g in sorted(groups.values(), key=lambda g: g.name)
-                ],
-                "templates": [t.to_dict() for t in self.templates],
-            }
-        }
-        triggers = []
-        for t in self.templates:
-            triggers += t.triggers
+    def _export_hosts(self, zx: dict):
+        if not self.hosts:
+            return
+        groups = {}
+        for h in self.hosts:
+            if not h.groups:
+                raise ValueError(f"Host '{h.name}' has no groups. Add at least one HostGroup.")
+            for g in h.groups:
+                groups[g.name] = g
+        zx["host_groups"] = [g.to_dict() for g in sorted(groups.values(), key=lambda g: g.name)]
+        zx["hosts"] = [h.to_dict() for h in self.hosts]
+
+    def _export_extras(self, zx: dict, entities: list):
+        triggers = [tr for entity in entities for tr in entity.triggers]
         if triggers:
-            export["zabbix_export"]["triggers"] = [t.to_dict() for t in triggers]
-        if self.graphs:
-            export["zabbix_export"]["graphs"] = [g.to_dict() for g in self.graphs]
+            zx["triggers"] = [t.to_dict() for t in triggers]
+        graphs = [gr for entity in entities for gr in entity.graphs]
+        if graphs:
+            zx["graphs"] = [g.to_dict() for g in graphs]
+
+    def export_templates(self, version: str = "7.4") -> dict:
+        export = {"zabbix_export": {"version": version}}
+        zx = export["zabbix_export"]
+        self._export_templates(zx)
+        self._export_extras(zx, self.templates)
+        return export
+
+    def export_hosts(self, version: str = "7.4") -> dict:
+        export = {"zabbix_export": {"version": version}}
+        zx = export["zabbix_export"]
+        self._export_hosts(zx)
+        self._export_extras(zx, self.hosts)
+        return export
+
+    def to_export(self, version: str = "7.4") -> dict:
+        export = {"zabbix_export": {"version": version}}
+        zx = export["zabbix_export"]
+        self._export_templates(zx)
+        self._export_hosts(zx)
+        self._export_extras(zx, self.templates + self.hosts)
         return export
 
 

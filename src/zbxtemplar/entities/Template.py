@@ -1,9 +1,9 @@
 from typing import Dict, List, Union
 from enum import Enum
 
-import zbxtemplar.core.ZbxEntity as _zbx
 from zbxtemplar.core.ZbxEntity import ZbxEntity, WithTags, WithMacros, WithGroups
 from zbxtemplar.entities.Trigger import WithTriggers
+from zbxtemplar.entities.Graph import WithGraphs
 from zbxtemplar.entities.Dashboard import Widget, Dashboard
 from zbxtemplar.entities.Item import Item
 
@@ -32,16 +32,14 @@ class ValueMap(ZbxEntity):
         return self
 
 
-class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers):
+class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs):
     def __init__(self, name: str, groups: Union[None, List[TemplateGroup]] = None):
         super().__init__(name)
-        if groups is None:
-            groups = [TemplateGroup(_zbx.ZBX_TEMPLAR_TEMPLATE_GROUP)]
         self.template = name
         self.items: List[Item] = []
         self.dashboards: List[Dashboard] = []
         self.valuemaps: List[ValueMap] = []
-        self.groups = groups
+        self.groups = groups or []
 
     def add_item(self, item: Item):
         if not any(i.key == item.key for i in self.items):

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Union
+from typing import List, Optional, Union
 
 from zbxtemplar.core.ZbxEntity import ZbxEntity, YesNo
 from zbxtemplar.entities import Item
@@ -97,3 +97,18 @@ class Graph(ZbxEntity):
             order = len(self.graph_items)
         self.graph_items.append(GraphItem(item, color, order, drawtype, calc_fnc, type, yaxisside))
         return self
+
+
+class WithGraphs:
+    def __init__(self):
+        super().__init__()
+        self._graphs: List[Graph] = []
+
+    def add_graph(self, graph: Graph):
+        if not any(g.name == graph.name for g in self._graphs):
+            self._graphs.append(graph)
+        return self
+
+    @property
+    def graphs(self):
+        return list(self._graphs)

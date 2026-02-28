@@ -57,6 +57,10 @@ class Item(ZbxEntity, WithTags):
         self.triggers.append(Trigger(name, expression, priority, description))
         return self
 
+    def set_interface(self, interface) -> 'Item':
+        self.interface_ref = interface.interface_ref
+        return self
+
     def set_value_map(self, value_map) -> 'Item':
         self.valuemap = {"name": value_map.name}
         return self

@@ -7,7 +7,6 @@ class YesNo(str, Enum):
     YES = "YES"
 
 ZBX_TEMPLAR_NAMESPACE = "Zbx Templar"
-ZBX_TEMPLAR_TEMPLATE_GROUP = "Templar Templates"
 _NAMESPACE_UUID = uuid.uuid5(uuid.NAMESPACE_DNS, ZBX_TEMPLAR_NAMESPACE)
 
 def set_uuid_namespace(namespace: str):
@@ -15,26 +14,25 @@ def set_uuid_namespace(namespace: str):
     ZBX_TEMPLAR_NAMESPACE = namespace
     _NAMESPACE_UUID = uuid.uuid5(uuid.NAMESPACE_DNS, namespace)
 
-def set_template_group(group: str):
-    global ZBX_TEMPLAR_TEMPLATE_GROUP
-    ZBX_TEMPLAR_TEMPLATE_GROUP = group
-
 def _make_uuid(seed: str) -> str:
     """Deterministic UUID from seed, masked as UUIDv4. Zabbix rejects UUID5 on import."""
     h = uuid.uuid5(_NAMESPACE_UUID, seed).hex
     return h[:12] + '4' + h[13:16] + hex(0x8 | (int(h[16], 16) & 0x3))[2:] + h[17:]
 
-def _serialize(value):
+def _serialize(value, skip_uuid=False):
     if hasattr(value, 'to_dict'):
-        return value.to_dict()
+        try:
+            return value.to_dict(skip_uuid=skip_uuid)
+        except TypeError:
+            return value.to_dict()
     if isinstance(value, dict):
-        return {k: _serialize(v) for k, v in value.items()}
+        return {k: _serialize(v, skip_uuid) for k, v in value.items()}
     if isinstance(value, list):
-        return [_serialize(v) for v in value]
+        return [_serialize(v, skip_uuid) for v in value]
     if isinstance(value, Enum):
         return value.value
     if hasattr(value, '__dict__') and not isinstance(value, (str, int, float, bool)):
-        return {k: _serialize(v) for k, v in value.__dict__.items()}
+        return {k: _serialize(v, skip_uuid) for k, v in value.__dict__.items()}
     return value
 
 class ZbxEntity:
@@ -43,11 +41,13 @@ class ZbxEntity:
         self.name = name
         self.uuid = _make_uuid(uuid_seed or name)
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self, skip_uuid=False) -> dict[str, Any]:
         # Attributes starting with _ are internal-only (e.g. _host) and skipped here
         result = {}
         for key, value in self.__dict__.items():
             if key.startswith('_'):
+                continue
+            if skip_uuid and key == 'uuid':
                 continue
             if value is None or value == {} or value == []:
                 continue
@@ -55,7 +55,7 @@ class ZbxEntity:
             if list_method:
                 result[key] = list_method()
             else:
-                result[key] = _serialize(value)
+                result[key] = _serialize(value, skip_uuid)
         return result
 
 class Tag:
