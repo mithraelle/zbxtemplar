@@ -158,9 +158,12 @@ class WithMacros():
     def macros_to_list(self):
         return [m.to_dict() for m in self.macros.values()]
 
-    def get_macro(self, name: str) -> Optional[Macro]:
+    def get_macro(self, name: str) -> Macro:
         clean_name = name.replace("{$", "").replace("}", "")
-        return self.macros.get(clean_name)
+        macro = self.macros.get(clean_name)
+        if macro is None:
+            raise KeyError(f"Macro '{{${clean_name}}}' not found on '{self.name}'")
+        return macro
 
 
 

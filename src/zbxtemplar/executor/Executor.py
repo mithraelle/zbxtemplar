@@ -149,6 +149,7 @@ class Executor:
         "graphs": {"createMissing": True, "updateExisting": True},
         "templateDashboards": {"createMissing": True, "updateExisting": True},
         "mediaTypes": {"createMissing": True, "updateExisting": True},
+        "templateLinkage": {"createMissing": True, "deleteMissing": True},
     }
 
     def _apply_file(self, path):

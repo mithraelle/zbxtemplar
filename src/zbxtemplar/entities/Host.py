@@ -86,13 +86,15 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
         return self
 
     def get_macro(self, name: str):
-        macro = super().get_macro(name)
-        if macro is None:
-            for t in self.templates:
-                macro = t.get_macro(name)
-                if macro is not None:
-                    return macro
-        return macro
+        clean_name = name.replace("{$", "").replace("}", "")
+        macro = self.macros.get(clean_name)
+        if macro is not None:
+            return macro
+        for t in self.templates:
+            macro = t.macros.get(clean_name)
+            if macro is not None:
+                return macro
+        raise KeyError(f"Macro '{{${clean_name}}}' not found on host '{self.name}' or its linked templates")
 
     def add_value_map(self, value_map: ValueMap):
         if not any(v.name == value_map.name for v in self.valuemaps):
