@@ -14,36 +14,41 @@ pip install .
 
 The project follows the `src-layout`:
 
-- `zbxtemplar.entities` — Domain models: Template, Item, Trigger, Graph, Dashboard.
+- `zbxtemplar.entities` — Domain models: Template, Host, Item, Trigger, Graph, Dashboard.
 - `zbxtemplar.core` — Module contract (`TemplarModule`), loader, serialization, shared types.
 - `zbxtemplar.main` — CLI entry point.
 
 ## Module Contract
 
-Templates are defined as Python classes that inherit from `TemplarModule`.
-The constructor is the contract — all template logic lives in `__init__`.
+Templates and hosts are defined as Python classes that inherit from `TemplarModule`.
+The constructor is the contract — all configuration logic lives in `__init__`.
 
 ```python
 from zbxtemplar.core import TemplarModule
-from zbxtemplar.entities import Template, Item, Trigger, TriggerPriority, Graph
+from zbxtemplar.entities import Template, Item, Host, TriggerPriority
+from zbxtemplar.entities.Template import TemplateGroup
+from zbxtemplar.entities.Host import HostGroup, AgentInterface
 
-class MyTemplate(TemplarModule):
+class MyModule(TemplarModule):
     def __init__(self):
         super().__init__()
 
-        template = Template(name="My Service")
+        template = Template(name="My Service", groups=[TemplateGroup("Custom Templates")])
         template.add_tag("Service", "MyApp")
         template.add_macro("THRESHOLD", 90, "Alert threshold")
 
-        item = Item("CPU Usage", "system.cpu.util")
+        item = Item("CPU Usage", "system.cpu.util", template.name)
         item.add_trigger("High CPU", "last", ">",
                          template.get_macro("THRESHOLD"),
                          priority=TriggerPriority.HIGH)
         template.add_item(item)
 
+        host = Host("My Server", groups=[HostGroup("Linux Servers")])
+        host.add_template(template)
+        host.add_interface(AgentInterface(ip="192.168.1.10"))
+
         self.templates = [template]
-        self.triggers = []
-        self.graphs = []
+        self.hosts = [host]
 ```
 
 A module file can contain multiple `TemplarModule` subclasses.
@@ -56,29 +61,33 @@ Add a `__main__` guard to run the module directly:
 ```python
 if __name__ == "__main__":
     import yaml
-    module = MyTemplate()
+    module = MyModule()
     print(yaml.dump(module.to_export(), default_flow_style=False, sort_keys=False))
 ```
 
 ## CLI
 
 ```bash
-# Basic usage
+# Combined output (templates + hosts)
 zbxtemplar module.py output.yml
-python -m zbxtemplar module.py output.yml
 
-# With options
-zbxtemplar module.py output.yml \
-    --namespace "My Company" \
-    --template-group "Custom Templates"
+# Separate outputs
+zbxtemplar module.py --templates-output templates.yml --hosts-output hosts.yml
+
+# Combined + separate
+zbxtemplar module.py output.yml --templates-output templates.yml --hosts-output hosts.yml
+
+# With UUID namespace
+zbxtemplar module.py output.yml --namespace "My Company"
 ```
 
 | Argument | Description |
 |---|---|
 | `module` | Path to a `.py` file with `TemplarModule` subclass(es) |
-| `output` | Output YAML file path |
+| `output` | Combined output YAML file path (optional if split outputs are given) |
+| `--templates-output` | Output YAML file path for templates only |
+| `--hosts-output` | Output YAML file path for hosts only |
 | `--namespace` | UUID namespace for deterministic ID generation |
-| `--template-group` | Default template group name |
 
 ## Programmatic Loading
 
@@ -97,11 +106,51 @@ for name, mod in modules.items():
 ### Template
 
 ```python
-template = Template(name="My Template", groups=["Custom Group"])
+template = Template(name="My Template", groups=[TemplateGroup("Custom Group")])
 template.add_tag("Service", "MyApp")
 template.add_macro("TIMEOUT", 30, "Connection timeout")
 template.add_item(item)
 ```
+
+### Host
+
+```python
+from zbxtemplar.entities import Host
+from zbxtemplar.entities.Host import HostGroup, AgentInterface
+
+host = Host("My Host", groups=[HostGroup("Linux Servers")])
+host.add_tag("Environment", "Production")
+host.add_macro("HOST_PORT", 8080, "Application port")
+
+# Link a template
+host.add_template(template)
+
+# Add an interface (first interface becomes the default)
+iface = AgentInterface(ip="192.168.1.10", port="10050")
+host.add_interface(iface)
+
+# Host-level items, triggers, graphs work the same as on templates
+item = Item("Host Uptime", "system.uptime", host.name)
+item.set_interface(iface)
+host.add_item(item)
+
+# Macro lookup walks linked templates when not found on the host
+host.get_macro("TEMPLATE_MACRO")  # falls back to template macros
+```
+
+Hosts produce UUID-free YAML (matching Zabbix export format). Dashboards are template-only and cannot be added to hosts.
+
+`AgentInterface` is the built-in interface type (`type: ZABBIX`). Custom interface types can be created by subclassing `HostInterface`.
+
+### HostGroup
+
+```python
+from zbxtemplar.entities.Host import HostGroup
+
+group = HostGroup("Linux Servers")
+```
+
+Works the same as `TemplateGroup` — name-based identity with a deterministic UUID.
 
 ### Item
 
@@ -170,7 +219,7 @@ from zbxtemplar.entities import Dashboard, DashboardPage
 from zbxtemplar.entities.DashboardWidget import ClassicGraph
 
 page = DashboardPage(name="Overview", display_period=120)
-page.add_widget(ClassicGraph(host=template.name, graph=graph, width=36, height=5))
+page.add_widget(ClassicGraph(template=template.name, graph=graph, width=36, height=5))
 
 dashboard = Dashboard("My Dashboard", display_period=60, auto_start=YesNo.NO)
 dashboard.add_page(page)
