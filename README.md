@@ -186,3 +186,84 @@ from zbxtemplar.core.ZbxEntity import set_uuid_namespace
 
 set_uuid_namespace("My Company")  # Deterministic UUIDs scoped to namespace
 ```
+
+## Executor
+
+The executor is a separate tool that applies generated YAML and other configuration to a live Zabbix instance. Install with the `executor` extra:
+
+```bash
+pip install ".[executor]"
+```
+
+### Commands
+
+```bash
+# Bootstrap or rotate super admin password
+zbxtemplar-exec set_super_admin --new-password $ZBX_ADMIN_PASSWORD \
+  --user Admin --password zabbix --url http://localhost
+
+# Set global macros
+zbxtemplar-exec set_macro SNMP_COMMUNITY public --token $ZBX_TOKEN
+zbxtemplar-exec set_macro macros.yml --token $ZBX_TOKEN
+
+# Import Zabbix-native YAML (templates, hosts, media types, etc.)
+zbxtemplar-exec apply zabbix-native.yml --token $ZBX_TOKEN
+
+# Apply user groups with permissions
+zbxtemplar-exec decree user-groups.yml --token $ZBX_TOKEN
+
+# Create service accounts
+zbxtemplar-exec add_user users.yml --token $ZBX_TOKEN
+```
+
+Connection credentials can be passed via CLI flags (`--url`, `--token`, `--user`, `--password`) or environment variables (`ZABBIX_URL`, `ZABBIX_TOKEN`, `ZABBIX_USER`, `ZABBIX_PASSWORD`).
+
+### Decree — User Groups
+
+A decree file defines user groups with host/template group permissions. All references are by name — the executor resolves IDs at runtime. See [tests/test_user_group.decree.yml](tests/test_user_group.decree.yml) for a reference example.
+
+Named constants for `gui_access`: `DEFAULT`, `INTERNAL`, `LDAP`, `DISABLED`.
+Named constants for `permission`: `NONE`, `READ`, `READ_WRITE`.
+
+### Add User
+
+Creates service accounts and special users. Roles, user groups, and media types are referenced by name. See [tests/test_add_user.yml](tests/test_add_user.yml) for a reference example.
+
+Severity uses comma-separated names instead of bitmasks: `NOT_CLASSIFIED`, `INFORMATION`, `WARNING`, `AVERAGE`, `HIGH`, `DISASTER`.
+
+### Scroll
+
+A scroll is a static YAML file describing a full deployment sequence. Stages execute in a fixed pipeline order: `bootstrap` → `templates` → `state` → `users`.
+
+```yaml
+stages:
+  - stage: bootstrap
+    set_super_admin:
+      password: ${ZBX_ADMIN_PASSWORD}
+    set_macro:
+      - name: SNMP_COMMUNITY
+        value: public
+      - name: DB_PASSWORD
+        value: ${DB_PASSWORD}
+        type: secret
+
+  - stage: templates
+    apply: zabbix-native.yml
+
+  - stage: state
+    decree: user-groups.yml
+
+  - stage: users
+    add_user:
+      - username: zbx-service
+        role: Super admin role
+        password: ${ZBX_SERVICE_PASSWORD}
+```
+
+```bash
+zbxtemplar-exec scroll deploy.scroll.yml --token $ZBX_TOKEN
+zbxtemplar-exec scroll deploy.scroll.yml --from-stage state
+zbxtemplar-exec scroll deploy.scroll.yml --only-stage bootstrap
+```
+
+String values may contain `${ENV_VAR}` references, resolved from the OS environment before any API calls. Missing variables cause a pre-flight failure — no partial execution.

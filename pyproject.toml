@@ -24,6 +24,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+executor = ["zabbix_utils>=2.0"]
 test = ["pytest"]
 
 [project.urls]
@@ -32,6 +33,7 @@ test = ["pytest"]
 
 [project.scripts]
 zbxtemplar = "zbxtemplar.main:main"
+zbxtemplar-exec = "zbxtemplar.executor_main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

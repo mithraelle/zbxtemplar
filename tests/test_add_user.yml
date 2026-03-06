@@ -1,0 +1,16 @@
+add_user:
+  - username: zbx-service
+    role: Super admin role
+    password: ${ZBX_SERVICE_PASSWORD}
+    groups:
+      - Templar Users
+    medias:
+      - type: PagerDuty
+        sendto: service-key-123
+      - type: Email
+        sendto: alerts@example.com
+        severity: AVERAGE,HIGH,DISASTER
+
+  - username: api-reader
+    role: User role
+    token: read-only-token
