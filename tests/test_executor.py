@@ -92,6 +92,17 @@ def test_apply_reads_file_and_imports(tmp_path):
     assert call_kwargs["rules"]["templates"]["createMissing"] is True
 
 
+def test_apply_list_of_files(tmp_path):
+    file1 = tmp_path / "templates.yml"
+    file1.write_text("zabbix_export:\n  version: '7.4'\n")
+    file2 = tmp_path / "hosts.yml"
+    file2.write_text("zabbix_export:\n  version: '7.4'\n")
+
+    api = MagicMock()
+    Executor(api).apply([str(file1), str(file2)])
+    assert api.configuration.import_.call_count == 2
+
+
 # --- set_macro ---
 
 def test_set_macro_creates_new():
@@ -124,6 +135,52 @@ def test_set_macro_secret_type():
     Executor(api).set_macro({"name": "DB_PASSWORD", "value": "s3cret", "type": "secret"})
     api.usermacro.createglobal.assert_called_once_with(
         macro="{$DB_PASSWORD}", value="s3cret", type=1
+    )
+
+
+def test_set_macro_from_file(tmp_path):
+    macro_file = tmp_path / "macros.yml"
+    macro_file.write_text(
+        "set_macro:\n"
+        "  - name: SNMP_COMMUNITY\n"
+        "    value: public\n"
+        "  - name: DB_PASSWORD\n"
+        "    value: s3cret\n"
+        "    type: secret\n"
+    )
+    api = MagicMock()
+    api.usermacro.get.return_value = []
+
+    Executor(api).set_macro(str(macro_file))
+    assert api.usermacro.createglobal.call_count == 2
+    api.usermacro.createglobal.assert_any_call(
+        macro="{$SNMP_COMMUNITY}", value="public", type=0
+    )
+    api.usermacro.createglobal.assert_any_call(
+        macro="{$DB_PASSWORD}", value="s3cret", type=1
+    )
+
+
+def test_set_macro_mixed_list(tmp_path):
+    macro_file = tmp_path / "macros.yml"
+    macro_file.write_text(
+        "set_macro:\n"
+        "  - name: FROM_FILE\n"
+        "    value: file_val\n"
+    )
+    api = MagicMock()
+    api.usermacro.get.return_value = []
+
+    Executor(api).set_macro([
+        str(macro_file),
+        {"name": "INLINE", "value": "inline_val"},
+    ])
+    assert api.usermacro.createglobal.call_count == 2
+    api.usermacro.createglobal.assert_any_call(
+        macro="{$FROM_FILE}", value="file_val", type=0
+    )
+    api.usermacro.createglobal.assert_any_call(
+        macro="{$INLINE}", value="inline_val", type=0
     )
 
 
@@ -166,10 +223,10 @@ def test_set_macro_invalid_type():
     api.usermacro.get.assert_not_called()
 
 
-def test_set_macro_not_a_dict():
+def test_set_macro_string_is_file_path():
     api = MagicMock()
-    with pytest.raises(ValueError, match="expected a mapping"):
-        Executor(api).set_macro("just a string")
+    with pytest.raises(FileNotFoundError):
+        Executor(api).set_macro("nonexistent.yml")
 
 
 # --- decree ---
@@ -253,10 +310,77 @@ def test_decree_invalid_gui_access():
         })
 
 
-def test_decree_missing_user_group_key():
+def test_decree_unknown_keys_ignored():
     api = _decree_api()
-    with pytest.raises(ValueError, match="missing 'user_group'"):
-        Executor(api).decree({"something_else": []})
+    Executor(api).decree({"something_else": []})
+    api.usergroup.create.assert_not_called()
+    api.usergroup.update.assert_not_called()
+
+
+def test_decree_list_of_files(tmp_path):
+    groups_file = tmp_path / "groups.yml"
+    groups_file.write_text(
+        "user_group:\n"
+        "  - name: Ops Team\n"
+        "    gui_access: DEFAULT\n"
+    )
+    users_file = tmp_path / "users.yml"
+    users_file.write_text(
+        "add_user:\n"
+        "  - username: ops-bot\n"
+        "    role: User role\n"
+        "    password: pass123\n"
+    )
+    api = _decree_api()
+    api.role.get.return_value = [{"roleid": "1", "name": "User role"}]
+    api.mediatype.get.return_value = []
+    api.user.get.return_value = []
+
+    Executor(api).decree([str(groups_file), str(users_file)])
+    api.usergroup.create.assert_called_once()
+    api.user.create.assert_called_once()
+
+
+def test_decree_mixed_files_and_inline(tmp_path):
+    groups_file = tmp_path / "groups.yml"
+    groups_file.write_text(
+        "user_group:\n"
+        "  - name: Ops Team\n"
+        "    gui_access: DEFAULT\n"
+    )
+    api = _decree_api()
+    api.role.get.return_value = [{"roleid": "1", "name": "User role"}]
+    api.mediatype.get.return_value = []
+    api.user.get.return_value = []
+
+    Executor(api).decree([
+        str(groups_file),
+        {"add_user": [{"username": "ops-bot", "role": "User role", "password": "pass"}]},
+    ])
+    api.usergroup.create.assert_called_once()
+    api.user.create.assert_called_once()
+
+
+def test_decree_combined_user_group_and_add_user():
+    api = _decree_api()
+    api.role.get.return_value = [{"roleid": "1", "name": "User role"}]
+    api.mediatype.get.return_value = []
+    api.user.get.return_value = []
+    api.token.get.return_value = []
+
+    Executor(api).decree({
+        "user_group": [{
+            "name": "Ops Team",
+            "gui_access": "DEFAULT",
+        }],
+        "add_user": [{
+            "username": "ops-bot",
+            "role": "User role",
+            "password": "pass123",
+        }],
+    })
+    api.usergroup.create.assert_called_once()
+    api.user.create.assert_called_once()
 
 
 # --- add_user ---
@@ -286,11 +410,9 @@ def test_add_user_from_file(monkeypatch):
         [],  # first call: check existing (both users absent)
         [{"userid": "20", "username": "api-reader"}],  # after api-reader create, for token
     ]
+    api.token.get.return_value = []
 
-    import yaml
-    with open(ADD_USER) as f:
-        data = yaml.safe_load(f)
-    Executor(api).add_user(data["add_user"])
+    Executor(api).add_user(str(ADD_USER))
 
     # First user: zbx-service with password, group, medias
     first_call = api.user.create.call_args_list[0][1]
@@ -333,6 +455,7 @@ def test_add_user_creates_token():
         [],  # first call: check existing
         [{"userid": "20", "username": "api-reader"}],  # second call: after create
     ]
+    api.token.get.return_value = []
 
     Executor(api).add_user({
         "username": "api-reader",
@@ -340,6 +463,39 @@ def test_add_user_creates_token():
         "token": "read-only-token",
     })
     api.user.create.assert_called_once()
+    api.token.create.assert_called_once_with(
+        name="api-reader-token",
+        userid="20",
+    )
+
+
+def test_add_user_token_exists_raises():
+    api = _user_api()
+    api.user.get.return_value = [{"userid": "20", "username": "api-reader"}]
+    api.token.get.return_value = [{"tokenid": "55", "name": "api-reader-token"}]
+
+    with pytest.raises(ValueError, match="already exists.*force_token"):
+        Executor(api).add_user({
+            "username": "api-reader",
+            "role": "User role",
+            "token": "read-only-token",
+        })
+    api.token.create.assert_not_called()
+    api.token.delete.assert_not_called()
+
+
+def test_add_user_force_token_recreates():
+    api = _user_api()
+    api.user.get.return_value = [{"userid": "20", "username": "api-reader"}]
+    api.token.get.return_value = [{"tokenid": "55", "name": "api-reader-token"}]
+
+    Executor(api).add_user({
+        "username": "api-reader",
+        "role": "User role",
+        "token": "read-only-token",
+        "force_token": True,
+    })
+    api.token.delete.assert_called_once_with("55")
     api.token.create.assert_called_once_with(
         name="api-reader-token",
         userid="20",

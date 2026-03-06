@@ -19,9 +19,7 @@ stages:
           template_groups:
             - name: Test Template
               permission: READ_WRITE
-
-  - stage: users
-    add_user:
-      - username: api-reader
-        role: User role
-        token: read-only-token
+      add_user:
+        - username: api-reader
+          role: User role
+          token: read-only-token

@@ -63,6 +63,12 @@ class Executor:
 
     def __init__(self, api):
         self._api = api
+        self._base_dir = None
+
+    def _resolve_path(self, path):
+        if self._base_dir and not os.path.isabs(path):
+            return os.path.join(self._base_dir, path)
+        return path
 
     def _resolve(self, data):
         _preflight_env_check(data)
@@ -87,7 +93,24 @@ class Executor:
         if macro_type not in self._MACRO_TYPES:
             raise ValueError(f"{prefix}: invalid type '{macro_type}', expected one of: {', '.join(self._MACRO_TYPES)}")
 
+    def _load_macros_from_file(self, path):
+        with open(self._resolve_path(path)) as f:
+            data = yaml.safe_load(f)
+        if isinstance(data, dict) and "set_macro" in data:
+            data = data["set_macro"]
+        return data if isinstance(data, list) else [data]
+
     def set_macro(self, data):
+        if isinstance(data, str):
+            data = self._load_macros_from_file(data)
+        if isinstance(data, list):
+            flat = []
+            for item in data:
+                if isinstance(item, str):
+                    flat.extend(self._load_macros_from_file(item))
+                else:
+                    flat.append(item)
+            data = flat
         data = self._resolve(data)
         macros = data if isinstance(data, list) else [data]
 
@@ -128,14 +151,20 @@ class Executor:
         "mediaTypes": {"createMissing": True, "updateExisting": True},
     }
 
-    def apply(self, data):
-        path = data if isinstance(data, str) else data["file"]
-        with open(path) as f:
+    def _apply_file(self, path):
+        with open(self._resolve_path(path)) as f:
             yaml_content = f.read()
         self._api.configuration.import_(
             source=yaml_content, format="yaml", rules=self._IMPORT_RULES
         )
         print(f"Imported {path}.")
+
+    def apply(self, data):
+        if isinstance(data, list):
+            for item in data:
+                self._apply_file(item)
+        else:
+            self._apply_file(data)
 
     _GUI_ACCESS = {"DEFAULT": 0, "INTERNAL": 1, "LDAP": 2, "DISABLED": 3}
     _PERMISSIONS = {"NONE": 0, "READ": 2, "READ_WRITE": 3}
@@ -152,21 +181,12 @@ class Executor:
             rights.append({"id": group_lookup[name], "permission": self._PERMISSIONS[perm]})
         return rights
 
-    def decree(self, data):
-        path = data if isinstance(data, str) else None
-        if path:
-            with open(path) as f:
-                data = yaml.safe_load(f)
-
-        if "user_group" not in data:
-            raise ValueError("Decree file missing 'user_group' key")
-
-        # Build name→id lookups
+    def _decree_user_group(self, data):
         host_groups = {g["name"]: g["groupid"] for g in self._api.hostgroup.get(output=["groupid", "name"])}
         template_groups = {g["name"]: g["groupid"] for g in self._api.templategroup.get(output=["groupid", "name"])}
         existing_ugroups = {g["name"]: g["usrgrpid"] for g in self._api.usergroup.get(output=["usrgrpid", "name"])}
 
-        for ug in data["user_group"]:
+        for ug in data:
             name = ug["name"]
             gui = ug.get("gui_access", "DEFAULT")
             if gui not in self._GUI_ACCESS:
@@ -204,7 +224,7 @@ class Executor:
             mask |= self._SEVERITIES[name]
         return mask
 
-    def add_user(self, data):
+    def _decree_add_user(self, data):
         data = self._resolve(data)
         users = data if isinstance(data, list) else [data]
 
@@ -264,20 +284,75 @@ class Executor:
                 userid = existing.get(username) or self._api.user.get(
                     output=["userid"], filter={"username": username}
                 )[0]["userid"]
+                token_name = f"{username}-token"
+                existing_tokens = self._api.token.get(
+                    output=["tokenid", "name"],
+                    userids=userid,
+                    filter={"name": token_name},
+                )
+                if existing_tokens:
+                    if not user.get("force_token"):
+                        raise ValueError(
+                            f"API token '{token_name}' already exists for user '{username}'. "
+                            f"Set force_token: true to delete and recreate."
+                        )
+                    self._api.token.delete(existing_tokens[0]["tokenid"])
+                    print(f"Deleted existing API token for '{username}'.")
                 self._api.token.create(
-                    name=f"{username}-token",
+                    name=token_name,
                     userid=userid,
                 )
                 print(f"Created API token for '{username}'.")
+
+    _DECREE_ACTIONS = (
+        ("user_group", "_decree_user_group"),
+        ("add_user", "_decree_add_user"),
+    )
+
+    def _load_decree_file(self, path):
+        with open(self._resolve_path(path)) as f:
+            return yaml.safe_load(f)
+
+    def _merge_decree(self, sources):
+        merged = {}
+        for src in sources:
+            if isinstance(src, str):
+                src = self._load_decree_file(src)
+            for key in src:
+                merged.setdefault(key, []).extend(
+                    src[key] if isinstance(src[key], list) else [src[key]]
+                )
+        return merged
+
+    def decree(self, data):
+        if isinstance(data, str):
+            data = self._load_decree_file(data)
+        if isinstance(data, list):
+            data = self._merge_decree(data)
+
+        for key, method in self._DECREE_ACTIONS:
+            if key in data:
+                getattr(self, method)(data[key])
+
+    def add_user(self, data):
+        if isinstance(data, str):
+            with open(self._resolve_path(data)) as f:
+                data = yaml.safe_load(f)
+        if isinstance(data, dict):
+            if "add_user" in data:
+                data = data["add_user"]
+            else:
+                data = [data]
+        self._decree_add_user(data)
 
     PIPELINE = (
         ("bootstrap", ("set_super_admin", "set_macro")),
         ("templates", ("apply",)),
         ("state",     ("decree",)),
-        ("users",     ("add_user",)),
     )
 
     def run_scroll(self, scroll_path, from_stage=None, only_stage=None):
+        self._base_dir = os.path.dirname(os.path.abspath(scroll_path))
         with open(scroll_path) as f:
             scroll = yaml.safe_load(f)
 

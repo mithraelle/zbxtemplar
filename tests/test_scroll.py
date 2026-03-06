@@ -30,6 +30,7 @@ def _full_api():
         [],  # existing check
         [{"userid": "20", "username": "api-reader"}],  # after create, for token
     ]
+    api.token.get.return_value = []
     return api
 
 
@@ -70,7 +71,7 @@ def test_scroll_from_stage(monkeypatch):
     # bootstrap should be skipped
     api.user.update.assert_not_called()
     api.usermacro.createglobal.assert_not_called()
-    # state and users should run
+    # state should run (user_group + add_user)
     api.usergroup.create.assert_called_once()
     api.user.create.assert_called_once()
 
@@ -83,3 +84,36 @@ def test_scroll_skips_missing_stage(monkeypatch):
     Executor(api).run_scroll(str(SCROLL))
 
     api.configuration.import_.assert_not_called()
+
+
+def test_scroll_resolves_file_paths_relative_to_scroll_dir(tmp_path, monkeypatch):
+    """File paths in scroll actions resolve relative to the scroll file, not CWD."""
+    monkeypatch.chdir(tmp_path)
+
+    subdir = tmp_path / "deploy"
+    subdir.mkdir()
+
+    macro_file = subdir / "macros.yml"
+    macro_file.write_text(
+        "set_macro:\n"
+        "  - name: FROM_FILE\n"
+        "    value: works\n"
+    )
+
+    scroll_file = subdir / "scroll.yml"
+    scroll_file.write_text(
+        "stages:\n"
+        "  - stage: bootstrap\n"
+        "    set_macro: macros.yml\n"
+    )
+
+    api = MagicMock()
+    api.usermacro.get.return_value = []
+
+    # CWD is tmp_path, scroll is in tmp_path/deploy/
+    # macros.yml should resolve to tmp_path/deploy/macros.yml
+    Executor(api).run_scroll(str(scroll_file))
+
+    api.usermacro.createglobal.assert_called_once_with(
+        macro="{$FROM_FILE}", value="works", type=0
+    )

@@ -258,31 +258,51 @@ zbxtemplar-exec set_macro macros.yml --token $ZBX_TOKEN
 # Import Zabbix-native YAML (templates, hosts, media types, etc.)
 zbxtemplar-exec apply zabbix-native.yml --token $ZBX_TOKEN
 
-# Apply user groups with permissions
-zbxtemplar-exec decree user-groups.yml --token $ZBX_TOKEN
+# Apply state configuration (user groups, users)
+zbxtemplar-exec decree state.yml --token $ZBX_TOKEN
 
-# Create service accounts
+# Create service accounts (shorthand — feeds into decree)
 zbxtemplar-exec add_user users.yml --token $ZBX_TOKEN
 ```
 
 Connection credentials can be passed via CLI flags (`--url`, `--token`, `--user`, `--password`) or environment variables (`ZABBIX_URL`, `ZABBIX_TOKEN`, `ZABBIX_USER`, `ZABBIX_PASSWORD`).
 
-### Decree — User Groups
+### Decree
 
-A decree file defines user groups with host/template group permissions. All references are by name — the executor resolves IDs at runtime. See [tests/test_user_group.decree.yml](tests/test_user_group.decree.yml) for a reference example.
+A decree is zbxtemplar's declarative YAML format for live-state configuration that has no Zabbix-native import format. A single decree file can contain any combination of supported sections, processed in dependency order.
+
+```yaml
+user_group:
+  - name: Templar Users
+    gui_access: INTERNAL
+    host_groups:
+      - name: Linux servers
+        permission: READ
+    template_groups:
+      - name: Custom Templates
+        permission: READ_WRITE
+
+add_user:
+  - username: zbx-service
+    role: Super admin role
+    password: ${ZBX_SERVICE_PASSWORD}
+    groups:
+      - Templar Users
+```
+
+All references are by name — the executor resolves IDs at runtime. In a scroll, `decree` accepts a file path, an inline dict, or a list mixing both.
 
 Named constants for `gui_access`: `DEFAULT`, `INTERNAL`, `LDAP`, `DISABLED`.
 Named constants for `permission`: `NONE`, `READ`, `READ_WRITE`.
-
-### Add User
-
-Creates service accounts and special users. Roles, user groups, and media types are referenced by name. See [tests/test_add_user.yml](tests/test_add_user.yml) for a reference example.
-
 Severity uses comma-separated names instead of bitmasks: `NOT_CLASSIFIED`, `INFORMATION`, `WARNING`, `AVERAGE`, `HIGH`, `DISASTER`.
+
+If a user has `token` defined and the token already exists, the executor raises an error. Set `force_token: true` to delete and recreate the token.
+
+The `add_user` CLI command is a shorthand that feeds a file containing `add_user:` into the decree pipeline.
 
 ### Scroll
 
-A scroll is a static YAML file describing a full deployment sequence. Stages execute in a fixed pipeline order: `bootstrap` → `templates` → `state` → `users`.
+A scroll is a static YAML file describing a full deployment sequence. Stages execute in a fixed pipeline order: `bootstrap` → `templates` → `state`.
 
 ```yaml
 stages:
@@ -297,16 +317,19 @@ stages:
         type: secret
 
   - stage: templates
-    apply: zabbix-native.yml
+    apply:
+      - templates.yml
+      - media-types.yml
 
   - stage: state
-    decree: user-groups.yml
-
-  - stage: users
-    add_user:
-      - username: zbx-service
-        role: Super admin role
-        password: ${ZBX_SERVICE_PASSWORD}
+    decree:
+      user_group:
+        - name: Templar Users
+          gui_access: INTERNAL
+      add_user:
+        - username: zbx-service
+          role: Super admin role
+          password: ${ZBX_SERVICE_PASSWORD}
 ```
 
 ```bash
@@ -315,4 +338,4 @@ zbxtemplar-exec scroll deploy.scroll.yml --from-stage state
 zbxtemplar-exec scroll deploy.scroll.yml --only-stage bootstrap
 ```
 
-String values may contain `${ENV_VAR}` references, resolved from the OS environment before any API calls. Missing variables cause a pre-flight failure — no partial execution.
+File paths in scroll actions resolve relative to the scroll file's directory, not the working directory. String values may contain `${ENV_VAR}` references, resolved from the OS environment before any API calls. Missing variables cause a pre-flight failure — no partial execution.

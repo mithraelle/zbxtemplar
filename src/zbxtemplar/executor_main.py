@@ -34,12 +34,7 @@ def _cmd_set_macro(args):
     if args.value is not None:
         executor.set_macro({"name": args.name_or_file, "value": args.value, "type": args.type})
     else:
-        with open(args.name_or_file) as f:
-            import yaml
-            data = yaml.safe_load(f)
-        if not isinstance(data, dict) or "set_macro" not in data:
-            raise SystemExit(f"Invalid macro file: expected a YAML file with a 'set_macro' key")
-        executor.set_macro(data["set_macro"])
+        executor.set_macro(args.name_or_file)
     return 0
 
 
@@ -60,10 +55,7 @@ def _cmd_decree(args):
 def _cmd_add_user(args):
     api = _make_api(args)
     executor = Executor(api)
-    with open(args.user_file) as f:
-        import yaml
-        data = yaml.safe_load(f)
-    executor.add_user(data["add_user"])
+    executor.add_user(args.user_file)
     return 0
 
 
