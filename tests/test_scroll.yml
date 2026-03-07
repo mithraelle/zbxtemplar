@@ -1,0 +1,25 @@
+stages:
+  - stage: bootstrap
+    set_super_admin:
+      password: ${ZBX_ADMIN_PASSWORD}
+    set_macro:
+      - name: SNMP_COMMUNITY
+        value: public
+
+  - stage: state
+    decree:
+      user_group:
+        - name: Templar Users
+          gui_access: INTERNAL
+          host_groups:
+            - name: Linux servers
+              permission: NONE
+            - name: Virtual machines
+              permission: READ
+          template_groups:
+            - name: Test Template
+              permission: READ_WRITE
+      add_user:
+        - username: api-reader
+          role: User role
+          token: read-only-token

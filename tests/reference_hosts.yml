@@ -34,15 +34,15 @@ zabbix_export:
       trends: 365d
       triggers:
       - name: Host Simple trigger
-        expression: min(/Templar Host/item.test[own],10)>None
+        expression: min(/Templar Host/item.test[own],10)>{$MY_HOST_MACRO}
         priority: HIGH
         description: A single host item trigger
       interface_ref: if1
   triggers:
   - name: Host Complex trigger
     uuid: 3963e32bd2ed483b85f9da9b12a88d8e
-    expression: last(/Templar Host/item.test[own])>{$MY_HOST_MACRO} and last(/Test
-      Template/item.test[2]) < {$MY_MACRO}
+    expression: last(/Templar Host/item.test[own])>{$MY_HOST_MACRO} and last(/Templar
+      Host/item.test[own]) < {$MY_MACRO}
     priority: WARNING
     description: Host trigger using two items
   graphs:

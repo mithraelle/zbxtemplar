@@ -96,7 +96,7 @@ class SampleTemplate(TemplarModule):
         host.add_interface(host_if1)
         host_item.set_interface(host_if1)
         host_item.add_trigger(name="Host Simple trigger", fn="min", op=">",
-                              threshold=template.get_macro("MY_HOST_MACRO"),
+                              threshold=host.get_macro("MY_HOST_MACRO"),
                               priority=TriggerPriority.HIGH, description="A single host item trigger",
                               fn_args=(10,))
 
@@ -105,7 +105,7 @@ class SampleTemplate(TemplarModule):
         host.add_graph(host_graph)
 
         host_trigger_expr = (host_item.expr("last") + ">" + host.get_macro("MY_HOST_MACRO")
-                             + " and " + item2.expr("last") + " < " + host.get_macro("MY_MACRO"))
+                             + " and " + host_item.expr("last") + " < " + host.get_macro("MY_MACRO"))
         host.add_trigger(name="Host Complex trigger", expression=host_trigger_expr,
                          priority=TriggerPriority.WARNING,
                          description="Host trigger using two items")
