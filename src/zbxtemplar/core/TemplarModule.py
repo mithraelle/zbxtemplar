@@ -1,12 +1,19 @@
-import inspect
-import importlib.util
-import os
-
-
 class TemplarModule:
     def __init__(self):
         self.templates = []
         self.hosts = []
+
+    def add_template(self, template):
+        if any(t.name == template.name for t in self.templates):
+            return self
+        self.templates.append(template)
+        return self
+
+    def add_host(self, host):
+        if any(h.name == host.name for h in self.hosts):
+            return self
+        self.hosts.append(host)
+        return self
 
     def _export_templates(self, zx: dict):
         if not self.templates:
@@ -61,16 +68,3 @@ class TemplarModule:
         self._export_hosts(zx)
         self._export_extras(zx, self.templates + self.hosts)
         return export
-
-
-def load_module(filename: str) -> dict:
-    mod_name = os.path.splitext(os.path.basename(filename))[0]
-    spec = importlib.util.spec_from_file_location(mod_name, filename)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-
-    result = {}
-    for name, obj in inspect.getmembers(mod, inspect.isclass):
-        if issubclass(obj, TemplarModule) and obj is not TemplarModule:
-            result[name] = obj()
-    return result

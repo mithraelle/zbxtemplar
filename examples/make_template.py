@@ -50,7 +50,7 @@ class SampleTemplate(TemplarModule):
 
         template.add_graph(graph)
 
-        self.templates = [template]
+        self.add_template(template)
 
         first_page = DashboardPage(display_period=120)
 
@@ -91,7 +91,7 @@ class SampleTemplate(TemplarModule):
         host.add_template(template)
         host_item = Item("Item Own", "item.test[own]", host.name).add_tag("Service", "Testing Host")
         host.add_item(host_item)
-        self.hosts = [host]
+        self.add_host(host)
         host_if1 = AgentInterface()
         host.add_interface(host_if1)
         host_item.set_interface(host_if1)
