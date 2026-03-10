@@ -10,50 +10,57 @@ TESTS = Path(__file__).parent
 class TestZabbixExport:
     def test_template_groups(self):
         ctx = Context().load(str(TESTS / "reference_templates.yml"))
-        assert ctx.template_group_names == {"Templar Templates"}
+        assert ctx.get_template_group("Templar Templates") == "Templar Templates"
+
+    def test_template_group_missing(self):
+        ctx = Context().load(str(TESTS / "reference_templates.yml"))
+        with pytest.raises(ValueError, match="not found in context"):
+            ctx.get_template_group("Nonexistent")
 
     def test_host_groups(self):
         ctx = Context().load(str(TESTS / "reference_hosts.yml"))
-        assert ctx.host_group_names == {"Templar Hosts"}
+        assert ctx.get_host_group("Templar Hosts") == "Templar Hosts"
 
     def test_macros_from_templates(self):
         ctx = Context().load(str(TESTS / "reference_templates.yml"))
-        assert "{$MY_MACRO}" in ctx.macro_names
+        assert ctx.get_macro("{$MY_MACRO}") == "{$MY_MACRO}"
 
     def test_macros_from_hosts(self):
         ctx = Context().load(str(TESTS / "reference_hosts.yml"))
-        assert "{$MY_HOST_MACRO}" in ctx.macro_names
+        assert ctx.get_macro("{$MY_HOST_MACRO}") == "{$MY_HOST_MACRO}"
 
     def test_combined_file(self):
         ctx = Context().load(str(TESTS / "reference_combined.yml"))
-        assert ctx.template_group_names == {"Templar Templates"}
-        assert ctx.host_group_names == {"Templar Hosts"}
-        assert "{$MY_MACRO}" in ctx.macro_names
-        assert "{$MY_HOST_MACRO}" in ctx.macro_names
+        ctx.get_template_group("Templar Templates")
+        ctx.get_host_group("Templar Hosts")
+        ctx.get_macro("{$MY_MACRO}")
+        ctx.get_macro("{$MY_HOST_MACRO}")
 
 
 class TestDecree:
     def test_user_group(self):
         ctx = Context().load(str(TESTS / "test_user_group.decree.yml"))
-        assert ctx.user_group_names == {"Templar Users"}
+        assert ctx.get_user_group("Templar Users") == "Templar Users"
 
     def test_user_group_collects_host_groups(self):
         ctx = Context().load(str(TESTS / "test_user_group.decree.yml"))
-        assert ctx.host_group_names == {"Linux servers", "Virtual machines"}
+        ctx.get_host_group("Linux servers")
+        ctx.get_host_group("Virtual machines")
 
     def test_user_group_collects_template_groups(self):
         ctx = Context().load(str(TESTS / "test_user_group.decree.yml"))
-        assert ctx.template_group_names == {"Test Template"}
+        ctx.get_template_group("Test Template")
 
     def test_add_user_collects_groups(self):
         ctx = Context().load(str(TESTS / "test_add_user.yml"))
-        assert "Templar Users" in ctx.user_group_names
+        ctx.get_user_group("Templar Users")
 
 
 class TestSetMacro:
     def test_macro_names(self):
         ctx = Context().load(str(TESTS / "test_set_macro.yml"))
-        assert ctx.macro_names == {"{$SNMP_COMMUNITY}", "{$DB_PASSWORD}"}
+        ctx.get_macro("{$SNMP_COMMUNITY}")
+        ctx.get_macro("{$DB_PASSWORD}")
 
 
 class TestMultipleLoads:
@@ -63,18 +70,22 @@ class TestMultipleLoads:
         ctx.load(str(TESTS / "reference_hosts.yml"))
         ctx.load(str(TESTS / "test_set_macro.yml"))
         ctx.load(str(TESTS / "test_user_group.decree.yml"))
-        assert ctx.template_group_names == {"Templar Templates", "Test Template"}
-        assert ctx.host_group_names == {"Linux servers", "Templar Hosts", "Virtual machines"}
-        assert ctx.user_group_names == {"Templar Users"}
-        assert "{$MY_MACRO}" in ctx.macro_names
-        assert "{$SNMP_COMMUNITY}" in ctx.macro_names
+        ctx.get_template_group("Templar Templates")
+        ctx.get_template_group("Test Template")
+        ctx.get_host_group("Linux servers")
+        ctx.get_host_group("Templar Hosts")
+        ctx.get_host_group("Virtual machines")
+        ctx.get_user_group("Templar Users")
+        ctx.get_macro("{$MY_MACRO}")
+        ctx.get_macro("{$SNMP_COMMUNITY}")
 
     def test_chaining(self):
         ctx = (Context()
                .load(str(TESTS / "reference_templates.yml"))
                .load(str(TESTS / "test_user_group.decree.yml")))
-        assert ctx.template_group_names == {"Templar Templates", "Test Template"}
-        assert ctx.user_group_names == {"Templar Users"}
+        ctx.get_template_group("Templar Templates")
+        ctx.get_template_group("Test Template")
+        ctx.get_user_group("Templar Users")
 
 
 class TestUnknownFormat:

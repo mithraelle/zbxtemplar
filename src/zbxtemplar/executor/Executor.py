@@ -3,6 +3,9 @@ import re
 
 import yaml
 
+from zbxtemplar.core.constants import GuiAccess, Permission, Severity, MacroType
+from zbxtemplar.core.DecreeEntity import UserGroup, User, UserMedia
+
 
 def _resolve_env(value):
     if not isinstance(value, str):
@@ -80,8 +83,6 @@ class Executor:
         self._api.user.update(userid="1", passwd=password)
         print("Super admin password updated.")
 
-    _MACRO_TYPES = {"text": 0, "secret": 1, "vault": 2}
-
     def _validate_macro(self, macro, index=None):
         prefix = f"macro[{index}]" if index is not None else "macro"
         if not isinstance(macro, dict):
@@ -89,9 +90,9 @@ class Executor:
         for key in ("name", "value"):
             if key not in macro:
                 raise ValueError(f"{prefix}: missing required field '{key}'")
-        macro_type = macro.get("type", "text")
-        if macro_type not in self._MACRO_TYPES:
-            raise ValueError(f"{prefix}: invalid type '{macro_type}', expected one of: {', '.join(self._MACRO_TYPES)}")
+        macro_type = macro.get("type", MacroType.TEXT)
+        if macro_type not in MacroType._API_VALUES:
+            raise ValueError(f"{prefix}: invalid type '{macro_type}', expected one of: {', '.join(MacroType._API_VALUES)}")
 
     def _load_macros_from_file(self, path):
         with open(self._resolve_path(path)) as f:
@@ -125,7 +126,7 @@ class Executor:
         for macro in macros:
             wire_name = "{$" + macro["name"] + "}"
             value = macro["value"]
-            macro_type = self._MACRO_TYPES.get(macro.get("type", "text"), 0)
+            macro_type = MacroType._API_VALUES.get(macro.get("type", MacroType.TEXT), 0)
 
             if wire_name in existing:
                 self._api.usermacro.updateglobal(
@@ -167,19 +168,14 @@ class Executor:
         else:
             self._apply_file(data)
 
-    _GUI_ACCESS = {"DEFAULT": 0, "INTERNAL": 1, "LDAP": 2, "DISABLED": 3}
-    _PERMISSIONS = {"NONE": 0, "READ": 2, "READ_WRITE": 3}
-
     def _resolve_rights(self, groups, group_lookup, label):
         rights = []
         for g in groups:
             name = g["name"]
             if name not in group_lookup:
                 raise ValueError(f"{label} '{name}' not found in Zabbix")
-            perm = g.get("permission", "READ")
-            if perm not in self._PERMISSIONS:
-                raise ValueError(f"Invalid permission '{perm}', expected one of: {', '.join(self._PERMISSIONS)}")
-            rights.append({"id": group_lookup[name], "permission": self._PERMISSIONS[perm]})
+            perm = g.get("permission", Permission.READ)
+            rights.append({"id": group_lookup[name], "permission": Permission._API_VALUES[perm]})
         return rights
 
     def _decree_user_group(self, data):
@@ -187,123 +183,94 @@ class Executor:
         template_groups = {g["name"]: g["groupid"] for g in self._api.templategroup.get(output=["groupid", "name"])}
         existing_ugroups = {g["name"]: g["usrgrpid"] for g in self._api.usergroup.get(output=["usrgrpid", "name"])}
 
-        for ug in data:
-            name = ug["name"]
-            gui = ug.get("gui_access", "DEFAULT")
-            if gui not in self._GUI_ACCESS:
-                raise ValueError(f"Invalid gui_access '{gui}', expected one of: {', '.join(self._GUI_ACCESS)}")
+        for raw in data:
+            ug = UserGroup.from_dict(raw)
+            gui = ug.gui_access or GuiAccess.DEFAULT
+            params = {"name": ug.name, "gui_access": GuiAccess._API_VALUES[gui]}
 
-            params = {"name": name, "gui_access": self._GUI_ACCESS[gui]}
+            if ug.host_groups:
+                params["hostgroup_rights"] = self._resolve_rights(ug.host_groups, host_groups, "Host group")
+            if ug.template_groups:
+                params["templategroup_rights"] = self._resolve_rights(ug.template_groups, template_groups, "Template group")
 
-            if "host_groups" in ug:
-                params["hostgroup_rights"] = self._resolve_rights(ug["host_groups"], host_groups, "Host group")
-            if "template_groups" in ug:
-                params["templategroup_rights"] = self._resolve_rights(ug["template_groups"], template_groups, "Template group")
-
-            if name in existing_ugroups:
-                params["usrgrpid"] = existing_ugroups[name]
+            if ug.name in existing_ugroups:
+                params["usrgrpid"] = existing_ugroups[ug.name]
                 del params["name"]
                 self._api.usergroup.update(**params)
-                print(f"Updated user group '{name}'.")
+                print(f"Updated user group '{ug.name}'.")
             else:
                 self._api.usergroup.create(**params)
-                print(f"Created user group '{name}'.")
-
-    _SEVERITIES = {
-        "NOT_CLASSIFIED": 1, "INFORMATION": 2, "WARNING": 4,
-        "AVERAGE": 8, "HIGH": 16, "DISASTER": 32,
-    }
-
-    def _parse_severity(self, value):
-        if isinstance(value, int):
-            return value
-        mask = 0
-        for name in value.split(","):
-            name = name.strip()
-            if name not in self._SEVERITIES:
-                raise ValueError(f"Invalid severity '{name}', expected one of: {', '.join(self._SEVERITIES)}")
-            mask |= self._SEVERITIES[name]
-        return mask
+                print(f"Created user group '{ug.name}'.")
 
     def _decree_add_user(self, data):
         data = self._resolve(data)
-        users = data if isinstance(data, list) else [data]
+        raw_users = data if isinstance(data, list) else [data]
 
-        # Build lookups
         roles = {r["name"]: r["roleid"] for r in self._api.role.get(output=["roleid", "name"])}
         ugroups = {g["name"]: g["usrgrpid"] for g in self._api.usergroup.get(output=["usrgrpid", "name"])}
         media_types = {m["name"]: m["mediatypeid"] for m in self._api.mediatype.get(output=["mediatypeid", "name"])}
         existing = {u["username"]: u["userid"] for u in self._api.user.get(output=["userid", "username"])}
 
-        for user in users:
-            username = user["username"]
-            role_name = user["role"]
-            if role_name not in roles:
-                raise ValueError(f"Role '{role_name}' not found in Zabbix")
+        for raw in raw_users:
+            user = User.from_dict(raw)
 
-            params = {"username": username, "roleid": roles[role_name]}
+            if user.role not in roles:
+                raise ValueError(f"Role '{user.role}' not found in Zabbix")
+            params = {"username": user.username, "roleid": roles[user.role]}
 
-            if "password" in user:
-                params["passwd"] = user["password"]
+            if user.password:
+                params["passwd"] = user.password
 
-            if "groups" in user:
+            if user.groups:
                 usrgrps = []
-                for gname in user["groups"]:
+                for gname in user.groups:
                     if gname not in ugroups:
                         raise ValueError(f"User group '{gname}' not found in Zabbix")
                     usrgrps.append({"usrgrpid": ugroups[gname]})
                 params["usrgrps"] = usrgrps
 
-            if "medias" in user:
+            if user.medias:
                 medias = []
-                for m in user["medias"]:
-                    type_name = m["type"]
-                    if type_name not in media_types:
-                        raise ValueError(f"Media type '{type_name}' not found in Zabbix")
-                    media = {
-                        "mediatypeid": media_types[type_name],
-                        "sendto": m["sendto"],
-                    }
-                    if "severity" in m:
-                        media["severity"] = self._parse_severity(m["severity"])
-                    if "period" in m:
-                        media["period"] = m["period"]
+                for m in user.medias:
+                    if m.type not in media_types:
+                        raise ValueError(f"Media type '{m.type}' not found in Zabbix")
+                    media = {"mediatypeid": media_types[m.type], "sendto": m.sendto}
+                    if m.severity is not None:
+                        media["severity"] = Severity.mask(m.severity)
+                    if m.period is not None:
+                        media["period"] = m.period
                     medias.append(media)
                 params["medias"] = medias
 
-            if username in existing:
-                params["userid"] = existing[username]
+            if user.username in existing:
+                params["userid"] = existing[user.username]
                 del params["username"]
                 self._api.user.update(**params)
-                print(f"Updated user '{username}'.")
+                print(f"Updated user '{user.username}'.")
             else:
                 self._api.user.create(**params)
-                print(f"Created user '{username}'.")
+                print(f"Created user '{user.username}'.")
 
-            # Create API token if requested
-            if "token" in user:
-                userid = existing.get(username) or self._api.user.get(
-                    output=["userid"], filter={"username": username}
+            if user.token:
+                userid = existing.get(user.username) or self._api.user.get(
+                    output=["userid"], filter={"username": user.username}
                 )[0]["userid"]
-                token_name = f"{username}-token"
+                token_name = f"{user.username}-token"
                 existing_tokens = self._api.token.get(
                     output=["tokenid", "name"],
                     userids=userid,
                     filter={"name": token_name},
                 )
                 if existing_tokens:
-                    if not user.get("force_token"):
+                    if not user.force_token:
                         raise ValueError(
-                            f"API token '{token_name}' already exists for user '{username}'. "
+                            f"API token '{token_name}' already exists for user '{user.username}'. "
                             f"Set force_token: true to delete and recreate."
                         )
                     self._api.token.delete(existing_tokens[0]["tokenid"])
-                    print(f"Deleted existing API token for '{username}'.")
-                self._api.token.create(
-                    name=token_name,
-                    userid=userid,
-                )
-                print(f"Created API token for '{username}'.")
+                    print(f"Deleted existing API token for '{user.username}'.")
+                self._api.token.create(name=token_name, userid=userid)
+                print(f"Created API token for '{user.username}'.")
 
     _DECREE_ACTIONS = (
         ("user_group", "_decree_user_group"),

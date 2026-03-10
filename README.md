@@ -1,8 +1,8 @@
 # zbxtemplar
 
-A Pythonic framework for programmatic Zabbix Template generation (Monitoring as Code).
+A Pythonic framework for programmatic Zabbix configuration generation (Monitoring as Code).
 
-The goal is to cover the essential Zabbix configuration primitives — not every possible option. If you need a field that isn't exposed, raw dicts and string expressions give you an escape hatch.
+Define templates, hosts, user groups, and users as Python code. Generate Zabbix-native YAML (importable via UI or API) and decree YAML (applied by the executor). The goal is to cover the essential Zabbix configuration primitives — not every possible option. If you need a field that isn't exposed, raw dicts and string expressions give you an escape hatch.
 
 ## Installation
 
@@ -15,13 +15,15 @@ pip install .
 The project follows the `src-layout`:
 
 - `zbxtemplar.entities` — Domain models: Template, Host, Item, Trigger, Graph, Dashboard.
-- `zbxtemplar.core` — Module contract (`TemplarModule`), loader, serialization, shared types.
-- `zbxtemplar.main` — CLI entry point.
+- `zbxtemplar.core` — Base classes (`TemplarModule`, `DecreeModule`), entity classes (`DecreeEntity`, `UserGroup`, `User`, `UserMedia`), context loader (`Context`), predefined constants, serialization.
+- `zbxtemplar.main` — CLI entry point and module loader.
+- `zbxtemplar.executor` — Applies generated artifacts to a live Zabbix instance.
 
 ## Module Contract
 
-Templates and hosts are defined as Python classes that inherit from `TemplarModule`.
-The constructor is the contract — all configuration logic lives in `__init__`.
+Configuration is defined as Python classes that inherit from `TemplarModule` (monitoring) or `DecreeModule` (users/groups). The constructor is the contract — all configuration logic lives in `__init__`.
+
+Constructor arguments become CLI parameters via `--param KEY=VALUE`. The loader inspects the `__init__` signature and performs type coercion based on annotations (`str`, `int`, `float`, `bool`).
 
 ```python
 from zbxtemplar.core import TemplarModule
@@ -30,12 +32,12 @@ from zbxtemplar.entities.Template import TemplateGroup
 from zbxtemplar.entities.Host import HostGroup, AgentInterface
 
 class MyModule(TemplarModule):
-    def __init__(self):
+    def __init__(self, alert_threshold: int = 90):
         super().__init__()
 
         template = Template(name="My Service", groups=[TemplateGroup("Custom Templates")])
         template.add_tag("Service", "MyApp")
-        template.add_macro("THRESHOLD", 90, "Alert threshold")
+        template.add_macro("THRESHOLD", alert_threshold, "Alert threshold")
 
         item = Item("CPU Usage", "system.cpu.util", template.name)
         item.add_trigger("High CPU", "last", ">",
@@ -47,12 +49,11 @@ class MyModule(TemplarModule):
         host.add_template(template)
         host.add_interface(AgentInterface(ip="192.168.1.10"))
 
-        self.templates = [template]
-        self.hosts = [host]
+        self.add_template(template)
+        self.add_host(host)
 ```
 
-A module file can contain multiple `TemplarModule` subclasses.
-The loader discovers all of them by class name.
+The loader discovers all `TemplarModule` and `DecreeModule` subclasses in the file by class name.
 
 ### Running standalone
 
@@ -67,38 +68,49 @@ if __name__ == "__main__":
 
 ## CLI
 
+Single command, auto-detects module type:
+
 ```bash
 # Combined output (templates + hosts)
-zbxtemplar module.py output.yml
+zbxtemplar module.py -o output.yml
 
 # Separate outputs
 zbxtemplar module.py --templates-output templates.yml --hosts-output hosts.yml
 
-# Combined + separate
-zbxtemplar module.py output.yml --templates-output templates.yml --hosts-output hosts.yml
-
 # With UUID namespace
-zbxtemplar module.py output.yml --namespace "My Company"
+zbxtemplar module.py -o output.yml --namespace "My Company"
+
+# With parameters
+zbxtemplar module.py -o output.yml --param ENV=prod --param ALERT_THRESHOLD=5
+
+# Decree module with context
+zbxtemplar decree_module.py -o decree.yml --context templates.yml --context hosts.yml
 ```
 
 | Argument | Description |
 |---|---|
-| `module` | Path to a `.py` file with `TemplarModule` subclass(es) |
-| `output` | Combined output YAML file path (optional if split outputs are given) |
-| `--templates-output` | Output YAML file path for templates only |
-| `--hosts-output` | Output YAML file path for hosts only |
+| `module` | Path to a `.py` file with `TemplarModule`/`DecreeModule` subclass(es) |
+| `-o, --output` | Combined output YAML file path |
+| `--templates-output` | Output YAML for templates only (TemplarModule) |
+| `--hosts-output` | Output YAML for hosts only (TemplarModule) |
+| `--user-groups-output` | Output YAML for user groups only (DecreeModule) |
+| `--users-output` | Output YAML for users only (DecreeModule) |
 | `--namespace` | UUID namespace for deterministic ID generation |
+| `--param KEY=VALUE` | Parameter passed to the module constructor (repeatable) |
+| `--context FILE` | Context YAML file for decree validation (repeatable) |
+
+At least one output flag is required.
 
 ## Programmatic Loading
 
 ```python
-from zbxtemplar.core import load_module
+from zbxtemplar.main import load_module
 
-modules = load_module("path/to/module.py")
+modules = load_module("path/to/module.py", params={"ENV": "prod"})
 # Returns {"ClassName": <instance>, ...}
 
 for name, mod in modules.items():
-    export = mod.to_export()  # Full zabbix_export dict
+    export = mod.to_export()  # Full zabbix_export or decree dict
 ```
 
 ## Entities Reference
@@ -227,6 +239,64 @@ template.add_dashboard(dashboard)
 ```
 
 Widgets are concrete subclasses of `Widget` (abstract). Each widget type lives in `zbxtemplar.entities.DashboardWidget`. Creating custom widgets is straightforward — subclass `Widget`, define `type` and `widget_fields()`.
+
+## DecreeModule
+
+Decree modules generate user groups and users as decree YAML (consumed by the executor).
+
+```python
+from zbxtemplar.core import DecreeModule
+from zbxtemplar.core.constants import MediaType, UserRole, GuiAccess, Permission, Severity
+from zbxtemplar.core.DecreeEntity import UserGroup, User, UserMedia
+
+class MyDecree(DecreeModule):
+    def __init__(self, alert_email: str = "alerts@example.com"):
+        super().__init__()
+
+        group = UserGroup("Operations", gui_access=GuiAccess.INTERNAL)
+        group.add_host_group("Linux servers", Permission.READ)
+        group.add_template_group("Custom Templates", Permission.READ_WRITE)
+        self.add_user_group(group)
+
+        admin = User("zbx-admin", role=UserRole.SUPER_ADMIN)
+        admin.set_password("${ZBX_ADMIN_PASSWORD}")
+        admin.add_group(group)
+
+        email = UserMedia(MediaType.EMAIL, alert_email)
+        email.set_severity([Severity.AVERAGE, Severity.HIGH, Severity.DISASTER])
+        admin.add_media(email)
+        self.add_user(admin)
+```
+
+Context files provide known names for cross-reference validation:
+
+```bash
+zbxtemplar decree_module.py -o decree.yml --context templates.yml --context hosts.yml
+```
+
+## Predefined Constants
+
+Commonly referenced Zabbix objects are available as typed constants with IDE autocomplete:
+
+```python
+from zbxtemplar.core.constants import MediaType, UserRole, GuiAccess, Permission, Severity
+
+MediaType.EMAIL       # "Email"
+MediaType.SLACK       # "Slack"
+MediaType.PAGERDUTY   # "PagerDuty"
+UserRole.SUPER_ADMIN  # "Super admin role"
+```
+
+| Class | Values |
+|---|---|
+| `MediaType` | 41 built-in media types (Zabbix 7.4) |
+| `UserRole` | `SUPER_ADMIN`, `ADMIN`, `USER`, `GUEST` |
+| `GuiAccess` | `DEFAULT`, `INTERNAL`, `LDAP`, `DISABLED` |
+| `Permission` | `NONE`, `READ`, `READ_WRITE` |
+| `Severity` | `NOT_CLASSIFIED`, `INFORMATION`, `WARNING`, `AVERAGE`, `HIGH`, `DISASTER` |
+| `MacroType` | `TEXT`, `SECRET`, `VAULT` |
+
+Constants are a convenience, not a requirement — plain strings work anywhere a constant is expected.
 
 ## Global Configuration
 

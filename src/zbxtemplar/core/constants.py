@@ -48,3 +48,53 @@ class UserRole:
     ADMIN = "Admin role"
     USER = "User role"
     GUEST = "Guest role"
+
+
+class GuiAccess:
+    """User group GUI access modes."""
+    DEFAULT = "DEFAULT"
+    INTERNAL = "INTERNAL"
+    LDAP = "LDAP"
+    DISABLED = "DISABLED"
+
+    _API_VALUES = {"DEFAULT": 0, "INTERNAL": 1, "LDAP": 2, "DISABLED": 3}
+
+
+class Permission:
+    """Host/template group permission levels."""
+    NONE = "NONE"
+    READ = "READ"
+    READ_WRITE = "READ_WRITE"
+
+    _API_VALUES = {"NONE": 0, "READ": 2, "READ_WRITE": 3}
+
+
+class Severity:
+    """Trigger severity levels."""
+    NOT_CLASSIFIED = "NOT_CLASSIFIED"
+    INFORMATION = "INFORMATION"
+    WARNING = "WARNING"
+    AVERAGE = "AVERAGE"
+    HIGH = "HIGH"
+    DISASTER = "DISASTER"
+
+    _API_VALUES = {
+        "NOT_CLASSIFIED": 1, "INFORMATION": 2, "WARNING": 4,
+        "AVERAGE": 8, "HIGH": 16, "DISASTER": 32,
+    }
+
+    @staticmethod
+    def mask(severities: list) -> int:
+        mask = 0
+        for s in severities:
+            mask |= Severity._API_VALUES[s]
+        return mask
+
+
+class MacroType:
+    """Global macro types."""
+    TEXT = "text"
+    SECRET = "secret"
+    VAULT = "vault"
+
+    _API_VALUES = {"text": 0, "secret": 1, "vault": 2}

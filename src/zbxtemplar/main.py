@@ -15,15 +15,20 @@ _COERCE = {int: int, float: float, bool: lambda v: v.lower() in ("1", "true", "y
 _BASE_CLASSES = (TemplarModule, DecreeModule)
 
 
+_LOADER_INJECTED = {"context"}
+
+
 def _build_kwargs(cls_name, sig, params):
     init_params = {k: v for k, v in sig.parameters.items() if k != "self"}
 
-    unknown = set(params) - set(init_params)
+    unknown = set(params) - set(init_params) - _LOADER_INJECTED
     if unknown:
         raise TypeError(f"{cls_name}: unknown parameter(s): {', '.join(sorted(unknown))}")
 
     kwargs = {}
     for pname, param in init_params.items():
+        if pname in _LOADER_INJECTED:
+            continue
         if pname in params:
             value = params[pname]
             ann = param.annotation
@@ -53,9 +58,9 @@ def load_module(filename: str, params: dict = None, context: Context = None) -> 
             if issubclass(obj, base) and obj is not base:
                 sig = inspect.signature(obj.__init__)
                 kwargs = _build_kwargs(name, sig, params)
+                if issubclass(obj, DecreeModule) and context is not None:
+                    kwargs["context"] = context
                 instance = obj(**kwargs)
-                if isinstance(instance, DecreeModule) and context is not None:
-                    instance.context = context
                 result[name] = instance
                 break
     return result

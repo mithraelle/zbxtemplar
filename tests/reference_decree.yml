@@ -1,0 +1,32 @@
+user_group:
+- name: Templar Users
+  gui_access: INTERNAL
+  host_groups:
+  - name: Linux servers
+    permission: NONE
+  - name: Virtual machines
+    permission: READ
+  - name: Templar Hosts
+    permission: READ
+  template_groups:
+  - name: Templar Templates
+    permission: READ_WRITE
+add_user:
+- username: zbx-admin
+  role: Super admin role
+  password: ${ZBX_ADMIN_PASSWORD}
+  groups:
+  - Templar Users
+  medias:
+  - type: Email
+    sendto: alerts@example.com
+    severity: AVERAGE,HIGH,DISASTER
+  - type: Slack
+    sendto: '#ops-alerts'
+- username: zbx-service
+  role: User role
+  password: ${ZBX_SERVICE_PASSWORD}
+  groups:
+  - Templar Users
+  token: monitoring-ro
+  force_token: true
