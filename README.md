@@ -15,7 +15,8 @@ pip install .
 The project follows the `src-layout`:
 
 - `zbxtemplar.entities` — Domain models: Template, Host, Item, Trigger, Graph, Dashboard.
-- `zbxtemplar.core` — Base classes (`TemplarModule`, `DecreeModule`), entity classes (`DecreeEntity`, `UserGroup`, `User`, `UserMedia`), context loader (`Context`), predefined constants, serialization.
+- `zbxtemplar.core` — Base classes (`TemplarModule`, `DecreeModule`, `DecreeEntity`), context loader (`Context`), predefined constants, serialization.
+- `zbxtemplar.decree` — Decree domain classes: `UserGroup`, `User`, `UserMedia`, `Action`, `TriggerAction`, conditions, operations.
 - `zbxtemplar.main` — CLI entry point and module loader.
 - `zbxtemplar.executor` — Applies generated artifacts to a live Zabbix instance.
 
@@ -95,6 +96,7 @@ zbxtemplar decree_module.py -o decree.yml --context templates.yml --context host
 | `--hosts-output` | Output YAML for hosts only (TemplarModule) |
 | `--user-groups-output` | Output YAML for user groups only (DecreeModule) |
 | `--users-output` | Output YAML for users only (DecreeModule) |
+| `--actions-output` | Output YAML for actions only (DecreeModule) |
 | `--namespace` | UUID namespace for deterministic ID generation |
 | `--param KEY=VALUE` | Parameter passed to the module constructor (repeatable) |
 | `--context FILE` | Context YAML file for decree validation (repeatable) |
@@ -242,12 +244,12 @@ Widgets are concrete subclasses of `Widget` (abstract). Each widget type lives i
 
 ## DecreeModule
 
-Decree modules generate user groups and users as decree YAML (consumed by the executor).
+Decree modules generate user groups, users, and actions as decree YAML (consumed by the executor).
 
 ```python
 from zbxtemplar.core import DecreeModule
 from zbxtemplar.core.constants import MediaType, UserRole, GuiAccess, Permission, Severity
-from zbxtemplar.core.DecreeEntity import UserGroup, User, UserMedia
+from zbxtemplar.decree import UserGroup, User, UserMedia
 
 class MyDecree(DecreeModule):
     def __init__(self, alert_email: str = "alerts@example.com"):
@@ -273,6 +275,78 @@ Context files provide known names for cross-reference validation:
 ```bash
 zbxtemplar decree_module.py -o decree.yml --context templates.yml --context hosts.yml
 ```
+
+### Actions
+
+Actions define automated responses to events. Currently supported: `TriggerAction` (eventsource 0).
+
+```python
+from zbxtemplar.decree.Action import TriggerAction
+from zbxtemplar.decree.action_conditions import (
+    HostGroupCondition, SeverityCondition, HostTemplateCondition,
+    TagCondition, ConditionList, EvalType,
+)
+
+action = TriggerAction("Notify on production problems")
+
+# Conditions — use & (and), | (or), ~ (not) operators
+action.set_conditions(
+    HostGroupCondition("Production") & SeverityCondition(Severity.HIGH)
+)
+
+# Or use a ConditionList for simpler AND/OR/AND_OR evaluation
+conditions = ConditionList(EvalType.AND_OR)
+conditions.add(HostGroupCondition("Production"))
+conditions.add(SeverityCondition(Severity.HIGH))
+action.set_conditions(conditions)
+
+# Operations — escalation with send_message
+action.operations.send_message(
+    groups=["Operations"], step_from=1, step_to=3,
+    subject="Problem: {EVENT.NAME}", message="Host: {HOST.NAME}"
+)
+
+# Recovery and update operations (no escalation)
+action.recovery_operations.send_message(groups=["Operations"])
+action.update_operations.send_message(groups=["Operations"])
+
+self.add_action(action)
+```
+
+#### Condition expressions
+
+Bare expressions are auto-wrapped into `ConditionExpression` (evaltype 3 with formula):
+
+```python
+a = HostGroupCondition("Production")
+b = HostGroupCondition("Staging")
+c = SeverityCondition(Severity.HIGH)
+
+action.set_conditions((a | b) & c)       # formula: "(A or B) and C"
+action.set_conditions(a & ~b)            # formula: "A and not B"
+```
+
+Python's `&`, `|`, `~` operator precedence matches Zabbix's `and`, `or`, `not` — parentheses are generated automatically when needed.
+
+**Safety:** Using Python's `and`/`or`/`not` keywords instead of `&`/`|`/`~` raises `TypeError` immediately (conditions override `__bool__`).
+
+#### Available condition types
+
+All 26 Zabbix condition types are supported (conditiontype 0–28). Each has a typed `Op` enum restricting to valid operators only. Common ones:
+
+| Class | conditiontype | Default operator |
+|---|---|---|
+| `HostGroupCondition` | 0 | EQUALS |
+| `HostCondition` | 1 | EQUALS |
+| `TriggerCondition` | 2 | EQUALS |
+| `EventNameCondition` | 3 | CONTAINS |
+| `SeverityCondition` | 4 | GREATER_OR_EQUAL |
+| `TriggerValueCondition` | 5 | EQUALS |
+| `HostTemplateCondition` | 13 | EQUALS |
+| `TagCondition` | 25 | EQUALS |
+| `TagValueCondition` | 26 | EQUALS |
+
+All condition classes are in `zbxtemplar.decree.action_conditions`.
 
 ## Predefined Constants
 
@@ -328,7 +402,7 @@ zbxtemplar-exec set_macro macros.yml --token $ZBX_TOKEN
 # Import Zabbix-native YAML (templates, hosts, media types, etc.)
 zbxtemplar-exec apply zabbix-native.yml --token $ZBX_TOKEN
 
-# Apply state configuration (user groups, users)
+# Apply state configuration (user groups, users, actions)
 zbxtemplar-exec decree state.yml --token $ZBX_TOKEN
 
 # Create service accounts (shorthand — feeds into decree)
@@ -339,7 +413,7 @@ Connection credentials can be passed via CLI flags (`--url`, `--token`, `--user`
 
 ### Decree
 
-A decree is zbxtemplar's declarative YAML format for live-state configuration that has no Zabbix-native import format. A single decree file can contain any combination of supported sections, processed in dependency order.
+A decree is zbxtemplar's declarative YAML format for live-state configuration that has no Zabbix-native import format. A single decree file can contain any combination of supported sections, processed in dependency order: `user_group` → `add_user` → `actions`.
 
 ```yaml
 user_group:
@@ -358,9 +432,32 @@ add_user:
     password: ${ZBX_SERVICE_PASSWORD}
     groups:
       - Templar Users
+
+actions:
+  - name: Notify on problems
+    eventsource: 0
+    operations:
+      - operationtype: 0
+        opmessage_grp:
+          - usrgrpid: Templar Users
+        esc_step_from: 1
+        esc_step_to: 1
+        esc_period: 0
+    filter:
+      evaltype: 3
+      formula: A and B
+      conditions:
+        - conditiontype: 0
+          operator: 0
+          value: Linux servers
+          formulaid: A
+        - conditiontype: 4
+          operator: 5
+          value: HIGH
+          formulaid: B
 ```
 
-All references are by name — the executor resolves IDs at runtime. In a scroll, `decree` accepts a file path, an inline dict, or a list mixing both.
+All references are by name — the executor resolves IDs at runtime (host groups, templates, user groups, users, media types in conditions and operations). In a scroll, `decree` accepts a file path, an inline dict, or a list mixing both.
 
 Named constants for `gui_access`: `DEFAULT`, `INTERNAL`, `LDAP`, `DISABLED`.
 Named constants for `permission`: `NONE`, `READ`, `READ_WRITE`.

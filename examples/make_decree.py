@@ -1,6 +1,10 @@
+from sympy.physics.units import action
+
 from zbxtemplar.core import DecreeModule
 from zbxtemplar.core.constants import MediaType, UserRole, GuiAccess, Permission, Severity
-from zbxtemplar.core.DecreeEntity import UserGroup, User, UserMedia
+from zbxtemplar.decree import UserGroup, User, UserMedia
+from zbxtemplar.decree.Action import TriggerAction
+from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition
 
 
 class SampleDecree(DecreeModule):
@@ -29,6 +33,13 @@ class SampleDecree(DecreeModule):
         service.add_group(ops_group)
         service.set_token("monitoring-ro", force=True)
         self.add_user(service)
+
+        test_action = TriggerAction("Test Action")
+        test_action.operations.send_message(groups=["Templar Users"], message="Test message")
+        self.add_action(test_action)
+        group_condition = HostGroupCondition("Templar Hosts")
+        template_condition = HostTemplateCondition("Test Template")
+        test_action.set_conditions(group_condition | template_condition)
 
 
 if __name__ == "__main__":

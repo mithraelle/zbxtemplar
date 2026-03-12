@@ -28,7 +28,7 @@ class Context:
             raise ValueError(f"User group '{name}' not found in context")
         return name
 
-    _KNOWN_KEYS = {"zabbix_export", "set_macro", "user_group", "add_user"}
+    _KNOWN_KEYS = {"zabbix_export", "set_macro", "user_group", "add_user", "actions"}
 
     def load(self, filename: str):
         with open(filename) as f:
