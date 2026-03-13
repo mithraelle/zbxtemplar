@@ -3,7 +3,7 @@ from typing import Union
 
 from zbxtemplar.core.DecreeEntity import DecreeEntity
 from zbxtemplar.decree.action_conditions import ConditionList, ConditionExpression, ConditionExpr
-from zbxtemplar.decree.action_operations import TriggerOperations, TriggerAckOperations
+from zbxtemplar.decree.action_operations import TriggerOperations, TriggerAckOperations, AutoregistrationOperations
 
 
 class Action(DecreeEntity, ABC):
@@ -60,3 +60,14 @@ class TriggerAction(Action):
 
     def update_operations_to_list(self) -> list:
         return self.update_operations.to_list()
+
+
+class AutoregistrationAction(Action):
+    eventsource = 2
+
+    def __init__(self, name: str):
+        super().__init__(name)
+        self.operations = AutoregistrationOperations()
+
+    def operations_to_list(self) -> list:
+        return self.operations.to_list()

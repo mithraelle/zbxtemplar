@@ -1,10 +1,10 @@
-from sympy.physics.units import action
+from packaging.metadata import Metadata
 
 from zbxtemplar.core import DecreeModule
 from zbxtemplar.core.constants import MediaType, UserRole, GuiAccess, Permission, Severity
 from zbxtemplar.decree import UserGroup, User, UserMedia
-from zbxtemplar.decree.Action import TriggerAction
-from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition
+from zbxtemplar.decree.Action import TriggerAction, AutoregistrationAction
+from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition
 
 
 class SampleDecree(DecreeModule):
@@ -40,6 +40,12 @@ class SampleDecree(DecreeModule):
         group_condition = HostGroupCondition("Templar Hosts")
         template_condition = HostTemplateCondition("Test Template")
         test_action.set_conditions(group_condition | template_condition)
+
+        test_registration = AutoregistrationAction("Test Registration")
+        test_registration.operations.add_host()
+        test_registration.operations.link_template(context.get_template("Test Template"))
+        test_registration.set_conditions(HostMetadataCondition("test", HostMetadataCondition.Op.CONTAINS))
+        self.add_action(test_registration)
 
 
 if __name__ == "__main__":

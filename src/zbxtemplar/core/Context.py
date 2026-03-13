@@ -6,6 +6,8 @@ class Context:
         self._macros = {}
         self._template_groups = {}
         self._host_groups = {}
+        self._templates = {}
+        self._hosts = {}
         self._user_groups = {}
 
     def get_macro(self, name: str) -> str:
@@ -21,6 +23,16 @@ class Context:
     def get_host_group(self, name: str) -> str:
         if name not in self._host_groups:
             raise ValueError(f"Host group '{name}' not found in context")
+        return name
+
+    def get_template(self, name: str) -> str:
+        if name not in self._templates:
+            raise ValueError(f"Template '{name}' not found in context")
+        return name
+
+    def get_host(self, name: str) -> str:
+        if name not in self._hosts:
+            raise ValueError(f"Host '{name}' not found in context")
         return name
 
     def get_user_group(self, name: str) -> str:
@@ -58,9 +70,11 @@ class Context:
         for g in zx.get("host_groups", []):
             self._host_groups[g["name"]] = g
         for t in zx.get("templates", []):
+            self._templates[t["name"]] = t
             for m in t.get("macros", []):
                 self._macros[m["macro"]] = m
         for h in zx.get("hosts", []):
+            self._hosts[h["name"]] = h
             for m in h.get("macros", []):
                 self._macros[m["macro"]] = m
 

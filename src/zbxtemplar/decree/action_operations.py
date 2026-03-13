@@ -71,6 +71,113 @@ class TriggerOperations:
         return [op.to_dict() for op in self._ops]
 
 
+class AddHostOperation:
+    operationtype = 2
+
+    def to_dict(self) -> dict:
+        return {"operationtype": self.operationtype}
+
+
+class AddToGroupOperation:
+    operationtype = 4
+
+    def __init__(self, group: str):
+        self.group = group
+
+    def to_dict(self) -> dict:
+        return {
+            "operationtype": self.operationtype,
+            "opgroup": [{"groupid": self.group}],
+        }
+
+
+class LinkTemplateOperation:
+    operationtype = 6
+
+    def __init__(self, template: str):
+        self.template = template
+
+    def to_dict(self) -> dict:
+        return {
+            "operationtype": self.operationtype,
+            "optemplate": [{"templateid": self.template}],
+        }
+
+
+class EnableHostOperation:
+    operationtype = 8
+
+    def to_dict(self) -> dict:
+        return {"operationtype": self.operationtype}
+
+
+class DisableHostOperation:
+    operationtype = 9
+
+    def to_dict(self) -> dict:
+        return {"operationtype": self.operationtype}
+
+
+class SetInventoryModeOperation:
+    operationtype = 10
+
+    MANUAL = 0
+    AUTOMATIC = 1
+
+    def __init__(self, inventory_mode: int = MANUAL):
+        self.inventory_mode = inventory_mode
+
+    def to_dict(self) -> dict:
+        return {
+            "operationtype": self.operationtype,
+            "opinventory": {"inventory_mode": self.inventory_mode},
+        }
+
+
+class AutoregistrationOperations:
+    def __init__(self):
+        self._ops: List = []
+
+    def send_message(self, users: Optional[List[str]] = None,
+                     groups: Optional[List[str]] = None,
+                     media_type: Optional[str] = None,
+                     subject: Optional[str] = None,
+                     message: Optional[str] = None) -> 'AutoregistrationOperations':
+        self._ops.append(SendMessageOperation(
+            users=users, groups=groups,
+            media_type=media_type, subject=subject,
+            message=message,
+        ))
+        return self
+
+    def add_host(self) -> 'AutoregistrationOperations':
+        self._ops.append(AddHostOperation())
+        return self
+
+    def add_to_group(self, group: str) -> 'AutoregistrationOperations':
+        self._ops.append(AddToGroupOperation(group))
+        return self
+
+    def link_template(self, template: str) -> 'AutoregistrationOperations':
+        self._ops.append(LinkTemplateOperation(template))
+        return self
+
+    def enable_host(self) -> 'AutoregistrationOperations':
+        self._ops.append(EnableHostOperation())
+        return self
+
+    def disable_host(self) -> 'AutoregistrationOperations':
+        self._ops.append(DisableHostOperation())
+        return self
+
+    def set_inventory_mode(self, mode: int = SetInventoryModeOperation.MANUAL) -> 'AutoregistrationOperations':
+        self._ops.append(SetInventoryModeOperation(mode))
+        return self
+
+    def to_list(self) -> list:
+        return [op.to_dict() for op in self._ops]
+
+
 class TriggerAckOperations:
     def __init__(self):
         self._ops: List[SendMessageOperation] = []
