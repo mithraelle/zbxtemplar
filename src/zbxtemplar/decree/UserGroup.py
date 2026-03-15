@@ -1,5 +1,23 @@
-from zbxtemplar.core.DecreeEntity import DecreeEntity, _validate
-from zbxtemplar.core.constants import GuiAccess, Permission
+from zbxtemplar.decree.DecreeEntity import DecreeEntity, _validate
+
+
+class GuiAccess:
+    """User group GUI access modes."""
+    DEFAULT = "DEFAULT"
+    INTERNAL = "INTERNAL"
+    LDAP = "LDAP"
+    DISABLED = "DISABLED"
+
+    _API_VALUES = {"DEFAULT": 0, "INTERNAL": 1, "LDAP": 2, "DISABLED": 3}
+
+
+class Permission:
+    """Host/template group permission levels."""
+    NONE = "NONE"
+    READ = "READ"
+    READ_WRITE = "READ_WRITE"
+
+    _API_VALUES = {"NONE": 0, "READ": 2, "READ_WRITE": 3}
 
 
 class UserGroup(DecreeEntity):

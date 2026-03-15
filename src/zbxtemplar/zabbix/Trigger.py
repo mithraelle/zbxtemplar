@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Optional
 
-from zbxtemplar.core.ZbxEntity import ZbxEntity, WithTags
+from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags
 
 
 class TriggerPriority(str, Enum):

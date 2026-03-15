@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import List
 
-from zbxtemplar.core.ZbxEntity import ZbxEntity, YesNo
+from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, YesNo
 
 
 class _WidgetRefCounter:

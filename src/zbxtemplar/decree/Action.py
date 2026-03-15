@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Union
 
-from zbxtemplar.core.DecreeEntity import DecreeEntity
+from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.decree.action_conditions import ConditionList, ConditionExpression, ConditionExpr
 from zbxtemplar.decree.action_operations import TriggerOperations, TriggerAckOperations, AutoregistrationOperations
 

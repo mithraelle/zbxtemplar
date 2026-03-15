@@ -14,9 +14,9 @@ pip install .
 
 The project follows the `src-layout`:
 
-- `zbxtemplar.entities` — Domain models: Template, Host, Item, Trigger, Graph, Dashboard.
-- `zbxtemplar.core` — Base classes (`TemplarModule`, `DecreeModule`, `DecreeEntity`), context loader (`Context`), predefined constants, serialization.
-- `zbxtemplar.decree` — Decree domain classes: `UserGroup`, `User`, `UserMedia`, `Action`, `TriggerAction`, conditions, operations.
+- `zbxtemplar.zabbix` — Domain models: Template, Host, Item, Trigger, Graph, Dashboard.
+- `zbxtemplar.core` — Module contracts (`TemplarModule`, `DecreeModule`) and entity registry (`Context`).
+- `zbxtemplar.decree` — Decree domain classes: `DecreeEntity`, `UserGroup`, `User`, `UserMedia`, `Action`, `TriggerAction`, conditions, operations, and predefined constants.
 - `zbxtemplar.main` — CLI entry point and module loader.
 - `zbxtemplar.executor` — Applies generated artifacts to a live Zabbix instance.
 
@@ -28,9 +28,9 @@ Constructor arguments become CLI parameters via `--param KEY=VALUE`. The loader 
 
 ```python
 from zbxtemplar.core import TemplarModule
-from zbxtemplar.entities import Template, Item, Host, TriggerPriority
-from zbxtemplar.entities.Template import TemplateGroup
-from zbxtemplar.entities.Host import HostGroup, AgentInterface
+from zbxtemplar.zabbix import Template, Item, Host, TriggerPriority
+from zbxtemplar.zabbix.Template import TemplateGroup
+from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 
 class MyModule(TemplarModule):
     def __init__(self, alert_threshold: int = 90):
@@ -129,8 +129,8 @@ template.add_item(item)
 ### Host
 
 ```python
-from zbxtemplar.entities import Host
-from zbxtemplar.entities.Host import HostGroup, AgentInterface
+from zbxtemplar.zabbix import Host
+from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 
 host = Host("My Host", groups=[HostGroup("Linux Servers")])
 host.add_tag("Environment", "Production")
@@ -159,7 +159,7 @@ Hosts produce UUID-free YAML (matching Zabbix export format). Dashboards are tem
 ### HostGroup
 
 ```python
-from zbxtemplar.entities.Host import HostGroup
+from zbxtemplar.zabbix.Host import HostGroup
 
 group = HostGroup("Linux Servers")
 ```
@@ -229,8 +229,8 @@ graph.add_item(item2, "00FF00",
 ### Dashboard
 
 ```python
-from zbxtemplar.entities import Dashboard, DashboardPage
-from zbxtemplar.entities.DashboardWidget import ClassicGraph
+from zbxtemplar.zabbix import Dashboard, DashboardPage
+from zbxtemplar.zabbix.DashboardWidget import ClassicGraph
 
 page = DashboardPage(name="Overview", display_period=120)
 page.add_widget(ClassicGraph(template=template.name, graph=graph, width=36, height=5))
@@ -240,7 +240,7 @@ dashboard.add_page(page)
 template.add_dashboard(dashboard)
 ```
 
-Widgets are concrete subclasses of `Widget` (abstract). Each widget type lives in `zbxtemplar.entities.DashboardWidget`. Creating custom widgets is straightforward — subclass `Widget`, define `type` and `widget_fields()`.
+Widgets are concrete subclasses of `Widget` (abstract). Each widget type lives in `zbxtemplar.zabbix.DashboardWidget`. Creating custom widgets is straightforward — subclass `Widget`, define `type` and `widget_fields()`.
 
 ## DecreeModule
 
@@ -248,8 +248,7 @@ Decree modules generate user groups, users, and actions as decree YAML (consumed
 
 ```python
 from zbxtemplar.core import DecreeModule
-from zbxtemplar.core.constants import MediaType, UserRole, GuiAccess, Permission, Severity
-from zbxtemplar.decree import UserGroup, User, UserMedia
+from zbxtemplar.decree import UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
 
 class MyDecree(DecreeModule):
     def __init__(self, alert_email: str = "alerts@example.com"):
@@ -353,7 +352,7 @@ All condition classes are in `zbxtemplar.decree.action_conditions`.
 Commonly referenced Zabbix objects are available as typed constants with IDE autocomplete:
 
 ```python
-from zbxtemplar.core.constants import MediaType, UserRole, GuiAccess, Permission, Severity
+from zbxtemplar.decree import MediaType, UserRole, GuiAccess, Permission, Severity
 
 MediaType.EMAIL       # "Email"
 MediaType.SLACK       # "Slack"
@@ -375,7 +374,7 @@ Constants are a convenience, not a requirement — plain strings work anywhere a
 ## Global Configuration
 
 ```python
-from zbxtemplar.core.ZbxEntity import set_uuid_namespace
+from zbxtemplar.zabbix.ZbxEntity import set_uuid_namespace
 
 set_uuid_namespace("My Company")  # Deterministic UUIDs scoped to namespace
 ```

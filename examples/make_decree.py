@@ -1,8 +1,7 @@
 from packaging.metadata import Metadata
 
 from zbxtemplar.core import DecreeModule
-from zbxtemplar.core.constants import MediaType, UserRole, GuiAccess, Permission, Severity
-from zbxtemplar.decree import UserGroup, User, UserMedia
+from zbxtemplar.decree import UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
 from zbxtemplar.decree.Action import TriggerAction, AutoregistrationAction
 from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition
 

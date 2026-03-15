@@ -1,5 +1,26 @@
-from zbxtemplar.core.DecreeEntity import DecreeEntity, _validate
-from zbxtemplar.core.constants import Severity
+from zbxtemplar.decree.DecreeEntity import DecreeEntity, _validate
+
+
+class Severity:
+    """Trigger severity levels."""
+    NOT_CLASSIFIED = "NOT_CLASSIFIED"
+    INFORMATION = "INFORMATION"
+    WARNING = "WARNING"
+    AVERAGE = "AVERAGE"
+    HIGH = "HIGH"
+    DISASTER = "DISASTER"
+
+    _API_VALUES = {
+        "NOT_CLASSIFIED": 1, "INFORMATION": 2, "WARNING": 4,
+        "AVERAGE": 8, "HIGH": 16, "DISASTER": 32,
+    }
+
+    @staticmethod
+    def mask(severities: list) -> int:
+        mask = 0
+        for s in severities:
+            mask |= Severity._API_VALUES[s]
+        return mask
 from zbxtemplar.decree.UserGroup import UserGroup
 
 

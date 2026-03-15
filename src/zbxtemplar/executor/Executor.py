@@ -3,8 +3,7 @@ import re
 
 import yaml
 
-from zbxtemplar.core.constants import GuiAccess, Permission, Severity, MacroType
-from zbxtemplar.decree import UserGroup, User, UserMedia
+from zbxtemplar.decree import UserGroup, User, UserMedia, GuiAccess, Permission, Severity, MacroType
 
 
 def _resolve_env(value):

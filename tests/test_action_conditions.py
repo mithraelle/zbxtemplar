@@ -11,7 +11,7 @@ from zbxtemplar.decree.action_conditions import (
     SuppressedCondition,
     HostNameCondition,
 )
-from zbxtemplar.core.constants import Severity
+from zbxtemplar.decree import Severity
 
 
 # --- Condition to_dict ---

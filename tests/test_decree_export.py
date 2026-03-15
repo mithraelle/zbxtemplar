@@ -4,8 +4,7 @@ import pytest
 import yaml
 
 from zbxtemplar.core import DecreeModule, Context
-from zbxtemplar.core.constants import MediaType, UserRole, GuiAccess, Permission, Severity
-from zbxtemplar.decree import UserGroup, User, UserMedia
+from zbxtemplar.decree import UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
 
 TESTS = Path(__file__).parent
 

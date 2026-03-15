@@ -1,5 +1,5 @@
-from zbxtemplar.entities.Dashboard import Widget, WidgetField, WidgetFieldType
-from zbxtemplar.entities.Graph import Graph
+from zbxtemplar.zabbix.Dashboard import Widget, WidgetField, WidgetFieldType
+from zbxtemplar.zabbix.Graph import Graph
 
 
 class ClassicGraph(Widget):

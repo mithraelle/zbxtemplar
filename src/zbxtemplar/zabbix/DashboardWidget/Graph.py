@@ -1,8 +1,8 @@
 from abc import ABC
 from enum import IntEnum
 
-from zbxtemplar.entities import Item
-from zbxtemplar.entities.Dashboard import Widget, WidgetField, WidgetFieldType
+from zbxtemplar.zabbix import Item
+from zbxtemplar.zabbix.Dashboard import Widget, WidgetField, WidgetFieldType
 
 
 class AggregateFunc(IntEnum):

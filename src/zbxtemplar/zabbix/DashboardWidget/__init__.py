@@ -1,0 +1,1 @@
+from zbxtemplar.zabbix.DashboardWidget.ClassicGraph import ClassicGraph

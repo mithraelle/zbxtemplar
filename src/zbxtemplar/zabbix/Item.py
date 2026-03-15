@@ -1,8 +1,8 @@
 from enum import Enum
-from typing import List, Union
+from typing import List
 
-from zbxtemplar.core.ZbxEntity import ZbxEntity, WithTags
-from zbxtemplar.entities.Trigger import Trigger, TriggerPriority
+from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags
+from zbxtemplar.zabbix.Trigger import Trigger, TriggerPriority
 
 
 class ItemType(str, Enum):

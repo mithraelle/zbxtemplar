@@ -1,8 +1,8 @@
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Union
 
-from zbxtemplar.core.ZbxEntity import ZbxEntity, YesNo
-from zbxtemplar.entities import Item
+from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, YesNo
+from zbxtemplar.zabbix import Item
 
 
 class GraphType(str, Enum):

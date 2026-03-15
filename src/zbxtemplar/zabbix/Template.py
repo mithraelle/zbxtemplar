@@ -1,11 +1,11 @@
 from typing import Dict, List, Union
 from enum import Enum
 
-from zbxtemplar.core.ZbxEntity import ZbxEntity, WithTags, WithMacros, WithGroups
-from zbxtemplar.entities.Trigger import WithTriggers
-from zbxtemplar.entities.Graph import WithGraphs
-from zbxtemplar.entities.Dashboard import Widget, Dashboard
-from zbxtemplar.entities.Item import Item
+from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags, WithMacros, WithGroups
+from zbxtemplar.zabbix.Trigger import WithTriggers
+from zbxtemplar.zabbix.Graph import WithGraphs
+from zbxtemplar.zabbix.Dashboard import Dashboard
+from zbxtemplar.zabbix.Item import Item
 
 
 class TemplateGroup(ZbxEntity):

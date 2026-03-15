@@ -1,14 +1,14 @@
 from zbxtemplar.core import TemplarModule
-from zbxtemplar.core.ZbxEntity import YesNo
-from zbxtemplar.entities import Template, Item, Trigger, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
+from zbxtemplar.zabbix.ZbxEntity import YesNo
+from zbxtemplar.zabbix import Template, Item, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
     DashboardPage, Host
-from zbxtemplar.entities.DashboardWidget import ClassicGraph
-from zbxtemplar.entities.DashboardWidget import Graph as dashGraph
-from zbxtemplar.entities.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
-from zbxtemplar.entities.DashboardWidget.SimpleGraph import SimpleGraph
-from zbxtemplar.entities.Item import ItemType
-from zbxtemplar.entities.Template import TemplateGroup, ValueMap, ValueMapType
-from zbxtemplar.entities.Host import HostGroup, AgentInterface
+from zbxtemplar.zabbix.DashboardWidget import ClassicGraph
+from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph
+from zbxtemplar.zabbix.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
+from zbxtemplar.zabbix.DashboardWidget.SimpleGraph import SimpleGraph
+from zbxtemplar.zabbix.Item import ItemType
+from zbxtemplar.zabbix.Template import TemplateGroup, ValueMap, ValueMapType
+from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 
 
 class SampleTemplate(TemplarModule):

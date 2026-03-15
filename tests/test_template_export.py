@@ -3,17 +3,17 @@ from pathlib import Path
 import yaml
 
 from zbxtemplar.core import TemplarModule
-from zbxtemplar.core.ZbxEntity import YesNo
-from zbxtemplar.entities import Template, Item, Trigger, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
+from zbxtemplar.zabbix.ZbxEntity import YesNo
+from zbxtemplar.zabbix import Template, Item, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
     DashboardPage, Host, HostGroup
-from zbxtemplar.entities.Host import AgentInterface
-from zbxtemplar.entities.Template import TemplateGroup
-from zbxtemplar.entities.DashboardWidget import Graph as dashGraph
-from zbxtemplar.entities.DashboardWidget import ClassicGraph
-from zbxtemplar.entities.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
-from zbxtemplar.entities.DashboardWidget.SimpleGraph import SimpleGraph
-from zbxtemplar.entities.Item import ItemType
-from zbxtemplar.entities.Template import ValueMap, ValueMapType
+from zbxtemplar.zabbix.Host import AgentInterface
+from zbxtemplar.zabbix.Template import TemplateGroup
+from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph
+from zbxtemplar.zabbix.DashboardWidget import ClassicGraph
+from zbxtemplar.zabbix.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
+from zbxtemplar.zabbix.DashboardWidget.SimpleGraph import SimpleGraph
+from zbxtemplar.zabbix.Item import ItemType
+from zbxtemplar.zabbix.Template import ValueMap, ValueMapType
 
 REFERENCE_COMBINED = Path(__file__).parent / "reference_combined.yml"
 REFERENCE_TEMPLATES = Path(__file__).parent / "reference_templates.yml"

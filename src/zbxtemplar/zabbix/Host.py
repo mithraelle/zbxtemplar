@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import List, Union
 
-from zbxtemplar.core.ZbxEntity import ZbxEntity, YesNo, WithTags, WithMacros, WithGroups
-from zbxtemplar.entities.Trigger import WithTriggers
-from zbxtemplar.entities.Graph import WithGraphs
-from zbxtemplar.entities.Item import Item
-from zbxtemplar.entities.Template import Template, ValueMap
+from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, YesNo, WithTags, WithMacros, WithGroups
+from zbxtemplar.zabbix.Trigger import WithTriggers
+from zbxtemplar.zabbix.Graph import WithGraphs
+from zbxtemplar.zabbix.Item import Item
+from zbxtemplar.zabbix.Template import Template, ValueMap
 
 
 class HostGroup(ZbxEntity):

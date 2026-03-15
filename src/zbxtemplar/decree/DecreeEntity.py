@@ -1,3 +1,12 @@
+class MacroType:
+    """Global macro types."""
+    TEXT = "text"
+    SECRET = "secret"
+    VAULT = "vault"
+
+    _API_VALUES = {"text": 0, "secret": 1, "vault": 2}
+
+
 class MediaType:
     """Zabbix built-in media type names (as of 7.4)."""
     BREVIS_ONE = "Brevis.one"
@@ -50,51 +59,24 @@ class UserRole:
     GUEST = "Guest role"
 
 
-class GuiAccess:
-    """User group GUI access modes."""
-    DEFAULT = "DEFAULT"
-    INTERNAL = "INTERNAL"
-    LDAP = "LDAP"
-    DISABLED = "DISABLED"
-
-    _API_VALUES = {"DEFAULT": 0, "INTERNAL": 1, "LDAP": 2, "DISABLED": 3}
+def _validate(value, allowed, label):
+    if value not in allowed:
+        raise ValueError(f"Invalid {label} '{value}', expected one of: {', '.join(allowed)}")
 
 
-class Permission:
-    """Host/template group permission levels."""
-    NONE = "NONE"
-    READ = "READ"
-    READ_WRITE = "READ_WRITE"
-
-    _API_VALUES = {"NONE": 0, "READ": 2, "READ_WRITE": 3}
-
-
-class Severity:
-    """Trigger severity levels."""
-    NOT_CLASSIFIED = "NOT_CLASSIFIED"
-    INFORMATION = "INFORMATION"
-    WARNING = "WARNING"
-    AVERAGE = "AVERAGE"
-    HIGH = "HIGH"
-    DISASTER = "DISASTER"
-
-    _API_VALUES = {
-        "NOT_CLASSIFIED": 1, "INFORMATION": 2, "WARNING": 4,
-        "AVERAGE": 8, "HIGH": 16, "DISASTER": 32,
-    }
-
-    @staticmethod
-    def mask(severities: list) -> int:
-        mask = 0
-        for s in severities:
-            mask |= Severity._API_VALUES[s]
-        return mask
-
-
-class MacroType:
-    """Global macro types."""
-    TEXT = "text"
-    SECRET = "secret"
-    VAULT = "vault"
-
-    _API_VALUES = {"text": 0, "secret": 1, "vault": 2}
+class DecreeEntity:
+    def to_dict(self) -> dict:
+        result = {}
+        for key, value in self.__dict__.items():
+            if key.startswith('_'):
+                continue
+            if value is None or value == {} or value == []:
+                continue
+            list_method = getattr(self, f'{key}_to_list', None)
+            if list_method:
+                items = list_method()
+                if items:
+                    result[key] = items
+            else:
+                result[key] = value
+        return result
