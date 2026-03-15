@@ -52,6 +52,13 @@ class Context:
 
     _KNOWN_KEYS = {"zabbix_export", "set_macro", "user_group", "add_user", "actions"}
 
+    @staticmethod
+    def _upsert(registry: dict, key, obj):
+        if key in registry:
+            registry[key].__dict__.update(obj.__dict__)
+        else:
+            registry[key] = obj
+
     def load(self, filename: str):
         with open(filename) as f:
             data = yaml.safe_load(f)
@@ -76,13 +83,15 @@ class Context:
 
     def _load_zabbix_export(self, zx: dict):
         for g in zx.get("template_groups", []):
-            self._template_groups[g["name"]] = TemplateGroup(g["name"])
+            self._upsert(self._template_groups, g["name"], TemplateGroup(g["name"]))
         for g in zx.get("host_groups", []):
-            self._host_groups[g["name"]] = HostGroup(g["name"])
+            self._upsert(self._host_groups, g["name"], HostGroup(g["name"]))
         for t in zx.get("templates", []):
-            self._templates[t["name"]] = Template.from_dict(t, template_groups=self._template_groups)
+            self._upsert(self._templates, t["name"],
+                         Template.from_dict(t, template_groups=self._template_groups))
         for h in zx.get("hosts", []):
-            self._hosts[h["name"]] = Host.from_dict(h, host_groups=self._host_groups, templates=self._templates)
+            self._upsert(self._hosts, h["name"],
+                         Host.from_dict(h, host_groups=self._host_groups, templates=self._templates))
         for tr in zx.get("triggers", []):
             trigger = Trigger.from_dict(tr)
             owner_name = re.search(r'/([^/]+)/', tr.get("expression", ""))
@@ -96,12 +105,12 @@ class Context:
     def _load_set_macro(self, macros: list):
         for m in macros:
             macro = Macro.from_dict(m)
-            self._macros[macro.name] = macro
+            self._upsert(self._macros, macro.name, macro)
 
     def _load_user_group(self, groups: list):
         for g in groups:
             ug = UserGroup.from_dict(g, host_groups=self._host_groups, template_groups=self._template_groups)
-            self._user_groups[ug.name] = ug
+            self._upsert(self._user_groups, ug.name, ug)
 
     def _load_add_user(self, users: list):
         for u in users:

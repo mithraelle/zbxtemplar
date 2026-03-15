@@ -125,6 +125,42 @@ class TestMultipleLoads:
         ctx.get_user_group("Templar Users")
 
 
+    def test_reverse_order_preserves_identity(self):
+        """Host loaded first creates a stub template; templates loaded second upgrades in-place.
+        Host object keeps its reference to the same template object."""
+        ctx = Context()
+        ctx.load(str(TESTS / "reference_hosts.yml"))
+
+        host = ctx.get_host("Templar Host")
+        linked_tmpl = host.templates[0]
+        assert linked_tmpl.name == "Test Template"
+        assert len(linked_tmpl.items) == 0  # stub — no items yet
+
+        # Load templates — should upgrade the stub, not replace it
+        ctx.load(str(TESTS / "reference_templates.yml"))
+
+        tmpl_rich = ctx.get_template("Test Template")
+        assert tmpl_rich is linked_tmpl  # same object
+        assert len(linked_tmpl.items) == 3  # now has items
+        assert host.templates[0] is tmpl_rich  # host still points to it
+
+    def test_reverse_order_host_group_upgraded(self):
+        """Host group stub from hosts file gets upgraded when combined file reloads it."""
+        ctx = Context()
+        ctx.load(str(TESTS / "reference_hosts.yml"))
+
+        hg = ctx.get_host_group("Templar Hosts")
+        host = ctx.get_host("Templar Host")
+        assert host.groups[0] is hg
+
+        # Reload from combined — same host group should be upgraded in-place
+        ctx.load(str(TESTS / "reference_combined.yml"))
+
+        hg_after = ctx.get_host_group("Templar Hosts")
+        assert hg_after is hg
+        assert host.groups[0] is hg  # host still references the same object
+
+
 class TestUnknownFormat:
     def test_scroll_rejected(self):
         with pytest.raises(ValueError, match="unknown format"):

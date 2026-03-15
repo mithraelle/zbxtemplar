@@ -5,6 +5,8 @@ import yaml
 
 from zbxtemplar.core import DecreeModule, Context
 from zbxtemplar.decree import UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
+from zbxtemplar.decree.Action import TriggerAction, AutoregistrationAction
+from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition
 
 TESTS = Path(__file__).parent
 
@@ -13,10 +15,13 @@ class SampleDecree(DecreeModule):
     def __init__(self, context=None):
         super().__init__(context=context)
 
+        test_host_group = context.get_host_group("Templar Hosts")
+        test_template = context.get_template("Test Template")
+
         ops_group = UserGroup("Templar Users", gui_access=GuiAccess.INTERNAL)
         ops_group.add_host_group("Linux servers", Permission.NONE)
         ops_group.add_host_group("Virtual machines", Permission.READ)
-        ops_group.add_host_group(context.get_host_group("Templar Hosts"), Permission.READ)
+        ops_group.add_host_group(test_host_group, Permission.READ)
         ops_group.add_template_group(context.get_template_group("Templar Templates"), Permission.READ_WRITE)
         self.add_user_group(ops_group)
 
@@ -35,6 +40,19 @@ class SampleDecree(DecreeModule):
         service.set_token("monitoring-ro", force=True)
         self.add_user(service)
 
+        action = TriggerAction("Test Action")
+        action.operations.send_message(groups=[ops_group], message="Test message")
+        action.set_conditions(
+            HostGroupCondition(test_host_group) | HostTemplateCondition(test_template)
+        )
+        self.add_action(action)
+
+        reg = AutoregistrationAction("Test Registration")
+        reg.operations.add_host()
+        reg.operations.link_template(test_template)
+        reg.set_conditions(HostMetadataCondition("test", HostMetadataCondition.Op.CONTAINS))
+        self.add_action(reg)
+
 
 def _load_context():
     return (Context()
@@ -48,6 +66,17 @@ def test_decree_matches_reference():
     export = module.to_export()
 
     with open(TESTS / "reference_decree.yml") as f:
+        expected = yaml.safe_load(f)
+
+    assert export == expected
+
+
+def test_actions_export_matches_reference():
+    ctx = _load_context()
+    module = SampleDecree(context=ctx)
+    export = module.export_actions()
+
+    with open(TESTS / "reference_actions.yml") as f:
         expected = yaml.safe_load(f)
 
     assert export == expected
