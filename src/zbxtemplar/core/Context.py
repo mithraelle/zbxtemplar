@@ -1,4 +1,13 @@
+import re
+
 import yaml
+
+from zbxtemplar.decree.UserGroup import UserGroup
+from zbxtemplar.decree.User import User
+from zbxtemplar.zabbix.ZbxEntity import Macro
+from zbxtemplar.zabbix.Template import Template, TemplateGroup
+from zbxtemplar.zabbix.Host import Host, HostGroup
+from zbxtemplar.zabbix.Trigger import Trigger
 
 
 class Context:
@@ -10,35 +19,36 @@ class Context:
         self._hosts = {}
         self._user_groups = {}
 
-    def get_macro(self, name: str) -> str:
-        if name not in self._macros:
+    def get_macro(self, name: str) -> Macro:
+        clean = name.replace("{$", "").replace("}", "")
+        if clean not in self._macros:
             raise ValueError(f"Macro '{name}' not found in context")
-        return name
+        return self._macros[clean]
 
-    def get_template_group(self, name: str) -> str:
+    def get_template_group(self, name: str) -> TemplateGroup:
         if name not in self._template_groups:
             raise ValueError(f"Template group '{name}' not found in context")
-        return name
+        return self._template_groups[name]
 
-    def get_host_group(self, name: str) -> str:
+    def get_host_group(self, name: str) -> HostGroup:
         if name not in self._host_groups:
             raise ValueError(f"Host group '{name}' not found in context")
-        return name
+        return self._host_groups[name]
 
-    def get_template(self, name: str) -> str:
+    def get_template(self, name: str) -> Template:
         if name not in self._templates:
             raise ValueError(f"Template '{name}' not found in context")
-        return name
+        return self._templates[name]
 
-    def get_host(self, name: str) -> str:
+    def get_host(self, name: str) -> Host:
         if name not in self._hosts:
             raise ValueError(f"Host '{name}' not found in context")
-        return name
+        return self._hosts[name]
 
-    def get_user_group(self, name: str) -> str:
+    def get_user_group(self, name: str) -> UserGroup:
         if name not in self._user_groups:
             raise ValueError(f"User group '{name}' not found in context")
-        return name
+        return self._user_groups[name]
 
     _KNOWN_KEYS = {"zabbix_export", "set_macro", "user_group", "add_user", "actions"}
 
@@ -66,31 +76,33 @@ class Context:
 
     def _load_zabbix_export(self, zx: dict):
         for g in zx.get("template_groups", []):
-            self._template_groups[g["name"]] = g
+            self._template_groups[g["name"]] = TemplateGroup(g["name"])
         for g in zx.get("host_groups", []):
-            self._host_groups[g["name"]] = g
+            self._host_groups[g["name"]] = HostGroup(g["name"])
         for t in zx.get("templates", []):
-            self._templates[t["name"]] = t
-            for m in t.get("macros", []):
-                self._macros[m["macro"]] = m
+            self._templates[t["name"]] = Template.from_dict(t, template_groups=self._template_groups)
         for h in zx.get("hosts", []):
-            self._hosts[h["name"]] = h
-            for m in h.get("macros", []):
-                self._macros[m["macro"]] = m
+            self._hosts[h["name"]] = Host.from_dict(h, host_groups=self._host_groups, templates=self._templates)
+        for tr in zx.get("triggers", []):
+            trigger = Trigger.from_dict(tr)
+            owner_name = re.search(r'/([^/]+)/', tr.get("expression", ""))
+            if owner_name:
+                name = owner_name.group(1)
+                if name in self._templates:
+                    self._templates[name]._triggers.append(trigger)
+                elif name in self._hosts:
+                    self._hosts[name]._triggers.append(trigger)
 
     def _load_set_macro(self, macros: list):
         for m in macros:
-            self._macros["{$" + m["name"] + "}"] = m
+            macro = Macro.from_dict(m)
+            self._macros[macro.name] = macro
 
     def _load_user_group(self, groups: list):
         for g in groups:
-            self._user_groups[g["name"]] = g
-            for hg in g.get("host_groups", []):
-                self._host_groups[hg["name"]] = hg
-            for tg in g.get("template_groups", []):
-                self._template_groups[tg["name"]] = tg
+            ug = UserGroup.from_dict(g, host_groups=self._host_groups, template_groups=self._template_groups)
+            self._user_groups[ug.name] = ug
 
     def _load_add_user(self, users: list):
         for u in users:
-            for gname in u.get("groups", []):
-                self._user_groups[gname] = {"name": gname}
+            User.from_dict(u, user_groups=self._user_groups)

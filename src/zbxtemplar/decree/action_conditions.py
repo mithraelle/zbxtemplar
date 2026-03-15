@@ -120,13 +120,17 @@ class Condition(ConditionExpr):
 
 # --- Condition types (conditiontype 0..28) ---
 
+def _name(value):
+    return value.name if hasattr(value, 'name') else value
+
+
 class HostGroupCondition(Condition):
     """Host group — conditiontype 0."""
     conditiontype = 0
     Op = _EqualsOp
 
     def __init__(self, group, op=_EqualsOp.EQUALS):
-        self.value = group
+        self.value = _name(group)
         self.op = op
 
 
@@ -136,7 +140,7 @@ class HostCondition(Condition):
     Op = _EqualsOp
 
     def __init__(self, host, op=_EqualsOp.EQUALS):
-        self.value = host
+        self.value = _name(host)
         self.op = op
 
 
@@ -146,7 +150,7 @@ class TriggerCondition(Condition):
     Op = _EqualsOp
 
     def __init__(self, trigger, op=_EqualsOp.EQUALS):
-        self.value = trigger
+        self.value = _name(trigger)
         self.op = op
 
 
@@ -264,7 +268,7 @@ class HostTemplateCondition(Condition):
     Op = _EqualsOp
 
     def __init__(self, template, op=_EqualsOp.EQUALS):
-        self.value = template
+        self.value = _name(template)
         self.op = op
 
 

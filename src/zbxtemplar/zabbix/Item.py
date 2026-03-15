@@ -71,3 +71,20 @@ class Item(ZbxEntity, WithTags):
             params = ",".join(str(a) for a in args)
             base = f"{fn}(/{self._host}/{self.key},{params})"
         return base
+
+    @classmethod
+    def from_dict(cls, data: dict, host: str = ""):
+        item = cls(
+            name=data["name"],
+            key=data["key"],
+            host=host,
+            type=ItemType(data.get("type", "ZABBIX_PASSIVE")),
+            value_type=ValueType(data.get("value_type", "UNSIGNED")),
+            history=data.get("history", "90d"),
+            trends=data.get("trends", "365d"),
+        )
+        for t in data.get("tags", []):
+            item.add_tag(t["tag"], t.get("value", ""))
+        for tr in data.get("triggers", []):
+            item.triggers.append(Trigger.from_dict(tr))
+        return item

@@ -22,6 +22,18 @@ class Trigger(ZbxEntity, WithTags):
         self.priority = priority
         self.description = description
 
+    @classmethod
+    def from_dict(cls, data: dict):
+        trigger = cls(
+            name=data["name"],
+            expression=data.get("expression", ""),
+            priority=TriggerPriority(data.get("priority", "NOT_CLASSIFIED")),
+            description=data.get("description"),
+        )
+        for t in data.get("tags", []):
+            trigger.add_tag(t["tag"], t.get("value", ""))
+        return trigger
+
 
 class WithTriggers:
     def __init__(self):

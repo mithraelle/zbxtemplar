@@ -10,7 +10,8 @@ TESTS = Path(__file__).parent
 class TestZabbixExport:
     def test_template_groups(self):
         ctx = Context().load(str(TESTS / "reference_templates.yml"))
-        assert ctx.get_template_group("Templar Templates") == "Templar Templates"
+        tg = ctx.get_template_group("Templar Templates")
+        assert tg.name == "Templar Templates"
 
     def test_template_group_missing(self):
         ctx = Context().load(str(TESTS / "reference_templates.yml"))
@@ -19,28 +20,65 @@ class TestZabbixExport:
 
     def test_host_groups(self):
         ctx = Context().load(str(TESTS / "reference_hosts.yml"))
-        assert ctx.get_host_group("Templar Hosts") == "Templar Hosts"
+        hg = ctx.get_host_group("Templar Hosts")
+        assert hg.name == "Templar Hosts"
 
     def test_macros_from_templates(self):
         ctx = Context().load(str(TESTS / "reference_templates.yml"))
-        assert ctx.get_macro("{$MY_MACRO}") == "{$MY_MACRO}"
-
-    def test_macros_from_hosts(self):
-        ctx = Context().load(str(TESTS / "reference_hosts.yml"))
-        assert ctx.get_macro("{$MY_HOST_MACRO}") == "{$MY_HOST_MACRO}"
+        tmpl = ctx.get_template("Test Template")
+        assert "MY_MACRO" in tmpl.macros
 
     def test_combined_file(self):
         ctx = Context().load(str(TESTS / "reference_combined.yml"))
-        ctx.get_template_group("Templar Templates")
-        ctx.get_host_group("Templar Hosts")
-        ctx.get_macro("{$MY_MACRO}")
-        ctx.get_macro("{$MY_HOST_MACRO}")
+
+        # template group
+        tg = ctx.get_template_group("Templar Templates")
+        assert tg.name == "Templar Templates"
+
+        # host group
+        hg = ctx.get_host_group("Templar Hosts")
+        assert hg.name == "Templar Hosts"
+
+        # template with macros, tags, items
+        tmpl = ctx.get_template("Test Template")
+        assert tmpl.name == "Test Template"
+        assert tmpl.groups[0] is tg
+        assert "MY_MACRO" in tmpl.macros
+        assert tmpl.macros["MY_MACRO"].value == "1"
+        assert any(t.name == "Service" for t in tmpl.tags.values())
+        assert len(tmpl.items) == 3
+        item1 = next(i for i in tmpl.items if i.key == "item.test[1]")
+        assert item1.name == "Item 1"
+        assert any(t.name == "Service" for t in item1.tags.values())
+        assert len(item1.triggers) == 1
+        assert item1.triggers[0].name == "Simple trigger"
+        assert item1.triggers[0].priority.value == "HIGH"
+
+        # host with macros, tags, items, linked template
+        host = ctx.get_host("Templar Host")
+        assert host.name == "Templar Host"
+        assert host.groups[0] is hg
+        assert "MY_HOST_MACRO" in host.macros
+        assert len(host.templates) == 1
+        assert host.templates[0] is tmpl
+        assert len(host.items) == 1
+        host_item = host.items[0]
+        assert host_item.key == "item.test[own]"
+        assert len(host_item.triggers) == 1
+        assert host_item.triggers[0].name == "Host Simple trigger"
+
+        # root-level triggers attached to their owners
+        tmpl_trigger_names = [t.name for t in tmpl.triggers]
+        assert "Complex trigger" in tmpl_trigger_names
+        host_trigger_names = [t.name for t in host.triggers]
+        assert "Host Complex trigger" in host_trigger_names
 
 
 class TestDecree:
     def test_user_group(self):
         ctx = Context().load(str(TESTS / "test_user_group.decree.yml"))
-        assert ctx.get_user_group("Templar Users") == "Templar Users"
+        ug = ctx.get_user_group("Templar Users")
+        assert ug.name == "Templar Users"
 
     def test_user_group_collects_host_groups(self):
         ctx = Context().load(str(TESTS / "test_user_group.decree.yml"))
@@ -76,7 +114,6 @@ class TestMultipleLoads:
         ctx.get_host_group("Templar Hosts")
         ctx.get_host_group("Virtual machines")
         ctx.get_user_group("Templar Users")
-        ctx.get_macro("{$MY_MACRO}")
         ctx.get_macro("{$SNMP_COMMUNITY}")
 
     def test_chaining(self):

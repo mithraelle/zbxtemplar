@@ -34,7 +34,7 @@ class SampleDecree(DecreeModule):
         self.add_user(service)
 
         test_action = TriggerAction("Test Action")
-        test_action.operations.send_message(groups=["Templar Users"], message="Test message")
+        test_action.operations.send_message(groups=[ops_group], message="Test message")
         self.add_action(test_action)
         group_condition = HostGroupCondition("Templar Hosts")
         template_condition = HostTemplateCondition("Test Template")

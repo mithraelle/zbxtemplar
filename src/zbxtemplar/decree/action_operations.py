@@ -1,20 +1,28 @@
 from typing import List, Optional
 
 
+def _name(value):
+    if hasattr(value, 'name'):
+        return value.name
+    if hasattr(value, 'username'):
+        return value.username
+    return value
+
+
 class SendMessageOperation:
     operationtype = 0
 
-    def __init__(self, users: Optional[List[str]] = None,
-                 groups: Optional[List[str]] = None,
-                 media_type: Optional[str] = None,
+    def __init__(self, users: Optional[List] = None,
+                 groups: Optional[List] = None,
+                 media_type=None,
                  subject: Optional[str] = None,
                  message: Optional[str] = None,
                  step_from: Optional[int] = None,
                  step_to: Optional[int] = None,
                  step_duration: Optional[int] = None):
-        self.users = users or []
-        self.groups = groups or []
-        self.media_type = media_type
+        self.users = [_name(u) for u in (users or [])]
+        self.groups = [_name(g) for g in (groups or [])]
+        self.media_type = _name(media_type) if media_type is not None else None
         self.subject = subject
         self.message = message
         self.step_from = step_from
@@ -51,9 +59,9 @@ class TriggerOperations:
     def __init__(self):
         self._ops: List[SendMessageOperation] = []
 
-    def send_message(self, users: Optional[List[str]] = None,
-                     groups: Optional[List[str]] = None,
-                     media_type: Optional[str] = None,
+    def send_message(self, users: Optional[List] = None,
+                     groups: Optional[List] = None,
+                     media_type=None,
                      subject: Optional[str] = None,
                      message: Optional[str] = None,
                      step_from: int = 1, step_to: int = 1,
@@ -81,8 +89,8 @@ class AddHostOperation:
 class AddToGroupOperation:
     operationtype = 4
 
-    def __init__(self, group: str):
-        self.group = group
+    def __init__(self, group):
+        self.group = _name(group)
 
     def to_dict(self) -> dict:
         return {
@@ -94,8 +102,8 @@ class AddToGroupOperation:
 class LinkTemplateOperation:
     operationtype = 6
 
-    def __init__(self, template: str):
-        self.template = template
+    def __init__(self, template):
+        self.template = _name(template)
 
     def to_dict(self) -> dict:
         return {
@@ -138,9 +146,9 @@ class AutoregistrationOperations:
     def __init__(self):
         self._ops: List = []
 
-    def send_message(self, users: Optional[List[str]] = None,
-                     groups: Optional[List[str]] = None,
-                     media_type: Optional[str] = None,
+    def send_message(self, users: Optional[List] = None,
+                     groups: Optional[List] = None,
+                     media_type=None,
                      subject: Optional[str] = None,
                      message: Optional[str] = None) -> 'AutoregistrationOperations':
         self._ops.append(SendMessageOperation(
@@ -154,11 +162,11 @@ class AutoregistrationOperations:
         self._ops.append(AddHostOperation())
         return self
 
-    def add_to_group(self, group: str) -> 'AutoregistrationOperations':
+    def add_to_group(self, group) -> 'AutoregistrationOperations':
         self._ops.append(AddToGroupOperation(group))
         return self
 
-    def link_template(self, template: str) -> 'AutoregistrationOperations':
+    def link_template(self, template) -> 'AutoregistrationOperations':
         self._ops.append(LinkTemplateOperation(template))
         return self
 
@@ -182,9 +190,9 @@ class TriggerAckOperations:
     def __init__(self):
         self._ops: List[SendMessageOperation] = []
 
-    def send_message(self, users: Optional[List[str]] = None,
-                     groups: Optional[List[str]] = None,
-                     media_type: Optional[str] = None,
+    def send_message(self, users: Optional[List] = None,
+                     groups: Optional[List] = None,
+                     media_type=None,
                      subject: Optional[str] = None,
                      message: Optional[str] = None) -> 'TriggerAckOperations':
         self._ops.append(SendMessageOperation(

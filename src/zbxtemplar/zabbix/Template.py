@@ -1,7 +1,7 @@
 from typing import Dict, List, Union
 from enum import Enum
 
-from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags, WithMacros, WithGroups
+from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags, WithMacros, WithGroups, Macro
 from zbxtemplar.zabbix.Trigger import WithTriggers
 from zbxtemplar.zabbix.Graph import WithGraphs
 from zbxtemplar.zabbix.Dashboard import Dashboard
@@ -56,3 +56,24 @@ class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGr
         if not any(v.name == value_map.name for v in self.valuemaps):
             self.valuemaps.append(value_map)
         return self
+
+    @classmethod
+    def from_dict(cls, data: dict, template_groups=None):
+        groups = []
+        for g in data.get("groups", []):
+            name = g["name"]
+            if template_groups is not None:
+                if name not in template_groups:
+                    template_groups[name] = TemplateGroup(name)
+                groups.append(template_groups[name])
+            else:
+                groups.append(TemplateGroup(name))
+        template = cls(name=data["name"], groups=groups)
+        for m in data.get("macros", []):
+            macro = Macro.from_dict(m)
+            template.macros[macro.name] = macro
+        for t in data.get("tags", []):
+            template.add_tag(t["tag"], t.get("value", ""))
+        for i in data.get("items", []):
+            template.items.append(Item.from_dict(i, host=data["name"]))
+        return template

@@ -90,10 +90,11 @@ class WithTags():
         return self
 
 class Macro():
-    def __init__(self, name: str, value: str, description: Optional[str] = None):
+    def __init__(self, name: str, value: str, description: Optional[str] = None, type: Optional[str] = None):
         self.name = name
         self.value = value
         self.description = description
+        self.type = type
 
     @property
     def full_name(self) -> str:
@@ -113,6 +114,19 @@ class Macro():
         if self.description is not None:
             result["description"] = self.description
         return result
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        if "macro" in data:
+            name = data["macro"].replace("{$", "").replace("}", "")
+        else:
+            name = data["name"]
+        return cls(
+            name=name,
+            value=data.get("value", ""),
+            description=data.get("description"),
+            type=data.get("type"),
+        )
 
 class WithMacros():
     def __init__(self):

@@ -96,12 +96,14 @@ class User(DecreeEntity):
         return [m.to_dict() for m in self.medias]
 
     @classmethod
-    def from_dict(cls, data: dict):
+    def from_dict(cls, data: dict, user_groups=None):
         user = cls(data["username"], data["role"])
         if "password" in data:
             user.set_password(data["password"])
         for g in data.get("groups", []):
             user.add_group(g)
+            if user_groups is not None and g not in user_groups:
+                user_groups[g] = UserGroup(g)
         for m in data.get("medias", []):
             user.add_media(UserMedia.from_dict(m))
         if "token" in data:

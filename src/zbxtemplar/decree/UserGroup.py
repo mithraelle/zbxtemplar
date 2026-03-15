@@ -1,4 +1,6 @@
 from zbxtemplar.decree.DecreeEntity import DecreeEntity, _validate
+from zbxtemplar.zabbix.Host import HostGroup
+from zbxtemplar.zabbix.Template import TemplateGroup
 
 
 class GuiAccess:
@@ -31,18 +33,20 @@ class UserGroup(DecreeEntity):
         self.gui_access = gui_access
         return self
 
-    def add_host_group(self, name: str, permission: Permission):
+    def add_host_group(self, group, permission: Permission):
+        name = group.name if isinstance(group, HostGroup) else group
         if not any(hg["name"] == name for hg in self.host_groups):
             self.host_groups.append({"name": name, "permission": permission})
         return self
 
-    def add_template_group(self, name: str, permission: Permission):
+    def add_template_group(self, group, permission: Permission):
+        name = group.name if isinstance(group, TemplateGroup) else group
         if not any(tg["name"] == name for tg in self.template_groups):
             self.template_groups.append({"name": name, "permission": permission})
         return self
 
     @classmethod
-    def from_dict(cls, data: dict):
+    def from_dict(cls, data: dict, host_groups=None, template_groups=None):
         gui = data.get("gui_access")
         if gui is not None:
             _validate(gui, GuiAccess._API_VALUES, "gui_access")
@@ -50,7 +54,11 @@ class UserGroup(DecreeEntity):
         for hg in data.get("host_groups", []):
             _validate(hg["permission"], Permission._API_VALUES, "permission")
             group.add_host_group(hg["name"], hg["permission"])
+            if host_groups is not None and hg["name"] not in host_groups:
+                host_groups[hg["name"]] = HostGroup(hg["name"])
         for tg in data.get("template_groups", []):
             _validate(tg["permission"], Permission._API_VALUES, "permission")
             group.add_template_group(tg["name"], tg["permission"])
+            if template_groups is not None and tg["name"] not in template_groups:
+                template_groups[tg["name"]] = TemplateGroup(tg["name"])
         return group

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Union
 
-from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, YesNo, WithTags, WithMacros, WithGroups
+from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, YesNo, WithTags, WithMacros, WithGroups, Macro
 from zbxtemplar.zabbix.Trigger import WithTriggers
 from zbxtemplar.zabbix.Graph import WithGraphs
 from zbxtemplar.zabbix.Item import Item
@@ -103,3 +103,32 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
 
     def to_dict(self, **kwargs):
         return super().to_dict(skip_uuid=True)
+
+    @classmethod
+    def from_dict(cls, data: dict, host_groups=None, templates=None):
+        groups = []
+        for g in data.get("groups", []):
+            name = g["name"]
+            if host_groups is not None:
+                if name not in host_groups:
+                    host_groups[name] = HostGroup(name)
+                groups.append(host_groups[name])
+            else:
+                groups.append(HostGroup(name))
+        host = cls(name=data["name"], groups=groups)
+        for m in data.get("macros", []):
+            macro = Macro.from_dict(m)
+            host.macros[macro.name] = macro
+        for t in data.get("tags", []):
+            host.add_tag(t["tag"], t.get("value", ""))
+        for tname in data.get("templates", []):
+            name = tname["name"]
+            if templates is not None:
+                if name not in templates:
+                    templates[name] = Template(name=name)
+                host.templates.append(templates[name])
+            else:
+                host.templates.append(Template(name=name))
+        for i in data.get("items", []):
+            host.items.append(Item.from_dict(i, host=data["name"]))
+        return host
