@@ -1,13 +1,13 @@
-from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
 
 from zbxtemplar.executor import Executor
 from zbxtemplar.executor.Executor import _resolve_env, _preflight_env_check
+from tests.paths import FIXTURES_DIR
 
-DECREE_USER_GROUP = Path(__file__).parent / "test_user_group.decree.yml"
-ADD_USER = Path(__file__).parent / "test_add_user.yml"
+DECREE_USER_GROUP = FIXTURES_DIR / "user_group.decree.yml"
+ADD_USER = FIXTURES_DIR / "add_user.yml"
 
 
 # --- resolve_env ---

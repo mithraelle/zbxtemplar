@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 import yaml
 
@@ -7,8 +5,7 @@ from zbxtemplar.core import DecreeModule, Context
 from zbxtemplar.decree import UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
 from zbxtemplar.decree.Action import TriggerAction, AutoregistrationAction
 from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition
-
-TESTS = Path(__file__).parent
+from tests.paths import REFERENCE_DIR
 
 
 class SampleDecree(DecreeModule):
@@ -56,8 +53,8 @@ class SampleDecree(DecreeModule):
 
 def _load_context():
     return (Context()
-            .load(str(TESTS / "reference_templates.yml"))
-            .load(str(TESTS / "reference_hosts.yml")))
+            .load(str(REFERENCE_DIR / "templates.yml"))
+            .load(str(REFERENCE_DIR / "hosts.yml")))
 
 
 def test_decree_matches_reference():
@@ -65,7 +62,7 @@ def test_decree_matches_reference():
     module = SampleDecree(context=ctx)
     export = module.to_export()
 
-    with open(TESTS / "reference_decree.yml") as f:
+    with open(REFERENCE_DIR / "decree.yml") as f:
         expected = yaml.safe_load(f)
 
     assert export == expected
@@ -76,7 +73,7 @@ def test_actions_export_matches_reference():
     module = SampleDecree(context=ctx)
     export = module.export_actions()
 
-    with open(TESTS / "reference_actions.yml") as f:
+    with open(REFERENCE_DIR / "actions.yml") as f:
         expected = yaml.safe_load(f)
 
     assert export == expected

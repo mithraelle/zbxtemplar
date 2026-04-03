@@ -1,35 +1,32 @@
-from pathlib import Path
-
 import pytest
 
 from zbxtemplar.core import Context
-
-TESTS = Path(__file__).parent
+from tests.paths import FIXTURES_DIR, REFERENCE_DIR
 
 
 class TestZabbixExport:
     def test_template_groups(self):
-        ctx = Context().load(str(TESTS / "reference_templates.yml"))
+        ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
         tg = ctx.get_template_group("Templar Templates")
         assert tg.name == "Templar Templates"
 
     def test_template_group_missing(self):
-        ctx = Context().load(str(TESTS / "reference_templates.yml"))
+        ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
         with pytest.raises(ValueError, match="not found in context"):
             ctx.get_template_group("Nonexistent")
 
     def test_host_groups(self):
-        ctx = Context().load(str(TESTS / "reference_hosts.yml"))
+        ctx = Context().load(str(REFERENCE_DIR / "hosts.yml"))
         hg = ctx.get_host_group("Templar Hosts")
         assert hg.name == "Templar Hosts"
 
     def test_macros_from_templates(self):
-        ctx = Context().load(str(TESTS / "reference_templates.yml"))
+        ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
         tmpl = ctx.get_template("Test Template")
         assert "MY_MACRO" in tmpl.macros
 
     def test_combined_file(self):
-        ctx = Context().load(str(TESTS / "reference_combined.yml"))
+        ctx = Context().load(str(REFERENCE_DIR / "combined.yml"))
 
         # template group
         tg = ctx.get_template_group("Templar Templates")
@@ -76,27 +73,27 @@ class TestZabbixExport:
 
 class TestDecree:
     def test_user_group(self):
-        ctx = Context().load(str(TESTS / "test_user_group.decree.yml"))
+        ctx = Context().load(str(FIXTURES_DIR / "user_group.decree.yml"))
         ug = ctx.get_user_group("Templar Users")
         assert ug.name == "Templar Users"
 
     def test_user_group_collects_host_groups(self):
-        ctx = Context().load(str(TESTS / "test_user_group.decree.yml"))
+        ctx = Context().load(str(FIXTURES_DIR / "user_group.decree.yml"))
         ctx.get_host_group("Linux servers")
         ctx.get_host_group("Virtual machines")
 
     def test_user_group_collects_template_groups(self):
-        ctx = Context().load(str(TESTS / "test_user_group.decree.yml"))
+        ctx = Context().load(str(FIXTURES_DIR / "user_group.decree.yml"))
         ctx.get_template_group("Test Template")
 
     def test_add_user_collects_groups(self):
-        ctx = Context().load(str(TESTS / "test_add_user.yml"))
+        ctx = Context().load(str(FIXTURES_DIR / "add_user.yml"))
         ctx.get_user_group("Templar Users")
 
 
 class TestSetMacro:
     def test_macro_names(self):
-        ctx = Context().load(str(TESTS / "test_set_macro.yml"))
+        ctx = Context().load(str(FIXTURES_DIR / "set_macro.yml"))
         ctx.get_macro("{$SNMP_COMMUNITY}")
         ctx.get_macro("{$DB_PASSWORD}")
 
@@ -104,10 +101,10 @@ class TestSetMacro:
 class TestMultipleLoads:
     def test_accumulates(self):
         ctx = Context()
-        ctx.load(str(TESTS / "reference_templates.yml"))
-        ctx.load(str(TESTS / "reference_hosts.yml"))
-        ctx.load(str(TESTS / "test_set_macro.yml"))
-        ctx.load(str(TESTS / "test_user_group.decree.yml"))
+        ctx.load(str(REFERENCE_DIR / "templates.yml"))
+        ctx.load(str(REFERENCE_DIR / "hosts.yml"))
+        ctx.load(str(FIXTURES_DIR / "set_macro.yml"))
+        ctx.load(str(FIXTURES_DIR / "user_group.decree.yml"))
         ctx.get_template_group("Templar Templates")
         ctx.get_template_group("Test Template")
         ctx.get_host_group("Linux servers")
@@ -118,8 +115,8 @@ class TestMultipleLoads:
 
     def test_chaining(self):
         ctx = (Context()
-               .load(str(TESTS / "reference_templates.yml"))
-               .load(str(TESTS / "test_user_group.decree.yml")))
+               .load(str(REFERENCE_DIR / "templates.yml"))
+               .load(str(FIXTURES_DIR / "user_group.decree.yml")))
         ctx.get_template_group("Templar Templates")
         ctx.get_template_group("Test Template")
         ctx.get_user_group("Templar Users")
@@ -129,7 +126,7 @@ class TestMultipleLoads:
         """Host loaded first creates a stub template; templates loaded second upgrades in-place.
         Host object keeps its reference to the same template object."""
         ctx = Context()
-        ctx.load(str(TESTS / "reference_hosts.yml"))
+        ctx.load(str(REFERENCE_DIR / "hosts.yml"))
 
         host = ctx.get_host("Templar Host")
         linked_tmpl = host.templates[0]
@@ -137,7 +134,7 @@ class TestMultipleLoads:
         assert len(linked_tmpl.items) == 0  # stub — no items yet
 
         # Load templates — should upgrade the stub, not replace it
-        ctx.load(str(TESTS / "reference_templates.yml"))
+        ctx.load(str(REFERENCE_DIR / "templates.yml"))
 
         tmpl_rich = ctx.get_template("Test Template")
         assert tmpl_rich is linked_tmpl  # same object
@@ -147,14 +144,14 @@ class TestMultipleLoads:
     def test_reverse_order_host_group_upgraded(self):
         """Host group stub from hosts file gets upgraded when combined file reloads it."""
         ctx = Context()
-        ctx.load(str(TESTS / "reference_hosts.yml"))
+        ctx.load(str(REFERENCE_DIR / "hosts.yml"))
 
         hg = ctx.get_host_group("Templar Hosts")
         host = ctx.get_host("Templar Host")
         assert host.groups[0] is hg
 
         # Reload from combined — same host group should be upgraded in-place
-        ctx.load(str(TESTS / "reference_combined.yml"))
+        ctx.load(str(REFERENCE_DIR / "combined.yml"))
 
         hg_after = ctx.get_host_group("Templar Hosts")
         assert hg_after is hg
@@ -164,8 +161,9 @@ class TestMultipleLoads:
 class TestUnknownFormat:
     def test_scroll_rejected(self):
         with pytest.raises(ValueError, match="unknown format"):
-            Context().load(str(TESTS / "test_scroll.yml"))
+            Context().load(str(FIXTURES_DIR / "scroll.yml"))
 
     def test_error_shows_keys(self):
         with pytest.raises(ValueError, match="stages"):
-            Context().load(str(TESTS / "test_scroll.yml"))
+            Context().load(str(FIXTURES_DIR / "scroll.yml"))
+

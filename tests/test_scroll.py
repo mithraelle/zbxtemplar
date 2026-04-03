@@ -1,11 +1,11 @@
-from pathlib import Path
 from unittest.mock import MagicMock, call, patch
 
 import pytest
 
 from zbxtemplar.executor import Executor
+from tests.paths import FIXTURES_DIR
 
-SCROLL = Path(__file__).parent / "test_scroll.yml"
+SCROLL = FIXTURES_DIR / "scroll.yml"
 
 
 def _full_api():

@@ -77,7 +77,7 @@ If a required parameter is missing or an unknown parameter is supplied, generati
 
 ## Context Files
 
-`--context` is accepted by the CLI for any generation run, but in the current implementation it is injected into `DecreeModule` instances, not `TemplarModule` instances.
+`--context` is accepted by the CLI for any generation run. During loading, the generator forwards the built `Context` into module constructors that accept a `context` parameter.
 
 Supported top-level keys:
 
@@ -96,18 +96,17 @@ The context registry exposes lookups such as:
 - `get_host(name)`
 - `get_user_group(name)`
 
-This makes it practical to validate decree references against previously generated monitoring artifacts.
+Common uses include:
 
-### Important current limitation
+- referencing existing configuration objects by name from exported YAML
+- validating module references before apply/import
+- composing multi-step generation flows (for example, monitoring output reused by decree generation)
 
-The current loader builds a `Context` object whenever `--context` is passed, but only forwards it to `DecreeModule` constructors.
+### Notes on context injection
 
-That means:
-
-- decree generation can actively use `self.context`
-- template generation cannot currently consume `self.context` through the standard loader path
-
-So "staged" template generation using prior artifacts as context is a reasonable design direction, but it is not wired into `TemplarModule` yet.
+- The loader injects `context` only when the module's `__init__` signature includes a `context` parameter.
+- `DecreeModule` and `TemplarModule` base classes accept `context=None`, so subclasses that do not hide it will receive `self.context`.
+- If you override `__init__` in `TemplarModule`, include `context=None` and pass it to `super().__init__(context=context)`.
 
 ## Output Behavior
 
@@ -146,5 +145,5 @@ for name, module in modules.items():
 
 - Keep module logic in `__init__`; that is the supported contract.
 - Use `--templates-output` and `--hosts-output` when inventory and reusable templates have different change flows.
-- Load generated monitoring YAML back in via `--context` before generating decree YAML.
+- Load exported YAML (generated artifacts or existing-instance exports) via `--context` when your module needs stable name-based references.
 - Prefer typed objects first; use raw dicts and raw strings only as escape hatches.

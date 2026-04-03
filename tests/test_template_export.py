@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import yaml
 
 from zbxtemplar.core import TemplarModule
@@ -14,10 +12,11 @@ from zbxtemplar.zabbix.DashboardWidget.ItemHistory import ItemHistory, ItemHisto
 from zbxtemplar.zabbix.DashboardWidget.SimpleGraph import SimpleGraph
 from zbxtemplar.zabbix.Item import ItemType
 from zbxtemplar.zabbix.Template import ValueMap, ValueMapType
+from tests.paths import REFERENCE_DIR
 
-REFERENCE_COMBINED = Path(__file__).parent / "reference_combined.yml"
-REFERENCE_TEMPLATES = Path(__file__).parent / "reference_templates.yml"
-REFERENCE_HOSTS = Path(__file__).parent / "reference_hosts.yml"
+REFERENCE_COMBINED = REFERENCE_DIR / "combined.yml"
+REFERENCE_TEMPLATES = REFERENCE_DIR / "templates.yml"
+REFERENCE_HOSTS = REFERENCE_DIR / "hosts.yml"
 
 
 class TestTemplate(TemplarModule):

@@ -1,5 +1,6 @@
 class TemplarModule:
-    def __init__(self):
+    def __init__(self, context=None):
+        self.context = context
         self.templates = []
         self.hosts = []
 

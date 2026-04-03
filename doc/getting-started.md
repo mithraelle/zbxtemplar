@@ -28,8 +28,8 @@ from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 
 
 class MyModule(TemplarModule):
-    def __init__(self, alert_threshold: int = 90):
-        super().__init__()
+    def __init__(self, alert_threshold: int = 90, context=None):
+        super().__init__(context=context)
 
         template = Template(
             name="My Service",
@@ -81,8 +81,8 @@ from zbxtemplar.decree import MediaType, UserRole
 
 
 class MyDecree(DecreeModule):
-    def __init__(self, alert_email: str = "alerts@example.com"):
-        super().__init__()
+    def __init__(self, alert_email: str = "alerts@example.com", context=None):
+        super().__init__(context=context)
 
         group = UserGroup("Operations", gui_access=GuiAccess.INTERNAL)
         group.add_host_group("Linux Servers", Permission.READ)
@@ -104,7 +104,7 @@ Generate decree YAML:
 zbxtemplar decree_module.py -o decree.yml --context templates.yml
 ```
 
-`--context` is the normal way to feed previously generated monitoring artifacts into decree generation.
+`--context` lets a module reference known objects from YAML context files. Those files can come from previously generated artifacts or from existing exported configuration.
 
 ## Apply The Output
 
@@ -131,7 +131,7 @@ The intended operating model is:
 
 This project assumes "test environment first" rather than a separate dry-run simulator.
 
-One important implementation detail: `--context` is currently meaningful for decree generation. The CLI accepts it globally, but template modules do not receive `self.context` through the loader yet.
+One important implementation detail: `--context` is forwarded into module constructors when their `__init__` includes a `context` parameter. This applies to both `TemplarModule` and `DecreeModule`. If you override `__init__`, include `context=None` and pass it to `super().__init__(context=context)` to consume it in the module.
 
 ## Where To Go Next
 

@@ -58,7 +58,7 @@ def load_module(filename: str, params: dict = None, context: Context = None) -> 
             if issubclass(obj, base) and obj is not base:
                 sig = inspect.signature(obj.__init__)
                 kwargs = _build_kwargs(name, sig, params)
-                if issubclass(obj, DecreeModule) and context is not None:
+                if context is not None and "context" in sig.parameters:
                     kwargs["context"] = context
                 instance = obj(**kwargs)
                 result[name] = instance
@@ -104,7 +104,7 @@ def main():
     parser.add_argument("--actions-output", help="Output YAML for actions only")
     parser.add_argument("--namespace", help="UUID namespace for deterministic ID generation")
     parser.add_argument("--context", action="append", metavar="FILE",
-                        help="Context YAML file for decree validation (repeatable)")
+                        help="Context YAML for module lookups: zabbix_export, set_macro, decree snippets (repeatable)")
     parser.add_argument("--param", action="append", metavar="KEY=VALUE",
                         help="Parameter passed to the module constructor (repeatable)")
     args = parser.parse_args()

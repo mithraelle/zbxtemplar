@@ -76,7 +76,7 @@ Its output is decree YAML with keys such as `user_group`, `add_user`, and `actio
 
 Read-only registry built from one or more YAML files.
 
-It lets decree generation resolve or validate references to:
+It lets module generation resolve or validate references to:
 
 - macros
 - template groups
@@ -87,7 +87,7 @@ It lets decree generation resolve or validate references to:
 
 Multiple context files accumulate into one registry.
 
-In the current implementation, the loader injects context into `DecreeModule` instances. The CLI still accepts `--context` for any run, but `TemplarModule` does not currently receive it automatically.
+During module loading, the generator injects `context` into any module whose `__init__` exposes a `context` parameter. Since both `DecreeModule` and `TemplarModule` accept `context=None` by default, most subclasses will receive it unless they override `__init__` without a `context` parameter.
 
 ### Domain Layers
 
@@ -142,6 +142,8 @@ In a mixed workflow:
 TemplarModule -> templates.yml / hosts.yml
 DecreeModule  -> decree.yml, using templates/hosts as --context
 ```
+
+When integrating with existing environments, context can also come from existing YAML configuration.
 
 ## Why This Shape Works
 
