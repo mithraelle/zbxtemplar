@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 
 from zabbix_utils import ZabbixAPI
 
@@ -116,7 +117,11 @@ def main():
         parser.print_help()
         return 1
 
-    return args.func(args)
+    try:
+        return args.func(args)
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

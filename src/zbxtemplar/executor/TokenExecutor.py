@@ -57,6 +57,10 @@ class TokenExecutor:
 
     @staticmethod
     def _extract_secret(generate_result):
+        if isinstance(generate_result, list):
+            if not generate_result:
+                raise TokenExecutorError("token.generate returned an empty list")
+            generate_result = generate_result[0]
         secret = (generate_result or {}).get("token")
         if not secret:
             raise TokenExecutorError("token.generate did not return a secret")
