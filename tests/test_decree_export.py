@@ -2,7 +2,7 @@ import pytest
 import yaml
 
 from zbxtemplar.core import DecreeModule, Context
-from zbxtemplar.decree import UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
+from zbxtemplar.decree import Token, UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
 from zbxtemplar.decree.Action import TriggerAction, AutoregistrationAction
 from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition
 from tests.paths import REFERENCE_DIR
@@ -34,7 +34,14 @@ class SampleDecree(DecreeModule):
         service = User("zbx-service", role=UserRole.USER)
         service.set_password("${ZBX_SERVICE_PASSWORD}")
         service.add_group(ops_group)
-        service.set_token("monitoring-ro", force=True)
+        service.set_token(
+            Token(
+                "monitoring-ro",
+                expires_at=Token.NEVER,
+                store_at=".secrets/monitoring-ro.token",
+            ),
+            force=True,
+        )
         self.add_user(service)
 
         action = TriggerAction("Test Action")
@@ -91,3 +98,8 @@ def test_context_rejects_missing_host_group():
     with pytest.raises(ValueError, match="not found in context"):
         group = UserGroup("Bad")
         group.add_host_group(ctx.get_host_group("Nonexistent"), Permission.READ)
+
+
+def test_token_init_requires_store_at():
+    with pytest.raises(ValueError, match="token.store_at must be a file path"):
+        Token("api-reader-token", store_at=None, expires_at=Token.NEVER)

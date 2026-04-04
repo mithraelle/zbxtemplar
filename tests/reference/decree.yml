@@ -28,7 +28,10 @@ add_user:
   password: ${ZBX_SERVICE_PASSWORD}
   groups:
   - Templar Users
-  token: monitoring-ro
+  token:
+    name: monitoring-ro
+    expires_at: NEVER
+    store_at: .secrets/monitoring-ro.token
   force_token: true
 actions:
 - eventsource: 0

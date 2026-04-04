@@ -4,6 +4,8 @@ import re
 import yaml
 
 from zbxtemplar.decree import UserGroup, User, UserMedia, GuiAccess, Permission, Severity, MacroType
+from zbxtemplar.decree.Token import TokenOutput
+from zbxtemplar.executor.TokenExecutor import TokenExecutor, TokenExecutorError
 
 
 def _resolve_env(value):
@@ -204,15 +206,16 @@ class Executor:
     def _decree_add_user(self, data):
         data = self._resolve(data)
         raw_users = data if isinstance(data, list) else [data]
+        users = [User.from_dict(raw) for raw in raw_users]
+        token_executor = TokenExecutor(self._api, self._resolve_path)
+        token_executor.validate(users)
 
         roles = {r["name"]: r["roleid"] for r in self._api.role.get(output=["roleid", "name"])}
         ugroups = {g["name"]: g["usrgrpid"] for g in self._api.usergroup.get(output=["usrgrpid", "name"])}
         media_types = {m["name"]: m["mediatypeid"] for m in self._api.mediatype.get(output=["mediatypeid", "name"])}
         existing = {u["username"]: u["userid"] for u in self._api.user.get(output=["userid", "username"])}
 
-        for raw in raw_users:
-            user = User.from_dict(raw)
-
+        for user in users:
             if user.role not in roles:
                 raise ValueError(f"Role '{user.role}' not found in Zabbix")
             params = {"username": user.username, "roleid": roles[user.role]}
@@ -247,29 +250,26 @@ class Executor:
                 self._api.user.update(**params)
                 print(f"Updated user '{user.username}'.")
             else:
-                self._api.user.create(**params)
+                create_result = self._api.user.create(**params)
+                userids = (create_result or {}).get("userids")
+                if not userids:
+                    raise ValueError(f"Unable to resolve created user id for '{user.username}'")
+                existing[user.username] = userids[0]
                 print(f"Created user '{user.username}'.")
 
             if user.token:
-                userid = existing.get(user.username) or self._api.user.get(
-                    output=["userid"], filter={"username": user.username}
-                )[0]["userid"]
-                token_name = f"{user.username}-token"
-                existing_tokens = self._api.token.get(
-                    output=["tokenid", "name"],
-                    userids=userid,
-                    filter={"name": token_name},
-                )
-                if existing_tokens:
-                    if not user.force_token:
-                        raise ValueError(
-                            f"API token '{token_name}' already exists for user '{user.username}'. "
-                            f"Set force_token: true to delete and recreate."
-                        )
-                    self._api.token.delete(existing_tokens[0]["tokenid"])
-                    print(f"Deleted existing API token for '{user.username}'.")
-                self._api.token.create(name=token_name, userid=userid)
-                print(f"Created API token for '{user.username}'.")
+                try:
+                    updated = token_executor.provision(
+                        user.token, existing[user.username], force=user.force_token
+                    )
+                    action = "Updated" if updated else "Created"
+                    print(f"{action} API token '{user.token.name}' for '{user.username}'.")
+                    if user.token.store_at is not TokenOutput.STDOUT:
+                        print(f"Wrote token to '{user.token.store_at}'.")
+                except TokenExecutorError as e:
+                    raise TokenExecutorError(
+                        f"User '{user.username}' token '{user.token.name}': {e}"
+                    ) from e
 
     # Condition types that store names needing ID resolution
     _CONDITION_RESOLVERS = {

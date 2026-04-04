@@ -22,4 +22,7 @@ stages:
       add_user:
         - username: api-reader
           role: User role
-          token: read-only-token
+          token:
+            name: api-reader-token
+            store_at: STDOUT
+            expires_at: NEVER

@@ -1,7 +1,8 @@
+from aiohttp.helpers import set_exception
 from packaging.metadata import Metadata
 
 from zbxtemplar.core import DecreeModule
-from zbxtemplar.decree import UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
+from zbxtemplar.decree import Token, UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
 from zbxtemplar.decree.Action import TriggerAction, AutoregistrationAction
 from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition
 
@@ -33,7 +34,10 @@ class SampleDecree(DecreeModule):
         service = User("zbx-service", role=UserRole.USER)
         service.set_password("${ZBX_SERVICE_PASSWORD}")
         service.add_group(ops_group)
-        service.set_token("monitoring-ro", force=True)
+        service.set_token(
+            Token("monitoring-ro", store_at=".secrets/monitoring-ro.token", expires_at=Token.NEVER),
+            force=True
+        )
         self.add_user(service)
 
         test_action = TriggerAction("Test Action")

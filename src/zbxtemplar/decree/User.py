@@ -1,4 +1,5 @@
 from zbxtemplar.decree.DecreeEntity import DecreeEntity, _validate
+from zbxtemplar.decree.Token import Token
 
 
 class Severity:
@@ -86,7 +87,9 @@ class User(DecreeEntity):
         self.medias.append(media)
         return self
 
-    def set_token(self, token: str, force: bool = False):
+    def set_token(self, token: Token, force: bool = False):
+        if not isinstance(token, Token):
+            raise ValueError("token must be a Token")
         self.token = token
         if force:
             self.force_token = True
@@ -107,5 +110,5 @@ class User(DecreeEntity):
         for m in data.get("medias", []):
             user.add_media(UserMedia.from_dict(m))
         if "token" in data:
-            user.set_token(data["token"], force=data.get("force_token", False))
+            user.set_token(Token.from_dict(data["token"]), force=data.get("force_token", False))
         return user

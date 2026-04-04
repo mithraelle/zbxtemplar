@@ -73,6 +73,31 @@ Convenience wrapper for user-only YAML.
 zbxtemplar-exec add_user service-account.yml --url ... --token ...
 ```
 
+Token provisioning is configured inside each user:
+
+```yaml
+add_user:
+  - username: api-reader
+    role: User role
+    token:
+      name: api-reader-token
+      expires_at: NEVER
+      store_at: .secrets/api-reader.token
+    force_token: true
+```
+
+Rules worth knowing:
+
+- `token` must be an object, not a string
+- `token.name` is required
+- create-time provisioning requires `token.expires_at`
+- `token.expires_at` accepts a Unix timestamp or `NEVER`
+- each token needs an output sink via `store_at` (a file path or `STDOUT`)
+- existing tokens are skipped unless `force_token: true` is set, in which case they are updated in place and re-enabled
+- `force_token: true` generates a new secret for an existing token and ensures it is enabled
+- duplicate `store_at` paths in one run are rejected
+- writing to an already existing output file is rejected
+
 ### `set_macro`
 
 Sets global macros inline or from a file.
@@ -149,7 +174,7 @@ The executor is designed around idempotent re-apply more than around a separate 
 These are worth knowing before relying on the executor heavily:
 
 - Executor API calls are not yet wrapped in structured error handling, so environmental failures can still surface as raw tracebacks.
-- Existing API token recreation is destructive when `force_token` is used; it is not full, coordinated token rotation.
+- `force_token` is an aggressive token rotation that overwrites the existing secret, not a graceful coordinated rotation.
 - Unknown YAML keys are not yet warned on consistently across all input paths.
 - Partial progress logging could be clearer during long or multi-step applies.
 

@@ -75,7 +75,7 @@ Use `DecreeModule` when you need users, groups, or actions:
 
 ```python
 from zbxtemplar.core import DecreeModule
-from zbxtemplar.decree import UserGroup, User, UserMedia
+from zbxtemplar.decree import Token, UserGroup, User, UserMedia
 from zbxtemplar.decree import GuiAccess, Permission, Severity
 from zbxtemplar.decree import MediaType, UserRole
 
@@ -95,6 +95,14 @@ class MyDecree(DecreeModule):
         email.set_severity([Severity.HIGH, Severity.DISASTER])
         user.add_media(email)
 
+        user.set_token(
+            Token(
+                name="zbx-ops-api",
+                store_at=".secrets/zbx-ops-api.token",
+                expires_at=Token.NEVER,
+            )
+        )
+
         self.add_user(user)
 ```
 
@@ -105,6 +113,8 @@ zbxtemplar decree_module.py -o decree.yml --context templates.yml
 ```
 
 `--context` lets a module reference known objects from YAML context files. Those files can come from previously generated artifacts or from existing exported configuration.
+
+Token provisioning uses a nested `token` object under the user. At minimum it needs a token name, an expiration for create-time provisioning, and an output sink `store_at` (which can be a file path or `STDOUT`).
 
 ## Apply The Output
 

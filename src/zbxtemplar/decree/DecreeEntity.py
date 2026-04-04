@@ -1,3 +1,5 @@
+from enum import Enum
+
 class MacroType:
     """Global macro types."""
     TEXT = "text"
@@ -77,6 +79,12 @@ class DecreeEntity:
                 items = list_method()
                 if items:
                     result[key] = items
+            elif hasattr(value, 'to_dict'):
+                items = value.to_dict()
+                if items:
+                    result[key] = items
+            elif isinstance(value, Enum):
+                result[key] = value.value
             else:
                 result[key] = value
         return result

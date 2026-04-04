@@ -26,11 +26,11 @@ def _full_api():
         {"roleid": "1", "name": "User role"},
     ]
     api.mediatype.get.return_value = []
-    api.user.get.side_effect = [
-        [],  # existing check
-        [{"userid": "20", "username": "api-reader"}],  # after create, for token
-    ]
+    api.user.get.return_value = []
+    api.user.create.return_value = {"userids": ["20"]}
     api.token.get.return_value = []
+    api.token.create.return_value = {"tokenids": ["55"]}
+    api.token.generate.return_value = {"token": "generated-secret"}
     return api
 
 
@@ -46,7 +46,12 @@ def test_scroll_runs_all_stages(monkeypatch):
     )
     api.usergroup.create.assert_called_once()
     api.user.create.assert_called_once()
-    api.token.create.assert_called_once()
+    api.token.create.assert_called_once_with(
+        name="api-reader-token",
+        userid="20",
+        expires_at=0,
+    )
+    api.token.generate.assert_called_once_with(tokenid="55")
 
 
 def test_scroll_only_stage(monkeypatch):

@@ -19,7 +19,7 @@ REFERENCE_TEMPLATES = REFERENCE_DIR / "templates.yml"
 REFERENCE_HOSTS = REFERENCE_DIR / "hosts.yml"
 
 
-class TestTemplate(TemplarModule):
+class SampleTemplate(TemplarModule):
     def __init__(self):
         super().__init__()
 
@@ -119,7 +119,7 @@ import pytest
 
 @pytest.fixture(scope="module")
 def module():
-    return TestTemplate()
+    return SampleTemplate()
 
 
 def test_combined_export_matches_reference(module):

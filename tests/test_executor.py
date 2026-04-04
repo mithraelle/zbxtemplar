@@ -4,6 +4,7 @@ import pytest
 
 from zbxtemplar.executor import Executor
 from zbxtemplar.executor.Executor import _resolve_env, _preflight_env_check
+from zbxtemplar.executor.TokenExecutor import TokenExecutorError
 from tests.paths import FIXTURES_DIR
 
 DECREE_USER_GROUP = FIXTURES_DIR / "user_group.decree.yml"
@@ -400,15 +401,19 @@ def _user_api():
         {"mediatypeid": "1", "name": "Email"},
     ]
     api.user.get.return_value = []
+    api.token.get.return_value = []
+    api.token.create.return_value = {"tokenids": ["55"]}
+    api.token.generate.return_value = {"token": "generated-secret"}
     return api
 
 
 def test_add_user_from_file(monkeypatch):
     monkeypatch.setenv("ZBX_SERVICE_PASSWORD", "s3cret")
     api = _user_api()
-    api.user.get.side_effect = [
-        [],  # first call: check existing (both users absent)
-        [{"userid": "20", "username": "api-reader"}],  # after api-reader create, for token
+    api.user.get.return_value = []
+    api.user.create.side_effect = [
+        {"userids": ["10"]},  # zbx-service
+        {"userids": ["20"]},  # api-reader
     ]
     api.token.get.return_value = []
 
@@ -429,7 +434,12 @@ def test_add_user_from_file(monkeypatch):
     second_call = api.user.create.call_args_list[1][1]
     assert second_call["username"] == "api-reader"
     assert second_call["roleid"] == "1"
-    api.token.create.assert_called_once_with(name="api-reader-token", userid="20")
+    api.token.create.assert_called_once_with(
+        name="api-reader-token",
+        userid="20",
+        expires_at=0,
+    )
+    api.token.generate.assert_called_once_with(tokenid="55")
 
 
 def test_add_user_updates_existing():
@@ -451,55 +461,206 @@ def test_add_user_updates_existing():
 
 def test_add_user_creates_token():
     api = _user_api()
-    api.user.get.side_effect = [
-        [],  # first call: check existing
-        [{"userid": "20", "username": "api-reader"}],  # second call: after create
-    ]
+    api.user.get.return_value = []
+    api.user.create.return_value = {"userids": ["20"]}
     api.token.get.return_value = []
 
     Executor(api).add_user({
         "username": "api-reader",
         "role": "User role",
-        "token": "read-only-token",
+        "token": {
+            "name": "api-reader-token",
+            "store_at": "STDOUT",
+            "expires_at": "NEVER",
+        },
     })
     api.user.create.assert_called_once()
     api.token.create.assert_called_once_with(
         name="api-reader-token",
         userid="20",
+        expires_at=0,
     )
+    api.token.generate.assert_called_once_with(tokenid="55")
 
 
-def test_add_user_token_exists_raises():
+def test_add_user_updates_existing_token_without_changing_expiration(capsys):
     api = _user_api()
     api.user.get.return_value = [{"userid": "20", "username": "api-reader"}]
-    api.token.get.return_value = [{"tokenid": "55", "name": "api-reader-token"}]
-
-    with pytest.raises(ValueError, match="already exists.*force_token"):
-        Executor(api).add_user({
-            "username": "api-reader",
-            "role": "User role",
-            "token": "read-only-token",
-        })
-    api.token.create.assert_not_called()
-    api.token.delete.assert_not_called()
-
-
-def test_add_user_force_token_recreates():
-    api = _user_api()
-    api.user.get.return_value = [{"userid": "20", "username": "api-reader"}]
-    api.token.get.return_value = [{"tokenid": "55", "name": "api-reader-token"}]
+    api.token.get.return_value = [
+        {
+            "tokenid": "55",
+            "name": "api-reader-token",
+            "userid": "20",
+            "expires_at": "1710000000",
+            "status": "1",
+        }
+    ]
 
     Executor(api).add_user({
         "username": "api-reader",
         "role": "User role",
-        "token": "read-only-token",
+        "token": {
+            "name": "api-reader-token",
+            "store_at": "STDOUT",
+        },
         "force_token": True,
     })
-    api.token.delete.assert_called_once_with("55")
-    api.token.create.assert_called_once_with(
-        name="api-reader-token",
-        userid="20",
-    )
+    api.token.update.assert_called_once_with(tokenid="55", status=0)
+    api.token.create.assert_not_called()
+    assert "generated-secret" in capsys.readouterr().out
+
+
+def test_add_user_force_token_updates():
+    api = _user_api()
+    api.user.get.return_value = [{"userid": "20", "username": "api-reader"}]
+    api.token.get.return_value = [{"tokenid": "55", "name": "api-reader-token", "userid": "20"}]
+
+    Executor(api).add_user({
+        "username": "api-reader",
+        "role": "User role",
+        "token": {
+            "name": "api-reader-token",
+            "store_at": "STDOUT",
+            "expires_at": "NEVER",
+        },
+        "force_token": True,
+    })
+    api.token.update.assert_called_once_with(tokenid="55", status=0, expires_at=0)
+    api.token.create.assert_not_called()
+    api.token.generate.assert_called_once_with(tokenid="55")
+
+
+def test_add_user_rejects_token_owned_by_other_user():
+    api = _user_api()
+    api.user.get.return_value = [{"userid": "20", "username": "api-reader"}]
+    api.token.get.return_value = [{"tokenid": "55", "name": "api-reader-token", "userid": "99"}]
+
+    with pytest.raises(TokenExecutorError, match="belongs to a different user"):
+        Executor(api).add_user({
+            "username": "api-reader",
+            "role": "User role",
+            "token": {
+                "name": "api-reader-token",
+                "store_at": "STDOUT",
+            },
+            "force_token": True,
+        })
+
+
+def test_add_user_requires_token_store_at():
+    api = _user_api()
+    with pytest.raises(ValueError, match="token.store_at is required"):
+        Executor(api).add_user({
+            "username": "api-reader",
+            "role": "User role",
+            "token": {
+                "name": "api-reader-token",
+                "expires_at": "NEVER",
+            },
+        })
+
+
+def test_add_user_requires_expires_at_on_create():
+    api = _user_api()
+    api.user.get.return_value = [{"userid": "20", "username": "api-reader"}]
+
+    with pytest.raises(TokenExecutorError, match="expires_at is required on create"):
+        Executor(api).add_user({
+            "username": "api-reader",
+            "role": "User role",
+            "token": {
+                "name": "api-reader-token",
+                "store_at": "STDOUT",
+            },
+        })
+
+
+def test_add_user_writes_token_to_file(tmp_path):
+    api = _user_api()
+    api.user.get.return_value = [{"userid": "20", "username": "api-reader"}]
+    out_file = tmp_path / "api-reader.token"
+
+    Executor(api).add_user({
+        "username": "api-reader",
+        "role": "User role",
+        "token": {
+            "name": "api-reader-token",
+            "store_at": str(out_file),
+            "expires_at": "NEVER",
+        },
+    })
+
+    assert out_file.read_text(encoding="utf-8") == "generated-secret"
+
+
+def test_add_user_rejects_duplicate_store_at(tmp_path):
+    api = _user_api()
+    out_file = str(tmp_path / "shared.token")
+
+    with pytest.raises(TokenExecutorError, match="Duplicate store_at path"):
+        Executor(api).add_user([
+            {
+                "username": "api-reader-a",
+                "role": "User role",
+                "token": {
+                    "name": "token-a",
+                    "store_at": out_file,
+                    "expires_at": "NEVER",
+                },
+            },
+            {
+                "username": "api-reader-b",
+                "role": "User role",
+                "token": {
+                    "name": "token-b",
+                    "store_at": out_file,
+                    "expires_at": "NEVER",
+                },
+            },
+        ])
+
+
+def test_add_user_rejects_duplicate_token_name():
+    api = _user_api()
+
+    with pytest.raises(TokenExecutorError, match="Duplicate token name"):
+        Executor(api).add_user([
+            {
+                "username": "api-reader-a",
+                "role": "User role",
+                "token": {
+                    "name": "shared-token",
+                    "store_at": "STDOUT",
+                    "expires_at": "NEVER",
+                },
+            },
+            {
+                "username": "api-reader-b",
+                "role": "User role",
+                "token": {
+                    "name": "shared-token",
+                    "store_at": "b.token",
+                    "expires_at": "NEVER",
+                },
+            },
+        ])
+
+
+def test_add_user_rejects_existing_store_at_file(tmp_path):
+    api = _user_api()
+    out_file = tmp_path / "existing.token"
+    out_file.write_text("present", encoding="utf-8")
+
+    with pytest.raises(TokenExecutorError, match="refusing to overwrite existing file"):
+        Executor(api).add_user({
+            "username": "api-reader",
+            "role": "User role",
+            "token": {
+                "name": "api-reader-token",
+                "store_at": str(out_file),
+                "expires_at": "NEVER",
+            },
+        })
 
 
 def test_add_user_unknown_role():
