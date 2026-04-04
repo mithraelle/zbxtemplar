@@ -5,6 +5,8 @@ import pytest
 from zbxtemplar.executor import Executor
 from zbxtemplar.executor.Executor import _resolve_env, _preflight_env_check
 from zbxtemplar.executor.TokenExecutor import TokenExecutorError
+from zbxtemplar.executor.exceptions import ExecutorApiError, ExecutorParseError
+from zabbix_utils import APIRequestError
 from tests.paths import FIXTURES_DIR
 
 DECREE_USER_GROUP = FIXTURES_DIR / "user_group.decree.yml"
@@ -311,9 +313,10 @@ def test_decree_invalid_gui_access():
         })
 
 
-def test_decree_unknown_keys_ignored():
+def test_decree_unknown_keys_raises():
     api = _decree_api()
-    Executor(api).decree({"something_else": []})
+    with pytest.raises(ExecutorParseError, match="Unknown keys in decree document: something_else"):
+        Executor(api).decree({"something_else": []})
     api.usergroup.create.assert_not_called()
     api.usergroup.update.assert_not_called()
 
@@ -693,3 +696,29 @@ def test_add_user_unknown_media_type():
             "password": "pass",
             "medias": [{"type": "Slack", "sendto": "x"}],
         })
+
+
+# --- Error Handling Wrappers ---
+
+def test_api_error_wrapped():
+    api = _decree_api()
+    api.usergroup.create.side_effect = APIRequestError("Simulated network drop")
+    
+    with pytest.raises(ExecutorApiError, match="Failed to create user group 'Ops Team': Simulated network drop"):
+        Executor(api).decree({
+            "user_group": [{
+                "name": "Ops Team",
+                "gui_access": "DEFAULT",
+            }]
+        })
+
+def test_yaml_parse_error_wrapped(tmp_path):
+    bad_yaml = tmp_path / "bad.yml"
+    bad_yaml.write_text("invalid: [yaml\n", encoding="utf-8")
+    api = MagicMock()
+
+    with pytest.raises(ExecutorParseError, match="Failed to parse scroll file") as exc:
+        Executor(api).run_scroll(str(bad_yaml))
+    
+    assert exc.value.path == str(bad_yaml)
+

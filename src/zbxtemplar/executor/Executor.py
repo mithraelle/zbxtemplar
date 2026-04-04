@@ -6,6 +6,8 @@ import yaml
 from zbxtemplar.decree import UserGroup, User, UserMedia, GuiAccess, Permission, Severity, MacroType
 from zbxtemplar.decree.Token import TokenOutput
 from zbxtemplar.executor.TokenExecutor import TokenExecutor, TokenExecutorError
+from zbxtemplar.executor.exceptions import ExecutorApiError, ExecutorParseError
+from zabbix_utils import APIRequestError
 
 
 def _resolve_env(value):
@@ -81,8 +83,11 @@ class Executor:
     def set_super_admin(self, data):
         data = self._resolve(data)
         password = data if isinstance(data, str) else data["password"]
-        self._api.user.update(userid="1", passwd=password)
-        print("Super admin password updated.")
+        print("Updating super admin password...")
+        try:
+            self._api.user.update(userid="1", passwd=password)
+        except APIRequestError as e:
+            raise ExecutorApiError(f"Failed to update super admin password: {e}") from e
 
     def _validate_macro(self, macro, index=None):
         prefix = f"macro[{index}]" if index is not None else "macro"
@@ -96,8 +101,12 @@ class Executor:
             raise ValueError(f"{prefix}: invalid type '{macro_type}', expected one of: {', '.join(MacroType._API_VALUES)}")
 
     def _load_macros_from_file(self, path):
-        with open(self._resolve_path(path)) as f:
-            data = yaml.safe_load(f)
+        resolved_path = self._resolve_path(path)
+        try:
+            with open(resolved_path) as f:
+                data = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            raise ExecutorParseError(f"Failed to parse macro file '{resolved_path}': {e}", path=resolved_path) from e
         if isinstance(data, dict) and "set_macro" in data:
             data = data["set_macro"]
         return data if isinstance(data, list) else [data]
@@ -130,15 +139,21 @@ class Executor:
             macro_type = MacroType._API_VALUES.get(macro.get("type", MacroType.TEXT), 0)
 
             if wire_name in existing:
-                self._api.usermacro.updateglobal(
-                    globalmacroid=existing[wire_name], value=value, type=macro_type
-                )
-                print(f"Updated macro {wire_name}.")
+                print(f"Updating macro {wire_name}...")
+                try:
+                    self._api.usermacro.updateglobal(
+                        globalmacroid=existing[wire_name], value=value, type=macro_type
+                    )
+                except APIRequestError as e:
+                    raise ExecutorApiError(f"Failed to update macro '{wire_name}': {e}") from e
             else:
-                self._api.usermacro.createglobal(
-                    macro=wire_name, value=value, type=macro_type
-                )
-                print(f"Created macro {wire_name}.")
+                print(f"Creating macro {wire_name}...")
+                try:
+                    self._api.usermacro.createglobal(
+                        macro=wire_name, value=value, type=macro_type
+                    )
+                except APIRequestError as e:
+                    raise ExecutorApiError(f"Failed to create macro '{wire_name}': {e}") from e
 
     _IMPORT_RULES = {
         "template_groups": {"createMissing": True, "updateExisting": True},
@@ -155,12 +170,16 @@ class Executor:
     }
 
     def _apply_file(self, path):
-        with open(self._resolve_path(path)) as f:
+        resolved_path = self._resolve_path(path)
+        with open(resolved_path) as f:
             yaml_content = f.read()
-        self._api.configuration.import_(
-            source=yaml_content, format="yaml", rules=self._IMPORT_RULES
-        )
-        print(f"Imported {path}.")
+        print(f"Importing {path}...")
+        try:
+            self._api.configuration.import_(
+                source=yaml_content, format="yaml", rules=self._IMPORT_RULES
+            )
+        except APIRequestError as e:
+            raise ExecutorApiError(f"Failed to import '{path}': {e}") from e
 
     def apply(self, data):
         if isinstance(data, list):
@@ -197,11 +216,17 @@ class Executor:
             if ug.name in existing_ugroups:
                 params["usrgrpid"] = existing_ugroups[ug.name]
                 del params["name"]
-                self._api.usergroup.update(**params)
-                print(f"Updated user group '{ug.name}'.")
+                print(f"Updating user group '{ug.name}'...")
+                try:
+                    self._api.usergroup.update(**params)
+                except APIRequestError as e:
+                    raise ExecutorApiError(f"Failed to update user group '{ug.name}': {e}") from e
             else:
-                self._api.usergroup.create(**params)
-                print(f"Created user group '{ug.name}'.")
+                print(f"Creating user group '{ug.name}'...")
+                try:
+                    self._api.usergroup.create(**params)
+                except APIRequestError as e:
+                    raise ExecutorApiError(f"Failed to create user group '{ug.name}': {e}") from e
 
     def _decree_add_user(self, data):
         data = self._resolve(data)
@@ -247,15 +272,21 @@ class Executor:
             if user.username in existing:
                 params["userid"] = existing[user.username]
                 del params["username"]
-                self._api.user.update(**params)
-                print(f"Updated user '{user.username}'.")
+                print(f"Updating user '{user.username}'...")
+                try:
+                    self._api.user.update(**params)
+                except APIRequestError as e:
+                    raise ExecutorApiError(f"Failed to update user '{user.username}': {e}") from e
             else:
-                create_result = self._api.user.create(**params)
+                print(f"Creating user '{user.username}'...")
+                try:
+                    create_result = self._api.user.create(**params)
+                except APIRequestError as e:
+                    raise ExecutorApiError(f"Failed to create user '{user.username}': {e}") from e
                 userids = (create_result or {}).get("userids")
                 if not userids:
                     raise ValueError(f"Unable to resolve created user id for '{user.username}'")
                 existing[user.username] = userids[0]
-                print(f"Created user '{user.username}'.")
 
             if user.token:
                 try:
@@ -357,11 +388,17 @@ class Executor:
             if name in existing:
                 action["actionid"] = existing[name]
                 del action["name"]
-                self._api.action.update(**action)
-                print(f"Updated action '{name}'.")
+                print(f"Updating action '{name}'...")
+                try:
+                    self._api.action.update(**action)
+                except APIRequestError as e:
+                    raise ExecutorApiError(f"Failed to update action '{name}': {e}") from e
             else:
-                self._api.action.create(**action)
-                print(f"Created action '{name}'.")
+                print(f"Creating action '{name}'...")
+                try:
+                    self._api.action.create(**action)
+                except APIRequestError as e:
+                    raise ExecutorApiError(f"Failed to create action '{name}': {e}") from e
 
     _DECREE_ACTIONS = (
         ("user_group", "_decree_user_group"),
@@ -370,8 +407,12 @@ class Executor:
     )
 
     def _load_decree_file(self, path):
-        with open(self._resolve_path(path)) as f:
-            return yaml.safe_load(f)
+        resolved_path = self._resolve_path(path)
+        try:
+            with open(resolved_path) as f:
+                return yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            raise ExecutorParseError(f"Failed to parse decree file '{resolved_path}': {e}", path=resolved_path) from e
 
     def _merge_decree(self, sources):
         merged = {}
@@ -390,14 +431,22 @@ class Executor:
         if isinstance(data, list):
             data = self._merge_decree(data)
 
+        unknown = set(data.keys()) - {k for k, _ in self._DECREE_ACTIONS}
+        if unknown:
+            raise ExecutorParseError(f"Unknown keys in decree document: {', '.join(sorted(unknown))}")
+
         for key, method in self._DECREE_ACTIONS:
             if key in data:
                 getattr(self, method)(data[key])
 
     def add_user(self, data):
         if isinstance(data, str):
-            with open(self._resolve_path(data)) as f:
-                data = yaml.safe_load(f)
+            resolved_path = self._resolve_path(data)
+            try:
+                with open(resolved_path) as f:
+                    data = yaml.safe_load(f)
+            except yaml.YAMLError as e:
+                raise ExecutorParseError(f"Failed to parse user file '{resolved_path}': {e}", path=resolved_path) from e
         if isinstance(data, dict):
             if "add_user" in data:
                 data = data["add_user"]
@@ -413,8 +462,15 @@ class Executor:
 
     def run_scroll(self, scroll_path, from_stage=None, only_stage=None):
         self._base_dir = os.path.dirname(os.path.abspath(scroll_path))
-        with open(scroll_path) as f:
-            scroll = yaml.safe_load(f)
+        try:
+            with open(scroll_path) as f:
+                scroll = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            raise ExecutorParseError(f"Failed to parse scroll file '{scroll_path}': {e}", path=scroll_path) from e
+
+        unknown = set(scroll.keys()) - {"stages"}
+        if unknown:
+            raise ExecutorParseError(f"Unknown keys in scroll document '{scroll_path}': {', '.join(sorted(unknown))}")
 
         stages = {s["stage"]: s for s in scroll["stages"]}
 

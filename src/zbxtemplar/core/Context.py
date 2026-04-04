@@ -66,9 +66,9 @@ class Context:
         if not isinstance(data, dict):
             raise ValueError(f"{filename}: expected a YAML mapping, got {type(data).__name__}")
 
-        if not (set(data.keys()) & self._KNOWN_KEYS):
-            top = ", ".join(sorted(data.keys()))
-            raise ValueError(f"{filename}: unknown format (top-level keys: {top})")
+        unknown = set(data.keys()) - self._KNOWN_KEYS
+        if unknown:
+            raise ValueError(f"{filename}: unknown format (top-level keys: {', '.join(sorted(unknown))})")
 
         if "zabbix_export" in data:
             self._load_zabbix_export(data["zabbix_export"])
