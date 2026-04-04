@@ -198,5 +198,3 @@ These are worth knowing before relying on the executor heavily:
 
 - `force_token` is an aggressive token rotation that overwrites the existing secret, not a graceful coordinated rotation.
 - Partial progress logging could be clearer during long or multi-step applies.
-
-Those items are tracked in [Project Status](./project-status.md).

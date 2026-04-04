@@ -166,4 +166,3 @@ When integrating with existing environments, context can also come from existing
 - Duplicate `add_*()` calls are currently silent no-ops.
 - Context rejects completely unknown file formats, but not every typo is surfaced yet.
 
-See [Project Status](./project-status.md) for the main caveats and backlog priorities.
