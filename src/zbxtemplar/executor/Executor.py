@@ -470,11 +470,19 @@ class Executor:
         combined = []
         for stage in stages.values():
             for action_name in ("set_macro", "decree"):
-                for entry in stage.get(action_name, []):
-                    if isinstance(entry, str):
-                        combined.append(self._load_decree_file(entry))
-                    else:
-                        combined.append(entry)
+                value = stage.get(action_name)
+                if value is None:
+                    continue
+                if isinstance(value, str):
+                    combined.append(self._load_decree_file(value))
+                elif isinstance(value, dict):
+                    combined.append(value)
+                elif isinstance(value, list):
+                    for entry in value:
+                        if isinstance(entry, str):
+                            combined.append(self._load_decree_file(entry))
+                        else:
+                            combined.append(entry)
         if combined:
             _preflight_env_check(combined)
 
