@@ -28,6 +28,7 @@ For `DecreeModule`:
 - `--user-groups-output`
 - `--users-output`
 - `--actions-output`
+- `--encryption-output`
 
 ### Other flags
 
@@ -86,6 +87,7 @@ Supported top-level keys:
 - `user_group`
 - `add_user`
 - `actions`
+- `encryption`
 
 The context registry exposes lookups such as:
 
@@ -127,6 +129,7 @@ The split export helpers are:
 - `export_user_groups()`
 - `export_users()`
 - `export_actions()`
+- `export_encryption()`
 
 ## Programmatic Loading
 

@@ -50,7 +50,7 @@ class Context:
             raise ValueError(f"User group '{name}' not found in context")
         return self._user_groups[name]
 
-    _KNOWN_KEYS = {"zabbix_export", "set_macro", "user_group", "add_user", "actions"}
+    _KNOWN_KEYS = {"zabbix_export", "set_macro", "user_group", "add_user", "actions", "encryption"}
 
     @staticmethod
     def _upsert(registry: dict, key, obj):

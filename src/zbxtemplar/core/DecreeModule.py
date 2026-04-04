@@ -4,6 +4,8 @@ class DecreeModule:
         self.user_groups = []
         self.users = []
         self.actions = []
+        self.encryption_defaults = None
+        self.encryptions = []
 
     def add_user_group(self, group):
         if any(g.name == group.name for g in self.user_groups):
@@ -23,6 +25,19 @@ class DecreeModule:
         self.actions.append(action)
         return self
 
+    def set_encryption_defaults(self, defaults):
+        self.encryption_defaults = defaults
+        return self
+
+    def add_host_encryption(self, host, encryption):
+        from zbxtemplar.zabbix.Host import Host
+        from zbxtemplar.decree.Encryption import HostEncryption
+        name = host.host if isinstance(host, Host) else host
+        if any(e.host == name for e in self.encryptions):
+            return self
+        self.encryptions.append(HostEncryption.from_encryption(name, encryption))
+        return self
+
     def export_user_groups(self) -> dict:
         if not self.user_groups:
             return {}
@@ -38,12 +53,20 @@ class DecreeModule:
             return {}
         return {"actions": [a.to_dict() for a in self.actions]}
 
+    def export_encryption(self) -> dict:
+        if not self.encryptions and not self.encryption_defaults:
+            return {}
+        enc = {}
+        if self.encryption_defaults:
+            enc["host_defaults"] = self.encryption_defaults.to_dict()
+        if self.encryptions:
+            enc["hosts"] = [e.to_dict() for e in self.encryptions]
+        return {"encryption": enc}
+
     def to_export(self) -> dict:
         result = {}
-        if self.user_groups:
-            result["user_group"] = [g.to_dict() for g in self.user_groups]
-        if self.users:
-            result["add_user"] = [u.to_dict() for u in self.users]
-        if self.actions:
-            result["actions"] = [a.to_dict() for a in self.actions]
+        result.update(self.export_user_groups())
+        result.update(self.export_users())
+        result.update(self.export_actions())
+        result.update(self.export_encryption())
         return result

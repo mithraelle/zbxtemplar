@@ -34,11 +34,16 @@ src/zbxtemplar/
 │   ├── DecreeEntity.py
 │   ├── UserGroup.py
 │   ├── User.py
+│   ├── Token.py
 │   ├── Action.py
+│   ├── Encryption.py
 │   ├── action_conditions.py
 │   └── action_operations.py
 ├── executor/
-│   └── Executor.py
+│   ├── Executor.py
+│   ├── EncryptionExecutor.py
+│   ├── TokenExecutor.py
+│   └── exceptions.py
 ├── main.py
 └── executor_main.py
 ```
@@ -69,8 +74,9 @@ Use it to define:
 - user groups
 - users
 - actions
+- host encryption
 
-Its output is decree YAML with keys such as `user_group`, `add_user`, and `actions`.
+Its output is decree YAML with keys such as `user_group`, `add_user`, `actions`, and `encryption`.
 
 ### `Context`
 
@@ -122,6 +128,7 @@ Best for:
 - user groups
 - users
 - actions
+- host encryption
 
 This format is applied by `zbxtemplar-exec`, which resolves names to live Zabbix IDs at runtime.
 

@@ -5,6 +5,7 @@ from zbxtemplar.core import DecreeModule
 from zbxtemplar.decree import Token, UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
 from zbxtemplar.decree.Action import TriggerAction, AutoregistrationAction
 from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition
+from zbxtemplar.decree.Encryption import HostEncryption, Encryption
 
 
 class SampleDecree(DecreeModule):
@@ -52,6 +53,11 @@ class SampleDecree(DecreeModule):
         test_registration.operations.link_template(test_template)
         test_registration.set_conditions(HostMetadataCondition("test", HostMetadataCondition.Op.CONTAINS))
         self.add_action(test_registration)
+
+        self.set_encryption_defaults(Encryption(connect_unencrypted=True))
+        host_encryption = Encryption(accept_unencrypted=True)
+        host_encryption.set_psk(identity="zbxtemplar_psk", psk="${ZBX_ENCRYPTED_PSK}")
+        self.add_host_encryption(context.get_host("Templar Host"), host_encryption)
 
 
 if __name__ == "__main__":

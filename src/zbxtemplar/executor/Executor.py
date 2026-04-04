@@ -6,6 +6,7 @@ import yaml
 from zbxtemplar.decree import UserGroup, User, UserMedia, GuiAccess, Permission, Severity, MacroType
 from zbxtemplar.decree.Token import TokenOutput
 from zbxtemplar.executor.TokenExecutor import TokenExecutor, TokenExecutorError
+from zbxtemplar.executor.EncryptionExecutor import EncryptionExecutor
 from zbxtemplar.executor.exceptions import ExecutorApiError, ExecutorParseError
 from zabbix_utils import APIRequestError
 
@@ -400,10 +401,15 @@ class Executor:
                 except APIRequestError as e:
                     raise ExecutorApiError(f"Failed to create action '{name}': {e}") from e
 
+    def _decree_encryption(self, data):
+        data = self._resolve(data)
+        EncryptionExecutor(self._api).decree(data)
+
     _DECREE_ACTIONS = (
         ("user_group", "_decree_user_group"),
         ("add_user", "_decree_add_user"),
         ("actions", "_decree_actions"),
+        ("encryption", "_decree_encryption"),
     )
 
     def _load_decree_file(self, path):
@@ -460,6 +466,18 @@ class Executor:
         ("state",     ("decree",)),
     )
 
+    def _preflight_scroll(self, stages):
+        combined = []
+        for stage in stages.values():
+            for action_name in ("set_macro", "decree"):
+                for entry in stage.get(action_name, []):
+                    if isinstance(entry, str):
+                        combined.append(self._load_decree_file(entry))
+                    else:
+                        combined.append(entry)
+        if combined:
+            _preflight_env_check(combined)
+
     def run_scroll(self, scroll_path, from_stage=None, only_stage=None):
         self._base_dir = os.path.dirname(os.path.abspath(scroll_path))
         try:
@@ -473,6 +491,7 @@ class Executor:
             raise ExecutorParseError(f"Unknown keys in scroll document '{scroll_path}': {', '.join(sorted(unknown))}")
 
         stages = {s["stage"]: s for s in scroll["stages"]}
+        self._preflight_scroll(stages)
 
         pipeline = self.PIPELINE
         if only_stage:

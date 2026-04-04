@@ -7,7 +7,7 @@
 It handles two broad cases:
 
 - importing Zabbix-native YAML
-- applying decree YAML for stateful objects such as users, groups, and actions
+- applying decree YAML for stateful objects such as users, groups, actions, and host encryption
 
 ## Installation
 
@@ -60,10 +60,33 @@ Applies decree YAML sections in dependency order:
 1. `user_group`
 2. `add_user`
 3. `actions`
+4. `encryption`
 
 ```bash
 zbxtemplar-exec decree decree.yml --url ... --token ...
 ```
+
+The `encryption` section configures host-level TLS settings (PSK, certificate, or unencrypted). It supports `host_defaults` for shared settings and per-host overrides:
+
+```yaml
+encryption:
+  host_defaults:
+    connect: PSK
+    accept: UNENCRYPTED, PSK
+    psk_identity: shared_id
+    psk: ${PSK_SECRET}
+  hosts:
+  - host: my-host
+  - host: special-host
+    connect: CERT
+    accept: CERT
+    issuer: CN=Root CA
+    subject: CN=special-host
+```
+
+Per-host keys fully replace defaults (no merging of individual fields). A host entry with only `host` inherits all defaults. Hosts are matched by technical name against the live Zabbix instance.
+
+PSK secrets are write-only in Zabbix, so PSK-mode hosts are always updated to prevent drift.
 
 ### `add_user`
 
@@ -173,9 +196,7 @@ The executor is designed around idempotent re-apply more than around a separate 
 
 These are worth knowing before relying on the executor heavily:
 
-- Executor API calls are not yet wrapped in structured error handling, so environmental failures can still surface as raw tracebacks.
 - `force_token` is an aggressive token rotation that overwrites the existing secret, not a graceful coordinated rotation.
-- Unknown YAML keys are not yet warned on consistently across all input paths.
 - Partial progress logging could be clearer during long or multi-step applies.
 
 Those items are tracked in [Project Status](./project-status.md).
