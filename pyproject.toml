@@ -25,7 +25,7 @@ dependencies = [
 
 [project.optional-dependencies]
 executor = ["zabbix_utils>=2.0"]
-test = ["pytest"]
+test = ["pytest", "zabbix_utils>=2.0"]
 
 [project.urls]
 "Homepage" = "https://github.com/mithraelle/zbxtemplar"
