@@ -6,10 +6,22 @@ Define templates, hosts, user groups, users, and actions as Python code. Generat
 
 Aimed at teams that want:
 
-- monitoring configuration in git
+- monitoring configuration in git, reviewable in PRs
 - readable, programmable definitions instead of large generated exports
 - a lightweight way to manage users, permissions, and alert-routing state
-- a practical workflow for changes that sometimes need to happen fast
+- confidence that deploying monitoring configuration cannot accidentally leak credentials, partially apply state, or silently ignore misconfiguration
+
+## Why
+
+Zabbix is powerful, but its configuration is not pleasant to version, review, or evolve in code. Terraform and Ansible can manage Zabbix — they bring ceremony and templating complexity that often outweigh the problem. Monitoring is combinatorial: an application across a dozen regions, each with a set of queues, each queue needing several items, a dashboard per region, an overview graph. Hundreds of objects, nearly identical but each distinct. In HCL or Jinja, the template becomes harder to read than the output. In `zbxtemplar`, it is a loop and a set of parameters — plain Python any developer on the team can read.
+
+The Zabbix UI handles one-off setup fine. The trouble starts when you need the same action across dev, staging, and prod. When someone edits an alert filter and nobody notices until production goes silent. When "for each team, create a scoped alert" means N manual repetitions with N chances to get it wrong. That does not scale — which forces you into code.
+
+Once you are there, secrets need handling. `${ENV_VAR}` placeholders keep credentials out of git; a missing variable is a hard abort, not an empty string applied to a live instance. Zabbix `secret` and `vault` macro types are first-class. Host encryption (PSK, TLS certificates) and token provisioning — things that are clunky or impossible to automate from the web interface — are managed declaratively with the same strict contract ([`doc/security.md`](./doc/security.md)).
+
+Actions are where the Zabbix API gets awkward and error-prone: numeric codes for everything, manual formula labels, invalid operator-condition combinations accepted without complaint. `zbxtemplar` replaces that with typed Python — `HostGroupCondition("Production") & SeverityCondition("HIGH")`. Names, not IDs. Wrong operator on the wrong condition type? Type error at write time, not a silent misfire during an incident ([`doc/actions.md`](./doc/actions.md)).
+
+On top of all this, `Context` validates references at generation time — against previously generated or exported YAML — so a typo in a host group name or a missing template is caught before any artifact is written. Deterministic UUIDs prevent import duplicates. Mistakes break against your code, not against production ([`doc/generator.md`](./doc/generator.md)).
 
 ## What It Does
 
@@ -24,14 +36,6 @@ The split is intentional:
 - monitoring objects fit well into Zabbix's native import/export model
 - user management and action state often need API-driven apply logic
 - both outputs stay reviewable as plain YAML artifacts
-
-## Why
-
-Zabbix is powerful, but its configuration is not especially pleasant to version, review, or evolve in code. Terraform and Ansible can manage Zabbix, but they bring ceremony and templating complexity that often outweigh the problem.
-
-Monitoring configuration is combinatorial. An application across a dozen regions, each with a set of queues, each queue needing several items, a dashboard per region, an overview graph — that is hundreds of monitoring objects, nearly identical but each distinct. And it all sits unattended until something demands attention right now. In `zbxtemplar`, that is a loop and a set of parameters — plain Python any developer on the team can read without learning a new DSL. In Terraform or Ansible, it is YAML or HCL templating at a scale where the template becomes harder to read than the output.
-
-Generated output is safe to re-import — deterministic UUIDs mean no duplicates on re-run. Mistyped references break at generation time, not against production.
 
 ## Quick Example
 
@@ -119,6 +123,7 @@ The structured docs live in [`doc/`](./doc/README.md):
 - [`doc/generator.md`](./doc/generator.md) for CLI and module-loading behavior
 - [`doc/executor.md`](./doc/executor.md) for apply/decree/scroll usage
 - [`doc/actions.md`](./doc/actions.md) for action conditions and operations
+- [`doc/security.md`](./doc/security.md) for the operational safety model
 
 ## Current Scope
 

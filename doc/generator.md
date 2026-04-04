@@ -80,16 +80,33 @@ If a required parameter is missing or an unknown parameter is supplied, generati
 
 `--context` is accepted by the CLI for any generation run. During loading, the generator forwards the built `Context` into module constructors that accept a `context` parameter.
 
-Supported top-level keys:
+Context serves two practical roles:
 
-- `zabbix_export`
-- `set_macro`
-- `user_group`
-- `add_user`
-- `actions`
-- `encryption`
+### 1. Validating Against Existing Configuration
 
-The context registry exposes lookups such as:
+Context can load exported or otherwise prepared YAML that represents an already existing environment. This lets generation validate references against a known baseline — not only objects created in the same run:
+
+```bash
+# Export existing config from Zabbix, then use it as context for new modules
+zbxtemplar new_decree.py -o decree.yml --context existing_templates.yml
+```
+
+A typo like `context.get_host_group("Prodction")` raises `ValueError` during generation — before any YAML is produced, before any API call happens.
+
+### 2. Composing Multi-Step Generation
+
+Previously generated artifacts provide the registry that new module code builds on:
+
+```bash
+zbxtemplar monitoring.py --templates-output templates.yml
+zbxtemplar decree.py -o decree.yml --context templates.yml
+```
+
+The decree module can reference templates and groups from the monitoring output by name, with validation.
+
+### What Context validates
+
+The registry exposes typed lookups that raise `ValueError` when the name is not found:
 
 - `get_macro(name)`
 - `get_template_group(name)`
@@ -98,11 +115,26 @@ The context registry exposes lookups such as:
 - `get_host(name)`
 - `get_user_group(name)`
 
-Common uses include:
+These load rich domain objects, not plain name strings — so the returned template has its items, triggers, and groups available for inspection.
 
-- referencing existing configuration objects by name from exported YAML
-- validating module references before apply/import
-- composing multi-step generation flows (for example, monitoring output reused by decree generation)
+### What Context does not validate
+
+Context is a snapshot, not a live connection. It cannot prove:
+
+- that the live Zabbix instance has not changed since the YAML snapshot was made
+- that every apply-time API call will succeed
+- that all runtime concerns are modeled in the context registry
+
+The honest framing: generation-time validation catches typos and missing references within the scope of supplied YAML. Apply-time resolution (executor resolving names to live Zabbix IDs) catches the rest. Together they form a two-stage safety net where the cheapest failures happen first.
+
+### Supported context YAML formats
+
+- `zabbix_export` — Zabbix-native YAML (templates, hosts, groups)
+- `set_macro` — global macros
+- `user_group` — user groups
+- `add_user` — users
+
+Multiple `--context` flags accumulate into one registry. Unknown formats are rejected with an error.
 
 ### Notes on context injection
 

@@ -29,9 +29,13 @@ The project is aimed at teams who want monitoring configuration, access control,
 - [Actions Guide](./actions.md)  
   Trigger/autoregistration actions, condition expressions, and supported operations.
 
+- [Security & Safety](./security.md)  
+  Secret management, macro types, host encryption, token safety, fail-fast validation, and the two-stage validation model.
+
 ## Recommended Reading Order
 
 1. Start with [Getting Started](./getting-started.md).
 2. Read [Architecture](./architecture.md) for the mental model.
 3. Use [Generator Guide](./generator.md) and [Executor Guide](./executor.md) as day-to-day reference.
 4. Read [Actions Guide](./actions.md) when you need decree-based alerting and routing.
+5. Read [Security & Safety](./security.md) for the operational safety model.
