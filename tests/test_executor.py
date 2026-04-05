@@ -135,7 +135,7 @@ def test_set_macro_secret_type():
     api = MagicMock()
     api.usermacro.get.return_value = []
 
-    Executor(api).set_macro({"name": "DB_PASSWORD", "value": "s3cret", "type": "secret"})
+    Executor(api).set_macro({"name": "DB_PASSWORD", "value": "s3cret", "type": "SECRET_TEXT"})
     api.usermacro.createglobal.assert_called_once_with(
         macro="{$DB_PASSWORD}", value="s3cret", type=1
     )
@@ -149,7 +149,7 @@ def test_set_macro_from_file(tmp_path):
         "    value: public\n"
         "  - name: DB_PASSWORD\n"
         "    value: s3cret\n"
-        "    type: secret\n"
+        "    type: SECRET_TEXT\n"
     )
     api = MagicMock()
     api.usermacro.get.return_value = []

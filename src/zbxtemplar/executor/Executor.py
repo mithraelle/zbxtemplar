@@ -137,7 +137,7 @@ class Executor:
         for macro in macros:
             wire_name = "{$" + macro["name"] + "}"
             value = macro["value"]
-            macro_type = MacroType._API_VALUES.get(macro.get("type", MacroType.TEXT), 0)
+            macro_type = MacroType._API_VALUES[macro.get("type", MacroType.TEXT)]
 
             if wire_name in existing:
                 print(f"Updating macro {wire_name}...")

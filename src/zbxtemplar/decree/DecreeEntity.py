@@ -1,13 +1,5 @@
 from enum import Enum
 
-class MacroType:
-    """Global macro types."""
-    TEXT = "text"
-    SECRET = "secret"
-    VAULT = "vault"
-
-    _API_VALUES = {"text": 0, "secret": 1, "vault": 2}
-
 
 class MediaType:
     """Zabbix built-in media type names (as of 7.4)."""

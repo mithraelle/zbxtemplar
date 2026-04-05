@@ -151,14 +151,14 @@ Example macro file:
 
 - name: DB_PASSWORD
   value: ${DB_PASSWORD}
-  type: secret
+  type: SECRET_TEXT
 
 - name: API_KEY
   value: vault:secret/data/myapp:api_key
-  type: vault
+  type: VAULT
 ```
 
-Secret and vault macros keep credentials out of the Zabbix UI. Combined with `${ENV_VAR}` interpolation, the actual secret values never appear in committed YAML either.
+Type values match the Zabbix native export format: `TEXT` (default), `SECRET_TEXT`, `VAULT`. Secret and vault macros keep credentials out of the Zabbix UI. Combined with `${ENV_VAR}` interpolation, the actual secret values never appear in committed YAML either.
 
 ### `set_super_admin`
 

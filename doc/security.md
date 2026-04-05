@@ -14,7 +14,7 @@ Sensitive values use `${VAR_NAME}` placeholders in YAML. The actual secrets live
 set_macro:
   - name: DB_PASSWORD
     value: ${DB_PASSWORD}
-    type: secret
+    type: SECRET_TEXT
 ```
 
 This is enforced by design:
@@ -25,22 +25,24 @@ This is enforced by design:
 
 ### Global Macro Types
 
-Global macros support three storage types:
+Global macros support three storage types (values match Zabbix native export format):
 
 | Type | Behavior |
 |------|----------|
-| `text` | Default. Value is stored and visible in the Zabbix UI. |
-| `secret` | Value is stored but masked in the UI. Cannot be read back via API. |
-| `vault` | Value is a Vault path. Zabbix fetches the actual secret from HashiCorp Vault at runtime. |
+| `TEXT` | Default. Value is stored and visible in the Zabbix UI. |
+| `SECRET_TEXT` | Value is stored but masked in the UI. Cannot be read back via API. |
+| `VAULT` | Value is a Vault path. Zabbix fetches the actual secret from HashiCorp Vault at runtime. |
+
+In Python code, `MacroType.SECRET` is an alias for `MacroType.SECRET_TEXT`.
 
 ```yaml
 - name: API_KEY
   value: ${API_KEY}
-  type: secret
+  type: SECRET_TEXT
 
 - name: CERT_PASSPHRASE
   value: vault:secret/data/certs:passphrase
-  type: vault
+  type: VAULT
 ```
 
 Secret macros keep credentials hidden in the Zabbix web interface. Vault macros go further — the secret value never reaches Zabbix at all; Zabbix fetches it directly from HashiCorp Vault when needed.

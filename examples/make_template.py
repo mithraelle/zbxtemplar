@@ -1,5 +1,5 @@
 from zbxtemplar.core import TemplarModule
-from zbxtemplar.zabbix.ZbxEntity import YesNo
+from zbxtemplar.zabbix.ZbxEntity import YesNo, MacroType
 from zbxtemplar.zabbix import Template, Item, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
     DashboardPage, Host
 from zbxtemplar.zabbix.DashboardWidget import ClassicGraph
@@ -88,6 +88,7 @@ class SampleTemplate(TemplarModule):
 
         host = Host("Templar Host", groups=[HostGroup("Templar Hosts")])
         host.add_macro("MY_HOST_MACRO", 1, "Testing The Host Macro")
+        host.add_macro("MY_SECRET_MACRO", "some secret", "Testing The Secrets", MacroType.SECRET)
         host.add_template(template)
         host_item = Item("Item Own", "item.test[own]", host.name).add_tag("Service", "Testing Host")
         host.add_item(host_item)

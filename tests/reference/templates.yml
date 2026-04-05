@@ -8,6 +8,7 @@ zabbix_export:
     - name: Templar Templates
     macros:
     - macro: '{$MY_MACRO}'
+      type: TEXT
       value: '1'
       description: Testing The Things
     tags:

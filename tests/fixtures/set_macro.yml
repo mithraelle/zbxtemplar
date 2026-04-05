@@ -3,4 +3,4 @@ set_macro:
     value: public
   - name: DB_PASSWORD
     value: MY_PASSWORD
-    type: secret
+    type: SECRET_TEXT

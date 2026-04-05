@@ -6,6 +6,16 @@ class YesNo(str, Enum):
     NO = "NO"
     YES = "YES"
 
+
+class MacroType(str, Enum):
+    """Macro types (Zabbix export values)."""
+    TEXT = "TEXT"
+    SECRET_TEXT = "SECRET_TEXT"
+    SECRET = "SECRET_TEXT"
+    VAULT = "VAULT"
+
+MacroType._API_VALUES = {"TEXT": 0, "SECRET_TEXT": 1, "VAULT": 2}
+
 ZBX_TEMPLAR_NAMESPACE = "Zbx Templar"
 _NAMESPACE_UUID = uuid.uuid5(uuid.NAMESPACE_DNS, ZBX_TEMPLAR_NAMESPACE)
 
@@ -90,7 +100,7 @@ class WithTags():
         return self
 
 class Macro():
-    def __init__(self, name: str, value: str, description: Optional[str] = None, type: Optional[str] = None):
+    def __init__(self, name: str, value: str, description: Optional[str] = None, type: MacroType = MacroType.TEXT):
         self.name = name
         self.value = value
         self.description = description
@@ -110,7 +120,7 @@ class Macro():
         return other + str(self)
 
     def to_dict(self):
-        result = {"macro": self.full_name, "value": self.value}
+        result = {"macro": self.full_name, "type": self.type.value, "value": self.value}
         if self.description is not None:
             result["description"] = self.description
         return result
@@ -121,11 +131,12 @@ class Macro():
             name = data["macro"].replace("{$", "").replace("}", "")
         else:
             name = data["name"]
+        raw_type = data.get("type", MacroType.TEXT)
         return cls(
             name=name,
             value=data.get("value", ""),
             description=data.get("description"),
-            type=data.get("type"),
+            type=MacroType(raw_type),
         )
 
 class WithMacros():
@@ -133,9 +144,9 @@ class WithMacros():
         super().__init__()
         self.macros: Dict[str, Macro] = {}
 
-    def add_macro(self, name: str, value: Union[str, int], description: Union[str, None] = None):
+    def add_macro(self, name: str, value: Union[str, int], description: Union[str, None] = None, type: MacroType = MacroType.TEXT):
         clean_name = name.replace("{$", "").replace("}", "")
-        self.macros[clean_name] = Macro(name=clean_name, value=str(value), description=description)
+        self.macros[clean_name] = Macro(name=clean_name, value=str(value), description=description, type=type)
         return self
 
     def load_macros(self, macros: Union[Dict[str, Union[str, tuple]], List[dict]]):
