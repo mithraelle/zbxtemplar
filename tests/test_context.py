@@ -1,6 +1,6 @@
 import pytest
 
-from zbxtemplar.core import Context
+from zbxtemplar.modules import Context
 from tests.paths import FIXTURES_DIR, REFERENCE_DIR
 
 

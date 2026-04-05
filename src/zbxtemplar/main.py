@@ -6,9 +6,9 @@ import os
 import yaml
 
 from zbxtemplar.zabbix.ZbxEntity import set_uuid_namespace
-from zbxtemplar.core.TemplarModule import TemplarModule
-from zbxtemplar.core.DecreeModule import DecreeModule
-from zbxtemplar.core.Context import Context
+from zbxtemplar.modules.TemplarModule import TemplarModule
+from zbxtemplar.modules.DecreeModule import DecreeModule
+from zbxtemplar.modules.Context import Context
 
 _COERCE = {int: int, float: float, bool: lambda v: v.lower() in ("1", "true", "yes")}
 

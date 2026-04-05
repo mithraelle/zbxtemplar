@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from enum import Enum
-from typing import List
+from enum import StrEnum
+from typing import Self
 
 from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, YesNo
 
@@ -23,7 +23,7 @@ class _WidgetRefCounter:
         cls._counter = 0
 
 
-class WidgetFieldType(str, Enum):
+class WidgetFieldType(StrEnum):
     INTEGER = "INTEGER"
     STRING = "STRING"
     ITEM = "ITEM"
@@ -56,7 +56,7 @@ class Widget(ABC):
         self.y = y
         self.width = width
         self.height = height
-        self.fields: List[WidgetField] = [
+        self.fields: list[WidgetField] = [
             WidgetField(WidgetFieldType.STRING, "reference", _WidgetRefCounter.next())
         ]
 
@@ -88,7 +88,7 @@ class DashboardPage:
     def __init__(self, name: str = "", display_period: int = 0):
         self.name = name
         self.display_period = display_period
-        self.widgets: List[Widget] = []
+        self.widgets: list[Widget] = []
 
     def add_widget(self, widget: Widget):
         self.widgets.append(widget)
@@ -110,8 +110,8 @@ class Dashboard(ZbxEntity):
         super().__init__(name)
         self.display_period = str(display_period)
         self.auto_start = auto_start
-        self.pages: List[DashboardPage] = []
+        self.pages: list[DashboardPage] = []
 
-    def add_page(self, page: DashboardPage) -> 'Dashboard':
+    def add_page(self, page: DashboardPage) -> Self:
         self.pages.append(page)
         return self

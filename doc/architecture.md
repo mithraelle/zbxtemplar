@@ -18,7 +18,7 @@ This separation is intentional:
 
 ```text
 src/zbxtemplar/
-├── core/
+├── modules/
 │   ├── TemplarModule.py
 │   ├── DecreeModule.py
 │   └── Context.py
@@ -99,7 +99,7 @@ During module loading, the generator injects `context` into any module whose `__
 
 - `zbxtemplar.zabbix` contains monitoring entities.
 - `zbxtemplar.decree` contains decree entities and action DSL pieces.
-- `zbxtemplar.core` contains the module contracts and context registry.
+- `zbxtemplar.modules` contains the module contracts and context registry.
 
 ## Output Formats
 

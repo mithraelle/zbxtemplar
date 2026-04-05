@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Self
 
 
 def _name(value):
@@ -12,14 +12,14 @@ def _name(value):
 class SendMessageOperation:
     operationtype = 0
 
-    def __init__(self, users: Optional[List] = None,
-                 groups: Optional[List] = None,
+    def __init__(self, users: list | None = None,
+                 groups: list | None = None,
                  media_type=None,
-                 subject: Optional[str] = None,
-                 message: Optional[str] = None,
-                 step_from: Optional[int] = None,
-                 step_to: Optional[int] = None,
-                 step_duration: Optional[int] = None):
+                 subject: str | None = None,
+                 message: str | None = None,
+                 step_from: int | None = None,
+                 step_to: int | None = None,
+                 step_duration: int | None = None):
         self.users = [_name(u) for u in (users or [])]
         self.groups = [_name(g) for g in (groups or [])]
         self.media_type = _name(media_type) if media_type is not None else None
@@ -57,15 +57,15 @@ class SendMessageOperation:
 
 class TriggerOperations:
     def __init__(self):
-        self._ops: List[SendMessageOperation] = []
+        self._ops: list[SendMessageOperation] = []
 
-    def send_message(self, users: Optional[List] = None,
-                     groups: Optional[List] = None,
+    def send_message(self, users: list | None = None,
+                     groups: list | None = None,
                      media_type=None,
-                     subject: Optional[str] = None,
-                     message: Optional[str] = None,
+                     subject: str | None = None,
+                     message: str | None = None,
                      step_from: int = 1, step_to: int = 1,
-                     step_duration: int = 0) -> 'TriggerOperations':
+                     step_duration: int = 0) -> Self:
         self._ops.append(SendMessageOperation(
             users=users, groups=groups,
             media_type=media_type, subject=subject,
@@ -144,13 +144,13 @@ class SetInventoryModeOperation:
 
 class AutoregistrationOperations:
     def __init__(self):
-        self._ops: List = []
+        self._ops: list = []
 
-    def send_message(self, users: Optional[List] = None,
-                     groups: Optional[List] = None,
+    def send_message(self, users: list | None = None,
+                     groups: list | None = None,
                      media_type=None,
-                     subject: Optional[str] = None,
-                     message: Optional[str] = None) -> 'AutoregistrationOperations':
+                     subject: str | None = None,
+                     message: str | None = None) -> Self:
         self._ops.append(SendMessageOperation(
             users=users, groups=groups,
             media_type=media_type, subject=subject,
@@ -158,27 +158,27 @@ class AutoregistrationOperations:
         ))
         return self
 
-    def add_host(self) -> 'AutoregistrationOperations':
+    def add_host(self) -> Self:
         self._ops.append(AddHostOperation())
         return self
 
-    def add_to_group(self, group) -> 'AutoregistrationOperations':
+    def add_to_group(self, group) -> Self:
         self._ops.append(AddToGroupOperation(group))
         return self
 
-    def link_template(self, template) -> 'AutoregistrationOperations':
+    def link_template(self, template) -> Self:
         self._ops.append(LinkTemplateOperation(template))
         return self
 
-    def enable_host(self) -> 'AutoregistrationOperations':
+    def enable_host(self) -> Self:
         self._ops.append(EnableHostOperation())
         return self
 
-    def disable_host(self) -> 'AutoregistrationOperations':
+    def disable_host(self) -> Self:
         self._ops.append(DisableHostOperation())
         return self
 
-    def set_inventory_mode(self, mode: int = SetInventoryModeOperation.MANUAL) -> 'AutoregistrationOperations':
+    def set_inventory_mode(self, mode: int = SetInventoryModeOperation.MANUAL) -> Self:
         self._ops.append(SetInventoryModeOperation(mode))
         return self
 
@@ -188,13 +188,13 @@ class AutoregistrationOperations:
 
 class TriggerAckOperations:
     def __init__(self):
-        self._ops: List[SendMessageOperation] = []
+        self._ops: list[SendMessageOperation] = []
 
-    def send_message(self, users: Optional[List] = None,
-                     groups: Optional[List] = None,
+    def send_message(self, users: list | None = None,
+                     groups: list | None = None,
                      media_type=None,
-                     subject: Optional[str] = None,
-                     message: Optional[str] = None) -> 'TriggerAckOperations':
+                     subject: str | None = None,
+                     message: str | None = None) -> Self:
         self._ops.append(SendMessageOperation(
             users=users, groups=groups,
             media_type=media_type, subject=subject,

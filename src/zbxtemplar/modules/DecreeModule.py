@@ -1,38 +1,46 @@
-class DecreeModule:
-    def __init__(self, context=None):
-        self.context = context
-        self.user_groups = []
-        self.users = []
-        self.actions = []
-        self.encryption_defaults = None
-        self.encryptions = []
+from typing import Self
 
-    def add_user_group(self, group):
+from zbxtemplar.decree.Action import Action
+from zbxtemplar.decree.Encryption import Encryption, HostEncryption
+from zbxtemplar.decree.User import User
+from zbxtemplar.decree.UserGroup import UserGroup
+from zbxtemplar.modules.Context import Context
+from zbxtemplar.zabbix.Host import Host
+
+
+class DecreeModule:
+    def __init__(self, context: Context | None = None):
+        self.context = context
+        self.user_groups: list[UserGroup] = []
+        self.users: list[User] = []
+        self.actions: list[Action] = []
+        self.encryption_defaults: Encryption | None = None
+        self.encryptions: list[HostEncryption] = []
+
+    def add_user_group(self, group: UserGroup) -> Self:
         if any(g.name == group.name for g in self.user_groups):
             return self
         self.user_groups.append(group)
         return self
 
-    def add_user(self, user):
+    def add_user(self, user: User) -> Self:
         if any(u.username == user.username for u in self.users):
             return self
         self.users.append(user)
         return self
 
-    def add_action(self, action):
+    def add_action(self, action: Action) -> Self:
         if any(a.name == action.name for a in self.actions):
             return self
         self.actions.append(action)
         return self
 
-    def set_encryption_defaults(self, defaults):
+    def set_encryption_defaults(self, defaults: Encryption) -> Self:
         self.encryption_defaults = defaults
         return self
 
-    def add_host_encryption(self, host, encryption):
-        from zbxtemplar.zabbix.Host import Host
-        from zbxtemplar.decree.Encryption import HostEncryption
-        name = host.host if isinstance(host, Host) else host
+    def add_host_encryption(self, host: Host | str, encryption: Encryption) -> Self:
+        name = host.host if isinstance(host, Host) else str(host)
         if any(e.host == name for e in self.encryptions):
             return self
         self.encryptions.append(HostEncryption.from_encryption(name, encryption))

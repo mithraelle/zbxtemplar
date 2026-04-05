@@ -1,4 +1,4 @@
-from zbxtemplar.core import DecreeModule, TemplarModule
+from zbxtemplar.modules import DecreeModule, TemplarModule
 
 
 class ParamTemplar(TemplarModule):

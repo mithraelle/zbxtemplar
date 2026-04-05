@@ -1,10 +1,9 @@
-from enum import Enum
-from typing import List, Optional
+from enum import StrEnum
 
 from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags
 
 
-class TriggerPriority(str, Enum):
+class TriggerPriority(StrEnum):
     NOT_CLASSIFIED = "NOT_CLASSIFIED"
     INFO = "INFO"
     WARNING = "WARNING"
@@ -16,7 +15,7 @@ class TriggerPriority(str, Enum):
 class Trigger(ZbxEntity, WithTags):
     def __init__(self, name: str, expression: str,
                  priority: TriggerPriority = TriggerPriority.NOT_CLASSIFIED,
-                 description: Optional[str] = None):
+                 description: str | None = None):
         super().__init__(name)
         self.expression = expression
         self.priority = priority
@@ -38,11 +37,11 @@ class Trigger(ZbxEntity, WithTags):
 class WithTriggers:
     def __init__(self):
         super().__init__()
-        self._triggers: List[Trigger] = []
+        self._triggers: list[Trigger] = []
 
     def add_trigger(self, name: str, expression: str,
                     priority: TriggerPriority = TriggerPriority.NOT_CLASSIFIED,
-                    description: Optional[str] = None):
+                    description: str | None = None):
         if not any(t.name == name for t in self._triggers):
             self._triggers.append(Trigger(name, expression, priority, description))
         return self

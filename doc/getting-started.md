@@ -14,14 +14,14 @@ Install the executor as well:
 pip install '.[executor]'
 ```
 
-`zbxtemplar` requires Python 3.9 or newer.
+`zbxtemplar` requires Python 3.11 or newer.
 
 ## First Monitoring Module
 
 Create a Python file with a `TemplarModule` subclass:
 
 ```python
-from zbxtemplar.core import TemplarModule
+from zbxtemplar.modules import TemplarModule
 from zbxtemplar.zabbix import Template, Item, Host, TriggerPriority
 from zbxtemplar.zabbix.Template import TemplateGroup
 from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
@@ -74,7 +74,7 @@ zbxtemplar my_module.py \
 Use `DecreeModule` when you need users, groups, or actions:
 
 ```python
-from zbxtemplar.core import DecreeModule
+from zbxtemplar.modules import DecreeModule
 from zbxtemplar.decree import Token, UserGroup, User, UserMedia
 from zbxtemplar.decree import GuiAccess, Permission, Severity
 from zbxtemplar.decree import MediaType, UserRole

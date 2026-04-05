@@ -1,5 +1,4 @@
-from typing import Dict, List, Union
-from enum import Enum
+from enum import StrEnum
 
 from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags, WithMacros, WithGroups, Macro
 from zbxtemplar.zabbix.Trigger import WithTriggers
@@ -13,7 +12,7 @@ class TemplateGroup(ZbxEntity):
         super().__init__(name)
 
 
-class ValueMapType(str, Enum):
+class ValueMapType(StrEnum):
     EQUAL = "EQUAL"
     GREATER_OR_EQUAL = "GREATER_OR_EQUAL"
     LESS_OR_EQUAL = "LESS_OR_EQUAL"
@@ -25,7 +24,7 @@ class ValueMapType(str, Enum):
 class ValueMap(ZbxEntity):
     def __init__(self, name: str):
         super().__init__(name)
-        self.mappings: List[Dict[str, str]] = []
+        self.mappings: list[dict[str, str]] = []
 
     def add_mapping(self, value: str, newvalue: str, type: ValueMapType = ValueMapType.EQUAL):
         self.mappings.append({"value": value, "newvalue": newvalue, "type": type.value})
@@ -33,12 +32,12 @@ class ValueMap(ZbxEntity):
 
 
 class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs):
-    def __init__(self, name: str, groups: Union[None, List[TemplateGroup]] = None):
+    def __init__(self, name: str, groups: list[TemplateGroup] | None = None):
         super().__init__(name)
         self.template = name
-        self.items: List[Item] = []
-        self.dashboards: List[Dashboard] = []
-        self.valuemaps: List[ValueMap] = []
+        self.items: list[Item] = []
+        self.dashboards: list[Dashboard] = []
+        self.valuemaps: list[ValueMap] = []
         self.groups = groups or []
 
     def add_item(self, item: Item):

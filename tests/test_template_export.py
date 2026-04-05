@@ -1,6 +1,6 @@
 import yaml
 
-from zbxtemplar.core import TemplarModule
+from zbxtemplar.modules import TemplarModule
 from zbxtemplar.zabbix.ZbxEntity import YesNo
 from zbxtemplar.zabbix import Template, Item, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
     DashboardPage, Host, HostGroup

@@ -1,16 +1,23 @@
-class TemplarModule:
-    def __init__(self, context=None):
-        self.context = context
-        self.templates = []
-        self.hosts = []
+from typing import Self
 
-    def add_template(self, template):
+from zbxtemplar.zabbix.Template import Template
+from zbxtemplar.zabbix.Host import Host
+from zbxtemplar.modules.Context import Context
+
+
+class TemplarModule:
+    def __init__(self, context: Context | None = None):
+        self.context = context
+        self.templates: list[Template] = []
+        self.hosts: list[Host] = []
+
+    def add_template(self, template: Template) -> Self:
         if any(t.name == template.name for t in self.templates):
             return self
         self.templates.append(template)
         return self
 
-    def add_host(self, host):
+    def add_host(self, host: Host) -> Self:
         if any(h.name == host.name for h in self.hosts):
             return self
         self.hosts.append(host)

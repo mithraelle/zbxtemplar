@@ -40,7 +40,7 @@ The split is intentional:
 ## Quick Example
 
 ```python
-from zbxtemplar.core import TemplarModule
+from zbxtemplar.modules import TemplarModule
 from zbxtemplar.zabbix import Template, Item, Host, TriggerPriority
 from zbxtemplar.zabbix.Template import TemplateGroup
 from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
@@ -102,7 +102,7 @@ Install the executor as well:
 pip install '.[executor]'
 ```
 
-Python 3.9+ is required.
+Python 3.11+ is required.
 
 ## Typical Workflow
 

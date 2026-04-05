@@ -1,6 +1,5 @@
 import copy
 from enum import Enum
-from typing import List
 
 
 class EncryptionMode(Enum):
@@ -20,7 +19,7 @@ class EncryptionMode(Enum):
         raise ValueError(f"Unknown EncryptionMode: '{value}'. Expected one of: UNENCRYPTED, PSK, CERT")
 
     @classmethod
-    def parse_modes(cls, mode_string: str) -> List["EncryptionMode"]:
+    def parse_modes(cls, mode_string: str) -> list["EncryptionMode"]:
         """Parse a comma-separated string of modes into a list of mode enums."""
         if not mode_string:
             return []
@@ -69,7 +68,7 @@ class Encryption:
         return self
 
     @staticmethod
-    def _modes_to_string(modes: List[EncryptionMode]) -> str:
+    def _modes_to_string(modes: list[EncryptionMode]) -> str:
         return ", ".join(m.name for m in modes)
 
     def to_dict(self) -> dict:

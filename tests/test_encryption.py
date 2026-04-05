@@ -1,6 +1,6 @@
 import pytest
 
-from zbxtemplar.core.DecreeModule import DecreeModule
+from zbxtemplar.modules.DecreeModule import DecreeModule
 from zbxtemplar.decree.Encryption import Encryption, EncryptionMode, HostEncryption
 
 

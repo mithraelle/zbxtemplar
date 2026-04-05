@@ -1,7 +1,7 @@
 import pytest
 import yaml
 
-from zbxtemplar.core import DecreeModule, Context
+from zbxtemplar.modules import DecreeModule, Context
 from zbxtemplar.decree import Token, UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
 from zbxtemplar.decree.Action import TriggerAction, AutoregistrationAction
 from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition

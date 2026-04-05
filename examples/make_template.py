@@ -1,4 +1,4 @@
-from zbxtemplar.core import TemplarModule
+from zbxtemplar.modules import TemplarModule
 from zbxtemplar.zabbix.ZbxEntity import YesNo, MacroType
 from zbxtemplar.zabbix import Template, Item, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
     DashboardPage, Host

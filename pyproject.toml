@@ -7,7 +7,7 @@ name = "zbxtemplar"
 version = "0.8.0"
 description = "Programmatic Zabbix template generation — Monitoring as Code"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = {file = "LICENSE"}
 authors = [
   {name = "Aleksei Dorozhkin"}

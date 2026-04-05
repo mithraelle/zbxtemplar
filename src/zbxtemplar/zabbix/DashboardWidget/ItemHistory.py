@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import IntEnum
 
 from zbxtemplar.zabbix import Item
 from zbxtemplar.zabbix.Dashboard import Widget, WidgetField, WidgetFieldType
 
-class ItemHistoryHeader(str, Enum):
+class ItemHistoryHeader(IntEnum):
     NO = 0
     HORIZONTAL = 1
     VERTICAL = 2

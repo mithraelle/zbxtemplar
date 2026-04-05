@@ -1,5 +1,4 @@
 from abc import ABC
-from typing import Union
 
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.decree.action_conditions import ConditionList, ConditionExpression, ConditionExpr
@@ -13,7 +12,7 @@ class Action(DecreeEntity, ABC):
         self.name = name
         self._filter = None
 
-    def set_conditions(self, conditions: Union[ConditionList, ConditionExpression, ConditionExpr]):
+    def set_conditions(self, conditions: ConditionList | ConditionExpression | ConditionExpr):
         if isinstance(conditions, ConditionExpr):
             conditions = ConditionExpression(conditions)
         self._filter = conditions

@@ -1,4 +1,4 @@
-from zbxtemplar.core import Context
+from zbxtemplar.modules import Context
 from zbxtemplar.main import load_module
 from tests.paths import STUB_MODULES_DIR
 

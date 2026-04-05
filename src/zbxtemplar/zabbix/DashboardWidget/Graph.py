@@ -1,5 +1,6 @@
 from abc import ABC
 from enum import IntEnum
+from typing import Self
 
 from zbxtemplar.zabbix import Item
 from zbxtemplar.zabbix.Dashboard import Widget, WidgetField, WidgetFieldType
@@ -126,16 +127,16 @@ class DataSet(ABC):
         self.axisy = yaxis.value
 
     def set_aggregate(self, func: AggregateFunc, interval: str = "1h",
-                      aggregate_by: AggregateBy = AggregateBy.EACH_ITEM) -> 'DataSet':
+                      aggregate_by: AggregateBy = AggregateBy.EACH_ITEM) -> Self:
         self.aggregate_function = func.value
         self.aggregate_interval = interval
         self.aggregate_grouping = aggregate_by.value
         return self
 
-    def set_approximation(self, approximation: Approximation = Approximation.AVG) -> 'DataSet':
+    def set_approximation(self, approximation: Approximation = Approximation.AVG) -> Self:
         self.approximation = approximation
 
-    def set_draw_style(self, style: DrawStyle) -> 'DataSet':
+    def set_draw_style(self, style: DrawStyle) -> Self:
         self._draw_style = style
         return self
 
@@ -164,7 +165,7 @@ class ItemListSet(DataSet):
         self._items: list[tuple[Item, str]] = []
         self.dataset_type = 0
 
-    def add_item(self, item: Item, color: str) -> 'ItemListSet':
+    def add_item(self, item: Item, color: str) -> Self:
         self._items.append((item, color))
         return self
 
@@ -188,7 +189,7 @@ class ItemPatternSet(DataSet):
         self._patterns: list[str] = []
         self.dataset_type = 1
 
-    def add_pattern(self, *patterns: str) -> 'ItemPatternSet':
+    def add_pattern(self, *patterns: str) -> Self:
         self._patterns.extend(patterns)
         return self
 
@@ -210,7 +211,7 @@ class Graph(Widget):
         super().__init__(x, y, width, height, name)
         self._data_sets: list[DataSet] = []
 
-    def add_data_set(self, ds: DataSet) -> 'Graph':
+    def add_data_set(self, ds: DataSet) -> Self:
         self._data_sets.append(ds)
         return self
 
@@ -221,7 +222,7 @@ class Graph(Widget):
     def set_display_options(self, source: DataSource = DataSource.AUTO,
                             triggers: bool = False, working_time: bool = False,
                             percentline_left: int = None,
-                            percentline_right: int = None) -> 'Graph':
+                            percentline_right: int = None) -> Self:
         self.source = source.value
         self.simple_triggers = int(triggers)
         self.working_time = int(working_time)
@@ -235,7 +236,7 @@ class Graph(Widget):
 
     def set_legend(self, show_stats: bool = False, show_aggregation: bool = False,
                    variable_legend_lines: bool = False,
-                   legend_lines: int = 1, legend_columns: int = 1) -> 'Graph':
+                   legend_lines: int = 1, legend_columns: int = 1) -> Self:
         self.legend = 1
         self.legend_statistic = int(show_stats)
         self.legend_aggregation = int(show_aggregation)

@@ -1,5 +1,3 @@
-from typing import List
-
 from zabbix_utils import APIRequestError
 
 from zbxtemplar.decree.Encryption import HostEncryption, EncryptionMode
@@ -10,13 +8,13 @@ class EncryptionExecutor:
     def __init__(self, api):
         self._api = api
 
-    def _compute_bitmap(self, modes: List[EncryptionMode]) -> int:
+    def _compute_bitmap(self, modes: list[EncryptionMode]) -> int:
         bitmap = 0
         for mode in modes:
             bitmap |= mode.value
         return bitmap
 
-    def _parse_entries(self, data) -> List[HostEncryption]:
+    def _parse_entries(self, data) -> list[HostEncryption]:
         if isinstance(data, dict):
             nodes = [data]
         elif isinstance(data, list):
@@ -40,7 +38,7 @@ class EncryptionExecutor:
         if entries:
             self._apply(entries)
 
-    def _apply(self, entries: List[HostEncryption]):
+    def _apply(self, entries: list[HostEncryption]):
         if not entries:
             return
         # Pre-fetch all matching hosts by technical name

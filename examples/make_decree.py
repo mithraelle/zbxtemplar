@@ -1,7 +1,7 @@
 from aiohttp.helpers import set_exception
 from packaging.metadata import Metadata
 
-from zbxtemplar.core import DecreeModule
+from zbxtemplar.modules import DecreeModule
 from zbxtemplar.decree import Token, UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
 from zbxtemplar.decree.Action import TriggerAction, AutoregistrationAction
 from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition

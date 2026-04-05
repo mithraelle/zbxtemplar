@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import List, Union
 
 from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, YesNo, WithTags, WithMacros, WithGroups, Macro
 from zbxtemplar.zabbix.Trigger import WithTriggers
@@ -48,15 +47,15 @@ class AgentInterface(HostInterface):
 
 
 class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs):
-    def __init__(self, name: str, groups: Union[None, List[HostGroup]] = None):
+    def __init__(self, name: str, groups: list[HostGroup] | None = None):
         super().__init__(name)
         self.host = name
-        self.templates: List[Template] = []
-        self.interfaces: List[HostInterface] = []
-        self.items: List[Item] = []
-        self.valuemaps: List[ValueMap] = []
+        self.templates: list[Template] = []
+        self.interfaces: list[HostInterface] = []
+        self.items: list[Item] = []
+        self.valuemaps: list[ValueMap] = []
         self.groups = groups or []
-        self._default_interface: Union[HostInterface, None] = None
+        self._default_interface: HostInterface | None = None
 
     def add_interface(self, interface: HostInterface, default: bool = False):
         if not any(i.interface_ref == interface.interface_ref for i in self.interfaces):

@@ -1,11 +1,11 @@
-from enum import Enum
-from typing import List
+from enum import StrEnum
+from typing import Self
 
 from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags
 from zbxtemplar.zabbix.Trigger import Trigger, TriggerPriority
 
 
-class ItemType(str, Enum):
+class ItemType(StrEnum):
     ZABBIX_PASSIVE = "ZABBIX_PASSIVE"
     TRAP = "TRAP"
     SIMPLE = "SIMPLE"
@@ -26,7 +26,7 @@ class ItemType(str, Enum):
     ITEM_TYPE_BROWSER = "ITEM_TYPE_BROWSER"
 
 
-class ValueType(str, Enum):
+class ValueType(StrEnum):
     FLOAT = "FLOAT"
     CHAR = "CHAR"
     LOG = "LOG"
@@ -47,21 +47,21 @@ class Item(ZbxEntity, WithTags):
         self.value_type = value_type
         self.history = history
         self.trends = trends
-        self.triggers: List[Trigger] = []
+        self.triggers: list[Trigger] = []
 
     def add_trigger(self, name: str, fn: str, op: str, threshold,
                     fn_args: tuple = (),
                     priority: TriggerPriority = TriggerPriority.NOT_CLASSIFIED,
-                    description: str = None) -> 'Item':
+                    description: str = None) -> Self:
         expression = f"{self.expr(fn, *fn_args)}{op}{threshold}"
         self.triggers.append(Trigger(name, expression, priority, description))
         return self
 
-    def set_interface(self, interface) -> 'Item':
+    def set_interface(self, interface) -> Self:
         self.interface_ref = interface.interface_ref
         return self
 
-    def set_value_map(self, value_map) -> 'Item':
+    def set_value_map(self, value_map) -> Self:
         self.valuemap = {"name": value_map.name}
         return self
 

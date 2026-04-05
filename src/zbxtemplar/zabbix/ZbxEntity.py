@@ -1,13 +1,13 @@
-from typing import Any, List, Optional, Dict, Union
-from enum import Enum
+from typing import Any
+from enum import Enum, StrEnum
 import uuid
 
-class YesNo(str, Enum):
+class YesNo(StrEnum):
     NO = "NO"
     YES = "YES"
 
 
-class MacroType(str, Enum):
+class MacroType(StrEnum):
     """Macro types (Zabbix export values)."""
     TEXT = "TEXT"
     SECRET_TEXT = "SECRET_TEXT"
@@ -46,7 +46,7 @@ def _serialize(value, skip_uuid=False):
     return value
 
 class ZbxEntity:
-    def __init__(self, name: str, uuid_seed: str = None):
+    def __init__(self, name: str, uuid_seed: str | None = None):
         super().__init__()
         self.name = name
         self.uuid = _make_uuid(uuid_seed or name)
@@ -79,7 +79,7 @@ class Tag:
 class WithTags():
     def __init__(self):
         super().__init__()
-        self.tags: Dict[str, Tag] = {}
+        self.tags: dict[str, Tag] = {}
 
     def add_tag(self, tag: str, value: str = ""):
         self.tags[tag] = Tag(name=tag, value=value)
@@ -88,7 +88,7 @@ class WithTags():
     def tags_to_list(self):
         return [t.to_dict() for t in self.tags.values()]
 
-    def load_tags(self, tags: Dict[str, str]):
+    def load_tags(self, tags: dict[str, str]):
         """Load tags from a dict.
 
         Args:
@@ -100,7 +100,7 @@ class WithTags():
         return self
 
 class Macro():
-    def __init__(self, name: str, value: str, description: Optional[str] = None, type: MacroType = MacroType.TEXT):
+    def __init__(self, name: str, value: str, description: str | None = None, type: MacroType = MacroType.TEXT):
         self.name = name
         self.value = value
         self.description = description
@@ -142,14 +142,14 @@ class Macro():
 class WithMacros():
     def __init__(self):
         super().__init__()
-        self.macros: Dict[str, Macro] = {}
+        self.macros: dict[str, Macro] = {}
 
-    def add_macro(self, name: str, value: Union[str, int], description: Union[str, None] = None, type: MacroType = MacroType.TEXT):
+    def add_macro(self, name: str, value: str | int, description: str | None = None, type: MacroType = MacroType.TEXT):
         clean_name = name.replace("{$", "").replace("}", "")
         self.macros[clean_name] = Macro(name=clean_name, value=str(value), description=description, type=type)
         return self
 
-    def load_macros(self, macros: Union[Dict[str, Union[str, tuple]], List[dict]]):
+    def load_macros(self, macros: dict[str, str | tuple] | list[dict]):
         """Load macros from a dict or a list of dicts.
 
         Accepts two formats:
@@ -195,7 +195,7 @@ class WithMacros():
 class WithGroups():
     def __init__(self):
         super().__init__()
-        self.groups: List[ZbxEntity] = []
+        self.groups: list[ZbxEntity] = []
 
     def add_group(self, group: ZbxEntity):
         if not any(g.name == group.name for g in self.groups):
