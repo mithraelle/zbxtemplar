@@ -54,7 +54,7 @@ def test_from_dict():
     assert t.store_at is TokenOutput.STDOUT
     assert t.expires_at is TokenExpiry.NEVER
 
-    with pytest.raises(ValueError, match="token.store_at is required"):
+    with pytest.raises(ValueError, match="missing required key.*store_at"):
         Token.from_dict({"name": "t"})
 
 # --- to_dict (enums serialize to strings) ---

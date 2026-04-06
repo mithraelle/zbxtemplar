@@ -1,3 +1,4 @@
+from zbxtemplar.DictEntity import DictEntity, SchemaField
 from zbxtemplar.decree.DecreeEntity import DecreeEntity, _validate
 from zbxtemplar.zabbix.Host import HostGroup
 from zbxtemplar.zabbix.Template import TemplateGroup
@@ -22,7 +23,14 @@ class Permission:
     _API_VALUES = {"NONE": 0, "READ": 2, "READ_WRITE": 3}
 
 
-class UserGroup(DecreeEntity):
+class UserGroup(DecreeEntity, DictEntity):
+    _SCHEMA = [
+        SchemaField("name", optional=False),
+        SchemaField("gui_access"),
+        SchemaField("host_groups"),
+        SchemaField("template_groups"),
+    ]
+
     def __init__(self, name: str, gui_access: GuiAccess = None):
         self.name = name
         self.gui_access = gui_access
@@ -47,6 +55,7 @@ class UserGroup(DecreeEntity):
 
     @classmethod
     def from_dict(cls, data: dict, host_groups=None, template_groups=None):
+        cls.validate(data)
         gui = data.get("gui_access")
         if gui is not None:
             _validate(gui, GuiAccess._API_VALUES, "gui_access")

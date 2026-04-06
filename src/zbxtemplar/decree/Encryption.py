@@ -1,6 +1,8 @@
 import copy
 from enum import Enum
 
+from zbxtemplar.DictEntity import DictEntity, SchemaField
+
 
 class EncryptionMode(Enum):
     UNENCRYPTED = 1
@@ -84,7 +86,7 @@ class Encryption:
                     result[field] = value
         return result
 
-    def validate(self, label: str = "Encryption"):
+    def check(self, label: str = "Encryption"):
         if not self.connect:
             raise ValueError(f"{label}: no connect mode configured.")
         if not self.accept:
@@ -103,7 +105,17 @@ class Encryption:
                         raise ValueError(f"{label}: {f!r} provided but {mode.name} not enabled in connect or accept.")
 
 
-class HostEncryption(Encryption):
+class HostEncryption(DictEntity, Encryption):
+    _SCHEMA = [
+        SchemaField("host", optional=False),
+        SchemaField("connect", optional=False),
+        SchemaField("accept", optional=False),
+        SchemaField("psk_identity"),
+        SchemaField("psk"),
+        SchemaField("issuer"),
+        SchemaField("subject"),
+    ]
+
     def __init__(self, host, connect_unencrypted: bool = False, accept_unencrypted: bool = False):
         from zbxtemplar.zabbix.Host import Host
         self.host = host.host if isinstance(host, Host) else host
@@ -121,25 +133,17 @@ class HostEncryption(Encryption):
         result.update(super().to_dict())
         return result
 
-    def validate(self, label: str = None):
-        super().validate(label or f"Host '{self.host}'")
+    def check(self, label: str = None):
+        super().check(label or f"Host '{self.host}'")
 
     @classmethod
     def from_dict(cls, data: dict) -> "HostEncryption":
-        host_name = data.get("host")
-        if not host_name:
-            raise ValueError("Encryption decree requires 'host' field.")
-
-        raw_connect = data.get("connect")
-        if not raw_connect:
-            raise ValueError(f"Host '{host_name}': missing required 'connect' mode.")
-        raw_accept = data.get("accept")
-        if not raw_accept:
-            raise ValueError(f"Host '{host_name}': missing required 'accept' mode.")
+        cls.validate(data)
+        host_name = data["host"]
 
         entry = cls(host_name)
-        entry.connect = EncryptionMode.parse_modes(raw_connect)
-        entry.accept = EncryptionMode.parse_modes(raw_accept)
+        entry.connect = EncryptionMode.parse_modes(data["connect"])
+        entry.accept = EncryptionMode.parse_modes(data["accept"])
 
         all_modes = set(entry.connect + entry.accept)
         for mode, fields in cls._MODE_FIELDS.items():
@@ -147,5 +151,5 @@ class HostEncryption(Encryption):
                 for field in fields:
                     setattr(entry, field, data.get(field))
 
-        entry.validate()
+        entry.check()
         return entry

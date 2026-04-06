@@ -552,7 +552,7 @@ def test_add_user_rejects_token_owned_by_other_user():
 
 def test_add_user_requires_token_store_at():
     api = _user_api()
-    with pytest.raises(ValueError, match="token.store_at is required"):
+    with pytest.raises(ValueError, match="missing required key.*store_at"):
         Executor(api).add_user({
             "username": "api-reader",
             "role": "User role",

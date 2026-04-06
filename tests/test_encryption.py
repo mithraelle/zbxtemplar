@@ -59,7 +59,7 @@ def test_programmatic_api():
     h = HostEncryption("myhost")
     h.set_psk(connect=True, accept=True, identity="id1", psk="secret1")
     h.set_cert(connect=False, accept=True, issuer="iss", subject="sub")
-    h.validate()
+    h.check()
 
     assert h.connect == [EncryptionMode.PSK]
     assert h.accept == [EncryptionMode.PSK, EncryptionMode.CERT]

@@ -1,5 +1,6 @@
 from enum import Enum
 
+from zbxtemplar.DictEntity import DictEntity, SchemaField
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 
 
@@ -13,9 +14,15 @@ class TokenExpiry(Enum):
     NEVER = "NEVER"
 
 
-class Token(DecreeEntity):
+class Token(DecreeEntity, DictEntity):
     STDOUT = TokenOutput.STDOUT
     NEVER = TokenExpiry.NEVER
+
+    _SCHEMA = [
+        SchemaField("name", optional=False),
+        SchemaField("store_at", optional=False),
+        SchemaField("expires_at"),
+    ]
 
     def __init__(self, name: str, store_at, expires_at=None):
         self.name = self._normalize_name(name)
@@ -61,10 +68,7 @@ class Token(DecreeEntity):
     def from_dict(cls, data: dict):
         if not isinstance(data, dict):
             raise ValueError("token must be a mapping")
-        if "name" not in data:
-            raise ValueError("token.name is required")
-        if "store_at" not in data:
-            raise ValueError("token.store_at is required")
+        cls.validate(data)
         return cls(
             name=data["name"],
             store_at=data["store_at"],

@@ -1,3 +1,4 @@
+from zbxtemplar.DictEntity import DictEntity, SchemaField
 from zbxtemplar.decree.DecreeEntity import DecreeEntity, _validate
 from zbxtemplar.decree.Token import Token
 
@@ -25,7 +26,14 @@ class Severity:
 from zbxtemplar.decree.UserGroup import UserGroup
 
 
-class UserMedia:
+class UserMedia(DictEntity):
+    _SCHEMA = [
+        SchemaField("type", optional=False),
+        SchemaField("sendto", optional=False),
+        SchemaField("severity"),
+        SchemaField("period"),
+    ]
+
     def __init__(self, media_type: str, sendto: str):
         self.type = media_type
         self.sendto = sendto
@@ -50,6 +58,7 @@ class UserMedia:
 
     @classmethod
     def from_dict(cls, data: dict):
+        cls.validate(data)
         media = cls(data["type"], data["sendto"])
         severity = data.get("severity")
         if severity is not None:
@@ -63,7 +72,17 @@ class UserMedia:
         return media
 
 
-class User(DecreeEntity):
+class User(DecreeEntity, DictEntity):
+    _SCHEMA = [
+        SchemaField("username", optional=False),
+        SchemaField("role", optional=False),
+        SchemaField("password"),
+        SchemaField("groups"),
+        SchemaField("medias"),
+        SchemaField("token"),
+        SchemaField("force_token"),
+    ]
+
     def __init__(self, username: str, role: str):
         self.username = username
         self.role = role
@@ -100,6 +119,7 @@ class User(DecreeEntity):
 
     @classmethod
     def from_dict(cls, data: dict, user_groups=None):
+        cls.validate(data)
         user = cls(data["username"], data["role"])
         if "password" in data:
             user.set_password(data["password"])

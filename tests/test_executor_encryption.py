@@ -203,7 +203,7 @@ def test_decree_host_inherits_defaults(api_mock):
 def test_decree_requires_host():
     ex = Executor(MagicMock())
 
-    with pytest.raises(ValueError, match="requires 'host' field"):
+    with pytest.raises(ValueError, match="missing required key.*host"):
         ex.decree({"encryption": {
             "host_defaults": {"connect": "UNENCRYPTED", "accept": "UNENCRYPTED"},
             "hosts": [{"connect": "UNENCRYPTED"}]

@@ -1,5 +1,7 @@
 from enum import Enum
 
+from zbxtemplar.DictEntity import DictEntity
+
 
 class MediaType:
     """Zabbix built-in media type names (as of 7.4)."""
@@ -58,7 +60,7 @@ def _validate(value, allowed, label):
         raise ValueError(f"Invalid {label} '{value}', expected one of: {', '.join(allowed)}")
 
 
-class DecreeEntity:
+class DecreeEntity(DictEntity):
     def to_dict(self) -> dict:
         result = {}
         for key, value in self.__dict__.items():
