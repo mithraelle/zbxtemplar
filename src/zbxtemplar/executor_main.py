@@ -4,7 +4,8 @@ import sys
 
 from zabbix_utils import ZabbixAPI
 
-from zbxtemplar.executor import Executor
+from zbxtemplar.executor.DecreeExecutor import DecreeExecutor
+from zbxtemplar.executor.ScrollExecutor import ScrollExecutor
 
 
 def _make_api(args):
@@ -24,14 +25,14 @@ def _make_api(args):
 
 def _cmd_set_super_admin(args):
     api = _make_api(args)
-    executor = Executor(api)
+    executor = ScrollExecutor(api)
     executor.set_super_admin(args.new_password)
     return 0
 
 
 def _cmd_set_macro(args):
     api = _make_api(args)
-    executor = Executor(api)
+    executor = ScrollExecutor(api)
     if args.value is not None:
         executor.set_macro({"name": args.name_or_file, "value": args.value, "type": args.type})
     else:
@@ -41,28 +42,28 @@ def _cmd_set_macro(args):
 
 def _cmd_apply(args):
     api = _make_api(args)
-    executor = Executor(api)
+    executor = ScrollExecutor(api)
     executor.apply(args.yaml_file)
     return 0
 
 
 def _cmd_decree(args):
     api = _make_api(args)
-    executor = Executor(api)
+    executor = DecreeExecutor(api)
     executor.decree(args.decree_file)
     return 0
 
 
 def _cmd_add_user(args):
     api = _make_api(args)
-    executor = Executor(api)
+    executor = DecreeExecutor(api)
     executor.add_user(args.user_file)
     return 0
 
 
 def _cmd_scroll(args):
     api = _make_api(args)
-    executor = Executor(api)
+    executor = ScrollExecutor(api)
     executor.run_scroll(args.scroll, from_stage=args.from_stage, only_stage=args.only_stage)
     return 0
 

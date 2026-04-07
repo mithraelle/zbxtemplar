@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 
-from zbxtemplar.executor import Executor
+from zbxtemplar.executor.ScrollExecutor import ScrollExecutor
 from tests.paths import FIXTURES_DIR
 
 SCROLL = FIXTURES_DIR / "scroll.yml"
@@ -38,7 +38,7 @@ def test_scroll_runs_all_stages(monkeypatch):
     monkeypatch.setenv("ZBX_ADMIN_PASSWORD", "admin123")
     api = _full_api()
 
-    Executor(api).run_scroll(str(SCROLL))
+    ScrollExecutor(api).run_scroll(str(SCROLL))
 
     api.user.update.assert_called_once_with(userid="1", passwd="admin123")
     api.usermacro.createglobal.assert_called_once_with(
@@ -58,7 +58,7 @@ def test_scroll_only_stage(monkeypatch):
     monkeypatch.setenv("ZBX_ADMIN_PASSWORD", "admin123")
     api = _full_api()
 
-    Executor(api).run_scroll(str(SCROLL), only_stage="bootstrap")
+    ScrollExecutor(api).run_scroll(str(SCROLL), only_stage="bootstrap")
 
     api.user.update.assert_called_once_with(userid="1", passwd="admin123")
     api.usermacro.createglobal.assert_called_once()
@@ -71,7 +71,7 @@ def test_scroll_from_stage(monkeypatch):
     monkeypatch.setenv("ZBX_ADMIN_PASSWORD", "admin123")
     api = _full_api()
 
-    Executor(api).run_scroll(str(SCROLL), from_stage="state")
+    ScrollExecutor(api).run_scroll(str(SCROLL), from_stage="state")
 
     # bootstrap should be skipped
     api.user.update.assert_not_called()
@@ -86,7 +86,7 @@ def test_scroll_skips_missing_stage(monkeypatch):
     monkeypatch.setenv("ZBX_ADMIN_PASSWORD", "admin123")
     api = _full_api()
 
-    Executor(api).run_scroll(str(SCROLL))
+    ScrollExecutor(api).run_scroll(str(SCROLL))
 
     api.configuration.import_.assert_not_called()
 
@@ -117,7 +117,7 @@ def test_scroll_resolves_file_paths_relative_to_scroll_dir(tmp_path, monkeypatch
 
     # CWD is tmp_path, scroll is in tmp_path/deploy/
     # macros.yml should resolve to tmp_path/deploy/macros.yml
-    Executor(api).run_scroll(str(scroll_file))
+    ScrollExecutor(api).run_scroll(str(scroll_file))
 
     api.usermacro.createglobal.assert_called_once_with(
         macro="{$FROM_FILE}", value="works", type=0
