@@ -4,7 +4,7 @@ import yaml
 
 from zbxtemplar.decree import MacroType
 from zbxtemplar.executor.DecreeExecutor import DecreeExecutor
-from zbxtemplar.executor.Executor import Executor, _preflight_env_check
+from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError, ExecutorParseError
 from zabbix_utils import APIRequestError
 
@@ -12,7 +12,7 @@ from zabbix_utils import APIRequestError
 class ScrollExecutor(Executor):
 
     def set_super_admin(self, data):
-        data = self._resolve(data)
+        data = self._resolve_env(data)
         password = data if isinstance(data, str) else data["password"]
         print("Updating super admin password...")
         try:
@@ -48,7 +48,7 @@ class ScrollExecutor(Executor):
                 else:
                     flat.append(item)
             data = flat
-        data = self._resolve(data)
+        data = self._resolve_env(data)
         macros = data if isinstance(data, list) else [data]
 
         for i, macro in enumerate(macros):
@@ -141,17 +141,18 @@ class ScrollExecutor(Executor):
                         else:
                             combined.append(entry)
         if combined:
-            _preflight_env_check(combined)
+            self._resolve_env(combined)
 
     def run_scroll(self, scroll_path, from_stage=None, only_stage=None):
         self._base_dir = os.path.dirname(os.path.abspath(scroll_path))
         scroll = self._load_yaml(scroll_path)
 
-        unknown = set(scroll.keys()) - {"stages"}
+        known = {name for name, _ in self.PIPELINE}
+        unknown = set(scroll.keys()) - known
         if unknown:
             raise ExecutorParseError(f"Unknown keys in scroll document '{scroll_path}': {', '.join(sorted(unknown))}")
 
-        stages = {s["stage"]: s for s in scroll["stages"]}
+        stages = scroll
         self._preflight_scroll(stages)
 
         pipeline = self.PIPELINE

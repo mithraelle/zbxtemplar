@@ -107,9 +107,8 @@ def test_scroll_resolves_file_paths_relative_to_scroll_dir(tmp_path, monkeypatch
 
     scroll_file = subdir / "scroll.yml"
     scroll_file.write_text(
-        "stages:\n"
-        "  - stage: bootstrap\n"
-        "    set_macro: macros.yml\n"
+        "bootstrap:\n"
+        "  set_macro: macros.yml\n"
     )
 
     api = MagicMock()

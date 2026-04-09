@@ -92,10 +92,9 @@ Every Zabbix installation ships with hardcoded default credentials (`Admin/zabbi
 In a scroll pipeline, this belongs in the `bootstrap` stage — first thing that runs, before any templates are imported or users are created.
 
 ```yaml
-stages:
-  - stage: bootstrap
-    set_super_admin:
-      password: ${ZBX_ADMIN_PASSWORD}
+bootstrap:
+  set_super_admin:
+    password: ${ZBX_ADMIN_PASSWORD}
 ```
 
 ## Fail-Fast Validation

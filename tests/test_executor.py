@@ -1,6 +1,8 @@
 import pytest
 
-from zbxtemplar.executor.Executor import _resolve_env, _preflight_env_check
+from zbxtemplar.executor.Executor import Executor
+
+_resolve_env = Executor._resolve_env
 
 
 # --- resolve_env ---
@@ -28,14 +30,12 @@ def test_resolve_non_string():
     assert _resolve_env(42) == 42
 
 
-# --- preflight ---
-
-def test_preflight_passes(monkeypatch):
+def test_resolve_env_dict(monkeypatch):
     monkeypatch.setenv("A", "1")
-    _preflight_env_check({"key": "${A}"})  # no exception
+    assert _resolve_env({"key": "${A}"}) == {"key": "1"}
 
 
-def test_preflight_reports_all_missing():
+def test_resolve_env_reports_all_missing():
     with pytest.raises(ValueError, match="MISSING_A") as exc:
-        _preflight_env_check({"x": "${MISSING_A}", "y": [{"z": "${MISSING_B}"}]})
+        _resolve_env({"x": "${MISSING_A}", "y": [{"z": "${MISSING_B}"}]})
     assert "MISSING_B" in str(exc.value)

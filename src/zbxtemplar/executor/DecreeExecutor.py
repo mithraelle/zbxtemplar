@@ -23,14 +23,14 @@ class DecreeExecutor(Executor):
         UserGroupExecutor(self._api).execute(data)
 
     def _decree_add_user(self, data):
-        data = self._resolve(data)
+        data = self._resolve_env(data)
         UserExecutor(self._api, self._resolve_path).execute(data)
 
     def _decree_actions(self, data):
         ActionExecutor(self._api).execute(data)
 
     def _decree_encryption(self, data):
-        data = self._resolve(data)
+        data = self._resolve_env(data)
         EncryptionExecutor(self._api).decree(data)
 
     _DECREE_ACTIONS = (
