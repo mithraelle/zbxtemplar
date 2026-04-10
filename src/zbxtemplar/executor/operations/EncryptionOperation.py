@@ -1,13 +1,11 @@
 from zabbix_utils import APIRequestError
 
 from zbxtemplar.decree.Encryption import HostEncryption, EncryptionMode
+from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError, ExecutorParseError
 
 
-class EncryptionExecutor:
-    def __init__(self, api):
-        self._api = api
-
+class EncryptionOperation(Executor):
     def _compute_bitmap(self, modes: list[EncryptionMode]) -> int:
         bitmap = 0
         for mode in modes:
@@ -33,7 +31,7 @@ class EncryptionExecutor:
 
         return entries
 
-    def decree(self, data):
+    def execute(self, data):
         entries = self._parse_entries(data)
         if entries:
             self._apply(entries)

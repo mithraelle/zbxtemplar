@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from zbxtemplar.executor.UserExecutor import UserExecutor
+from zbxtemplar.executor.operations.UserOperation import UserOperation
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zabbix_utils import APIRequestError
 
@@ -28,7 +28,7 @@ def _api():
 
 
 def _executor(api):
-    return UserExecutor(api, lambda p: p)
+    return UserOperation(api, lambda p: p)
 
 
 def test_creates_user():

@@ -1,19 +1,16 @@
 from zbxtemplar.decree import User, Severity
 from zbxtemplar.decree.Token import TokenOutput
-from zbxtemplar.executor.TokenExecutor import TokenExecutor, TokenExecutorError
+from zbxtemplar.executor.Executor import Executor
+from zbxtemplar.executor.operations.TokenOperation import TokenOperation, TokenOperationError
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zabbix_utils import APIRequestError
 
 
-class UserExecutor:
-    def __init__(self, api, resolve_path):
-        self._api = api
-        self._resolve_path = resolve_path
-
+class UserOperation(Executor):
     def execute(self, data):
         raw_users = data if isinstance(data, list) else [data]
         users = [User.from_dict(raw) for raw in raw_users]
-        token_executor = TokenExecutor(self._api, self._resolve_path)
+        token_executor = TokenOperation(self._api, self._base_dir)
         token_executor.validate(users)
 
         roles = {r["name"]: r["roleid"] for r in self._api.role.get(output=["roleid", "name"])}
@@ -78,7 +75,7 @@ class UserExecutor:
                     print(f"{action} API token '{user.token.name}' for '{user.username}'.")
                     if user.token.store_at is not TokenOutput.STDOUT:
                         print(f"Wrote token to '{user.token.store_at}'.")
-                except TokenExecutorError as e:
-                    raise TokenExecutorError(
+                except TokenOperationError as e:
+                    raise TokenOperationError(
                         f"User '{user.username}' token '{user.token.name}': {e}"
                     ) from e

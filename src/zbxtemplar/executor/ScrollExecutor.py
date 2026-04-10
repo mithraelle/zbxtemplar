@@ -1,10 +1,9 @@
 import os
 
-import yaml
-
-from zbxtemplar.decree import MacroType
 from zbxtemplar.executor.DecreeExecutor import DecreeExecutor
 from zbxtemplar.executor.Executor import Executor
+from zbxtemplar.executor.operations.ImportOperation import ImportOperation
+from zbxtemplar.executor.operations.MacroOperation import MacroOperation
 from zbxtemplar.executor.exceptions import ExecutorApiError, ExecutorParseError
 from zabbix_utils import APIRequestError
 
@@ -20,102 +19,14 @@ class ScrollExecutor(Executor):
         except APIRequestError as e:
             raise ExecutorApiError(f"Failed to update super admin password: {e}") from e
 
-    def _validate_macro(self, macro, index=None):
-        prefix = f"macro[{index}]" if index is not None else "macro"
-        if not isinstance(macro, dict):
-            raise ValueError(f"{prefix}: expected a mapping with 'name' and 'value', got {type(macro).__name__}")
-        for key in ("name", "value"):
-            if key not in macro:
-                raise ValueError(f"{prefix}: missing required field '{key}'")
-        macro_type = macro.get("type", MacroType.TEXT)
-        if macro_type not in MacroType._API_VALUES:
-            raise ValueError(f"{prefix}: invalid type '{macro_type}', expected one of: {', '.join(MacroType._API_VALUES)}")
-
-    def _load_macros_from_file(self, path):
-        data = self._load_yaml(path)
-        if isinstance(data, dict) and "set_macro" in data:
-            data = data["set_macro"]
-        return data if isinstance(data, list) else [data]
-
     def set_macro(self, data):
-        if isinstance(data, str):
-            data = self._load_macros_from_file(data)
-        if isinstance(data, list):
-            flat = []
-            for item in data:
-                if isinstance(item, str):
-                    flat.extend(self._load_macros_from_file(item))
-                else:
-                    flat.append(item)
-            data = flat
-        data = self._resolve_env(data)
-        macros = data if isinstance(data, list) else [data]
-
-        for i, macro in enumerate(macros):
-            self._validate_macro(macro, i if len(macros) > 1 else None)
-
-        existing = {
-            m["macro"]: m["globalmacroid"]
-            for m in self._api.usermacro.get(globalmacro=True)
-        }
-
-        for macro in macros:
-            wire_name = "{$" + macro["name"] + "}"
-            value = macro["value"]
-            macro_type = MacroType._API_VALUES[macro.get("type", MacroType.TEXT)]
-
-            if wire_name in existing:
-                print(f"Updating macro {wire_name}...")
-                try:
-                    self._api.usermacro.updateglobal(
-                        globalmacroid=existing[wire_name], value=value, type=macro_type
-                    )
-                except APIRequestError as e:
-                    raise ExecutorApiError(f"Failed to update macro '{wire_name}': {e}") from e
-            else:
-                print(f"Creating macro {wire_name}...")
-                try:
-                    self._api.usermacro.createglobal(
-                        macro=wire_name, value=value, type=macro_type
-                    )
-                except APIRequestError as e:
-                    raise ExecutorApiError(f"Failed to create macro '{wire_name}': {e}") from e
-
-    _IMPORT_RULES = {
-        "template_groups": {"createMissing": True, "updateExisting": True},
-        "templates": {"createMissing": True, "updateExisting": True},
-        "host_groups": {"createMissing": True, "updateExisting": True},
-        "hosts": {"createMissing": True, "updateExisting": True},
-        "valueMaps": {"createMissing": True, "updateExisting": True},
-        "items": {"createMissing": True, "updateExisting": True},
-        "triggers": {"createMissing": True, "updateExisting": True},
-        "graphs": {"createMissing": True, "updateExisting": True},
-        "templateDashboards": {"createMissing": True, "updateExisting": True},
-        "mediaTypes": {"createMissing": True, "updateExisting": True},
-        "templateLinkage": {"createMissing": True, "deleteMissing": True},
-    }
-
-    def _apply_file(self, path):
-        resolved_path = self._resolve_path(path)
-        with open(resolved_path) as f:
-            yaml_content = f.read()
-        print(f"Importing {path}...")
-        try:
-            self._api.configuration.import_(
-                source=yaml_content, format="yaml", rules=self._IMPORT_RULES
-            )
-        except APIRequestError as e:
-            raise ExecutorApiError(f"Failed to import '{path}': {e}") from e
+        MacroOperation(self._api, self._base_dir).execute(data)
 
     def apply(self, data):
-        if isinstance(data, list):
-            for item in data:
-                self._apply_file(item)
-        else:
-            self._apply_file(data)
+        ImportOperation(self._api, self._base_dir).execute(data)
 
     def decree(self, data):
-        DecreeExecutor(self._api, base_dir=self._base_dir).decree(data)
+        DecreeExecutor(self._api, base_dir=self._base_dir).execute(data)
 
     PIPELINE = (
         ("bootstrap", ("set_super_admin", "set_macro")),

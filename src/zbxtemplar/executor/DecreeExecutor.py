@@ -1,8 +1,8 @@
 from zbxtemplar.executor.Executor import Executor
-from zbxtemplar.executor.EncryptionExecutor import EncryptionExecutor
-from zbxtemplar.executor.UserGroupExecutor import UserGroupExecutor
-from zbxtemplar.executor.UserExecutor import UserExecutor
-from zbxtemplar.executor.ActionExecutor import ActionExecutor
+from zbxtemplar.executor.operations.EncryptionOperation import EncryptionOperation
+from zbxtemplar.executor.operations.UserGroupOperation import UserGroupOperation
+from zbxtemplar.executor.operations.UserOperation import UserOperation
+from zbxtemplar.executor.operations.ActionOperation import ActionOperation
 from zbxtemplar.executor.exceptions import ExecutorParseError
 
 
@@ -20,18 +20,16 @@ class DecreeExecutor(Executor):
         return merged
 
     def _decree_user_group(self, data):
-        UserGroupExecutor(self._api).execute(data)
+        UserGroupOperation(self._api, self._base_dir).execute(data)
 
     def _decree_add_user(self, data):
-        data = self._resolve_env(data)
-        UserExecutor(self._api, self._resolve_path).execute(data)
+        UserOperation(self._api, self._base_dir).execute(data)
 
     def _decree_actions(self, data):
-        ActionExecutor(self._api).execute(data)
+        ActionOperation(self._api, self._base_dir).execute(data)
 
     def _decree_encryption(self, data):
-        data = self._resolve_env(data)
-        EncryptionExecutor(self._api).decree(data)
+        EncryptionOperation(self._api, self._base_dir).execute(data)
 
     _DECREE_ACTIONS = (
         ("user_group", "_decree_user_group"),
@@ -40,11 +38,13 @@ class DecreeExecutor(Executor):
         ("encryption", "_decree_encryption"),
     )
 
-    def decree(self, data):
+    def execute(self, data):
         if isinstance(data, str):
             data = self._load_yaml(data)
         if isinstance(data, list):
             data = self._merge_decree(data)
+
+        data = self._resolve_env(data)
 
         unknown = set(data.keys()) - {k for k, _ in self._DECREE_ACTIONS}
         if unknown:

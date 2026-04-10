@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from zbxtemplar.executor.ActionExecutor import ActionExecutor
+from zbxtemplar.executor.operations.ActionOperation import ActionOperation
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zabbix_utils import APIRequestError
 
@@ -31,14 +31,14 @@ def _simple_action(name="Notify Ops"):
 
 def test_creates_action():
     api = _api()
-    ActionExecutor(api).execute([_simple_action()])
+    ActionOperation(api).execute([_simple_action()])
     api.action.create.assert_called_once()
     assert api.action.create.call_args[1]["name"] == "Notify Ops"
 
 
 def test_updates_existing_action():
     api = _api(existing_actions=[{"actionid": "42", "name": "Notify Ops"}])
-    ActionExecutor(api).execute([_simple_action()])
+    ActionOperation(api).execute([_simple_action()])
     api.action.update.assert_called_once()
     call = api.action.update.call_args[1]
     assert call["actionid"] == "42"
@@ -58,7 +58,7 @@ def test_resolves_hostgroup_condition():
         },
         "operations": [],
     }
-    ActionExecutor(api).execute([action])
+    ActionOperation(api).execute([action])
     assert action["filter"]["conditions"][0]["value"] == "2"
 
 
@@ -74,7 +74,7 @@ def test_unknown_condition_entity_raises():
         "operations": [],
     }
     with pytest.raises(ValueError, match="Host group 'Nonexistent group' not found"):
-        ActionExecutor(api).execute([action])
+        ActionOperation(api).execute([action])
 
 
 def test_resolves_opmessage_grp():
@@ -88,7 +88,7 @@ def test_resolves_opmessage_grp():
             "opmessage_grp": [{"usrgrpid": "Ops Team"}],
         }],
     }
-    ActionExecutor(api).execute([action])
+    ActionOperation(api).execute([action])
     assert action["operations"][0]["opmessage_grp"][0]["usrgrpid"] == "7"
 
 
@@ -103,7 +103,7 @@ def test_resolves_opmessage_usr():
             "opmessage_usr": [{"userid": "alice"}],
         }],
     }
-    ActionExecutor(api).execute([action])
+    ActionOperation(api).execute([action])
     assert action["operations"][0]["opmessage_usr"][0]["userid"] == "10"
 
 
@@ -117,7 +117,7 @@ def test_resolves_opmessage_media_type():
             "opmessage": {"default_msg": 1, "mediatypeid": "Email"},
         }],
     }
-    ActionExecutor(api).execute([action])
+    ActionOperation(api).execute([action])
     assert action["operations"][0]["opmessage"]["mediatypeid"] == "5"
 
 
@@ -129,18 +129,18 @@ def test_unknown_operation_user_group_raises():
         "operations": [{"operationtype": 0, "opmessage_grp": [{"usrgrpid": "Nobody"}]}],
     }
     with pytest.raises(ValueError, match="User group 'Nobody' not found"):
-        ActionExecutor(api).execute([action])
+        ActionOperation(api).execute([action])
 
 
 def test_api_error_on_create_is_wrapped():
     api = _api()
     api.action.create.side_effect = APIRequestError("network drop")
     with pytest.raises(ExecutorApiError, match="Failed to create action 'Notify Ops'"):
-        ActionExecutor(api).execute([_simple_action()])
+        ActionOperation(api).execute([_simple_action()])
 
 
 def test_api_error_on_update_is_wrapped():
     api = _api(existing_actions=[{"actionid": "42", "name": "Notify Ops"}])
     api.action.update.side_effect = APIRequestError("network drop")
     with pytest.raises(ExecutorApiError, match="Failed to update action 'Notify Ops'"):
-        ActionExecutor(api).execute([_simple_action()])
+        ActionOperation(api).execute([_simple_action()])

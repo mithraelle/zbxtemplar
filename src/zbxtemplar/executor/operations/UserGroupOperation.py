@@ -1,12 +1,10 @@
 from zbxtemplar.decree import UserGroup, GuiAccess, Permission
+from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zabbix_utils import APIRequestError
 
 
-class UserGroupExecutor:
-    def __init__(self, api):
-        self._api = api
-
+class UserGroupOperation(Executor):
     def _resolve_rights(self, groups, group_lookup, label):
         rights = []
         for g in groups:

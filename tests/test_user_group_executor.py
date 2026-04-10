@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from zbxtemplar.executor.UserGroupExecutor import UserGroupExecutor
+from zbxtemplar.executor.operations.UserGroupOperation import UserGroupOperation
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zabbix_utils import APIRequestError
 
@@ -25,7 +25,7 @@ def _api(existing_ugroups=None):
 
 def test_creates_user_group():
     api = _api()
-    UserGroupExecutor(api).execute([{
+    UserGroupOperation(api).execute([{
         "name": "Templar Users",
         "gui_access": "INTERNAL",
         "host_groups": [
@@ -51,7 +51,7 @@ def test_creates_user_group():
 
 def test_updates_existing_user_group():
     api = _api(existing_ugroups=[{"usrgrpid": "99", "name": "Templar Users"}])
-    UserGroupExecutor(api).execute([{
+    UserGroupOperation(api).execute([{
         "name": "Templar Users",
         "gui_access": "DISABLED",
     }])
@@ -62,7 +62,7 @@ def test_updates_existing_user_group():
 def test_unknown_host_group_raises():
     api = _api()
     with pytest.raises(ValueError, match="Host group 'Nonexistent' not found"):
-        UserGroupExecutor(api).execute([{
+        UserGroupOperation(api).execute([{
             "name": "Bad Group",
             "host_groups": [{"name": "Nonexistent", "permission": "READ"}],
         }])
@@ -73,11 +73,11 @@ def test_api_error_on_create_is_wrapped():
     api = _api()
     api.usergroup.create.side_effect = APIRequestError("network drop")
     with pytest.raises(ExecutorApiError, match="Failed to create user group 'Ops Team'"):
-        UserGroupExecutor(api).execute([{"name": "Ops Team", "gui_access": "DEFAULT"}])
+        UserGroupOperation(api).execute([{"name": "Ops Team", "gui_access": "DEFAULT"}])
 
 
 def test_api_error_on_update_is_wrapped():
     api = _api(existing_ugroups=[{"usrgrpid": "99", "name": "Ops Team"}])
     api.usergroup.update.side_effect = APIRequestError("network drop")
     with pytest.raises(ExecutorApiError, match="Failed to update user group 'Ops Team'"):
-        UserGroupExecutor(api).execute([{"name": "Ops Team", "gui_access": "DEFAULT"}])
+        UserGroupOperation(api).execute([{"name": "Ops Team", "gui_access": "DEFAULT"}])

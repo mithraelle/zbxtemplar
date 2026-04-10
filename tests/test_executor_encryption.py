@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from zbxtemplar.decree.Encryption import Encryption, HostEncryption, EncryptionMode
-from zbxtemplar.executor.EncryptionExecutor import EncryptionExecutor
+from zbxtemplar.executor.operations.EncryptionOperation import EncryptionOperation
 from zbxtemplar.executor.DecreeExecutor import DecreeExecutor
 
 
@@ -14,7 +14,7 @@ def api_mock():
 
 def test_encryption_executor_missing_host(api_mock):
     api_mock.host.get.return_value = []
-    executor = EncryptionExecutor(api_mock)
+    executor = EncryptionOperation(api_mock)
     entry = HostEncryption("host1", connect_unencrypted=True, accept_unencrypted=True)
 
     with pytest.raises(ValueError, match="Host 'host1' not found"):
@@ -31,7 +31,7 @@ def test_encryption_executor_update_psk(api_mock):
         "tls_subject": "",
         "tls_psk_identity": ""
     }]
-    executor = EncryptionExecutor(api_mock)
+    executor = EncryptionOperation(api_mock)
 
     entry = HostEncryption("host1", accept_unencrypted=True)
     entry.set_psk(connect=True, accept=True, identity="myid", psk="mypsk")
@@ -57,7 +57,7 @@ def test_encryption_executor_no_update_needed(api_mock):
         "tls_subject": "",
         "tls_psk_identity": ""
     }]
-    executor = EncryptionExecutor(api_mock)
+    executor = EncryptionOperation(api_mock)
 
     entry = HostEncryption("host2", connect_unencrypted=True, accept_unencrypted=True)
 
@@ -77,7 +77,7 @@ def test_decree_merges_defaults(api_mock):
     }]
     ex = DecreeExecutor(api_mock)
 
-    ex.decree({"encryption": {
+    ex.execute({"encryption": {
         "host_defaults": {"connect": "UNENCRYPTED", "accept": "UNENCRYPTED"},
         "hosts": [{"host": "defaulted_host"}]
     }})
@@ -98,7 +98,7 @@ def test_decree_psk_in_defaults(api_mock):
     }]
     ex = DecreeExecutor(api_mock)
 
-    ex.decree({"encryption": {
+    ex.execute({"encryption": {
         "host_defaults": {
             "connect": "PSK", "accept": "PSK",
             "psk_identity": "root_id", "psk": "root_secret"
@@ -124,7 +124,7 @@ def test_decree_host_overrides_psk_defaults_to_cert(api_mock):
     }]
     ex = DecreeExecutor(api_mock)
 
-    ex.decree({"encryption": {
+    ex.execute({"encryption": {
         "host_defaults": {
             "connect": "PSK", "accept": "UNENCRYPTED, PSK",
             "psk_identity": "default_id", "psk": "default_secret"
@@ -155,7 +155,7 @@ def test_decree_host_overrides_cert_defaults_to_psk(api_mock):
     }]
     ex = DecreeExecutor(api_mock)
 
-    ex.decree({"encryption": {
+    ex.execute({"encryption": {
         "host_defaults": {
             "connect": "CERT", "accept": "CERT",
             "issuer": "default_issuer", "subject": "default_subject"
@@ -185,7 +185,7 @@ def test_decree_host_inherits_defaults(api_mock):
     }]
     ex = DecreeExecutor(api_mock)
 
-    ex.decree({"encryption": {
+    ex.execute({"encryption": {
         "host_defaults": {
             "connect": "PSK", "accept": "UNENCRYPTED, PSK",
             "psk_identity": "shared_id", "psk": "shared_secret"
@@ -204,7 +204,7 @@ def test_decree_requires_host():
     ex = DecreeExecutor(MagicMock())
 
     with pytest.raises(ValueError, match="missing required key.*host"):
-        ex.decree({"encryption": {
+        ex.execute({"encryption": {
             "host_defaults": {"connect": "UNENCRYPTED", "accept": "UNENCRYPTED"},
             "hosts": [{"connect": "UNENCRYPTED"}]
         }})

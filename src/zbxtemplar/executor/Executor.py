@@ -54,3 +54,6 @@ class Executor:
                 "Execution aborted. No changes were made."
             )
         return result
+
+    def execute(self, data):
+        raise NotImplementedError

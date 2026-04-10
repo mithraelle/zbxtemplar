@@ -1,8 +1,9 @@
+from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zabbix_utils import APIRequestError
 
 
-class ActionExecutor:
+class ActionOperation(Executor):
     # Condition types that store names needing ID resolution
     _CONDITION_RESOLVERS = {
         0: ("hostgroup", "groupid", "Host group"),
@@ -12,9 +13,6 @@ class ActionExecutor:
         18: ("drule", "druleid", "Discovery rule"),
         20: ("proxy", "proxyid", "Proxy"),
     }
-
-    def __init__(self, api):
-        self._api = api
 
     def _resolve_conditions(self, conditions):
         lookups = {}

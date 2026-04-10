@@ -19,107 +19,70 @@ def _make_api(args):
 
     if token:
         return ZabbixAPI(url=url, token=token)
-    else:
-        return ZabbixAPI(url=url, user=user, password=password)
+    return ZabbixAPI(url=url, user=user, password=password)
 
 
-def _cmd_set_super_admin(args):
-    api = _make_api(args)
-    executor = ScrollExecutor(api)
-    executor.set_super_admin(args.new_password)
-    return 0
-
-
-def _cmd_set_macro(args):
-    api = _make_api(args)
-    executor = ScrollExecutor(api)
+def _set_macro(args, api):
     if args.value is not None:
-        executor.set_macro({"name": args.name_or_file, "value": args.value, "type": args.type})
+        payload = {"name": args.name_or_file, "value": args.value, "type": args.type}
     else:
-        executor.set_macro(args.name_or_file)
-    return 0
+        payload = args.name_or_file
+    ScrollExecutor(api).set_macro(payload)
 
 
-def _cmd_apply(args):
-    api = _make_api(args)
-    executor = ScrollExecutor(api)
-    executor.apply(args.yaml_file)
-    return 0
+def _build_parser():
+    conn = argparse.ArgumentParser(add_help=False)
+    conn.add_argument("--url", help="Zabbix URL (default: http://localhost, or ZABBIX_URL env)")
+    conn.add_argument("--token", dest="user_or_token", help="API token (or ZABBIX_TOKEN env)")
+    conn.add_argument("--user", dest="user_or_token", help="Username (default: Admin, or ZABBIX_USER env)")
+    conn.add_argument("--password", help="Password (or ZABBIX_PASSWORD env)")
 
-
-def _cmd_decree(args):
-    api = _make_api(args)
-    executor = DecreeExecutor(api)
-    executor.decree(args.decree_file)
-    return 0
-
-
-def _cmd_add_user(args):
-    api = _make_api(args)
-    executor = DecreeExecutor(api)
-    executor.add_user(args.user_file)
-    return 0
-
-
-def _cmd_scroll(args):
-    api = _make_api(args)
-    executor = ScrollExecutor(api)
-    executor.run_scroll(args.scroll, from_stage=args.from_stage, only_stage=args.only_stage)
-    return 0
-
-
-def _add_connection_args(parser):
-    parser.add_argument("--url", help="Zabbix URL (default: http://localhost, or ZABBIX_URL env)")
-    parser.add_argument("--token", dest="user_or_token", help="API token (or ZABBIX_TOKEN env)")
-    parser.add_argument("--user", dest="user_or_token", help="Username (default: Admin, or ZABBIX_USER env)")
-    parser.add_argument("--password", help="Password (or ZABBIX_PASSWORD env)")
-
-
-def main():
     parser = argparse.ArgumentParser(description="Zbx Templar Executor — apply configuration to Zabbix")
     sub = parser.add_subparsers()
 
-    sa = sub.add_parser("set_super_admin", help="Bootstrap or rotate super admin password")
+    sa = sub.add_parser("set_super_admin", parents=[conn], help="Bootstrap or rotate super admin password")
     sa.add_argument("--new-password", required=True, help="New password")
-    _add_connection_args(sa)
-    sa.set_defaults(func=_cmd_set_super_admin)
+    sa.set_defaults(func=lambda args, api: ScrollExecutor(api).set_super_admin(args.new_password))
 
-    mac = sub.add_parser("set_macro", help="Set global macros (inline or from file)")
+    mac = sub.add_parser("set_macro", parents=[conn], help="Set global macros (inline or from file)")
     mac.add_argument("name_or_file", help="Macro name or path to YAML file")
     mac.add_argument("value", nargs="?", help="Macro value (when setting a single macro)")
     mac.add_argument("--type", choices=["text", "secret", "vault"], default="text")
-    _add_connection_args(mac)
-    mac.set_defaults(func=_cmd_set_macro)
+    mac.set_defaults(func=_set_macro)
 
-    app = sub.add_parser("apply", help="Import Zabbix-native YAML")
+    app = sub.add_parser("apply", parents=[conn], help="Import Zabbix-native YAML")
     app.add_argument("yaml_file", help="Path to Zabbix-native YAML file")
-    _add_connection_args(app)
-    app.set_defaults(func=_cmd_apply)
+    app.set_defaults(func=lambda args, api: ScrollExecutor(api).apply(args.yaml_file))
 
-    dec = sub.add_parser("decree", help="Apply state configuration (user groups, actions, SAML)")
+    dec = sub.add_parser("decree", parents=[conn], help="Apply state configuration (user groups, actions, SAML)")
     dec.add_argument("decree_file", help="Path to decree YAML file")
-    _add_connection_args(dec)
-    dec.set_defaults(func=_cmd_decree)
+    dec.set_defaults(func=lambda args, api: DecreeExecutor(api).execute(args.decree_file))
 
-    usr = sub.add_parser("add_user", help="Create service or special users")
+    usr = sub.add_parser("add_user", parents=[conn], help="Create service or special users")
     usr.add_argument("user_file", help="Path to user definition YAML file")
-    _add_connection_args(usr)
-    usr.set_defaults(func=_cmd_add_user)
+    usr.set_defaults(func=lambda args, api: DecreeExecutor(api).add_user(args.user_file))
 
-    scr = sub.add_parser("scroll", help="Execute a deployment scroll")
+    scr = sub.add_parser("scroll", parents=[conn], help="Execute a deployment scroll")
     scr.add_argument("scroll", help="Path to scroll YAML file")
     scr.add_argument("--from-stage", help="Start execution from this stage")
     scr.add_argument("--only-stage", help="Execute only this stage")
-    _add_connection_args(scr)
-    scr.set_defaults(func=_cmd_scroll)
+    scr.set_defaults(func=lambda args, api: ScrollExecutor(api).run_scroll(
+        args.scroll, from_stage=args.from_stage, only_stage=args.only_stage
+    ))
 
+    return parser
+
+
+def main():
+    parser = _build_parser()
     args = parser.parse_args()
-    if not hasattr(args, 'func'):
+    if not hasattr(args, "func"):
         parser.print_help()
         return 1
 
     try:
-        return args.func(args)
+        args.func(args, _make_api(args))
+        return 0
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
