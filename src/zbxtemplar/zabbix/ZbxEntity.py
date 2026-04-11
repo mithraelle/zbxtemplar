@@ -14,6 +14,17 @@ class MacroType(StrEnum):
     SECRET = "SECRET_TEXT"
     VAULT = "VAULT"
 
+    @classmethod
+    def _missing_(cls, value):
+        if isinstance(value, str):
+            val = value.upper()
+            if val == "SECRET":
+                val = "SECRET_TEXT"
+            for member in cls:
+                if member.value == val:
+                    return member
+        return super()._missing_(value)
+
 MacroType._API_VALUES = {"TEXT": 0, "SECRET_TEXT": 1, "VAULT": 2}
 
 ZBX_TEMPLAR_NAMESPACE = "Zbx Templar"

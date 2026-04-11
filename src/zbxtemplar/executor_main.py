@@ -9,13 +9,14 @@ from zbxtemplar.executor.ScrollExecutor import ScrollExecutor
 from zbxtemplar.executor.operations.ImportOperation import ImportOperation
 from zbxtemplar.executor.operations.MacroOperation import MacroOperation
 from zbxtemplar.executor.operations.SuperAdminOperation import SuperAdminOperation
+from zbxtemplar.executor.operations.UserOperation import UserOperation
 
 
 def _make_api(args):
     url = args.url or os.environ.get("ZABBIX_URL", "http://localhost")
-    token = args.user_or_token or os.environ.get("ZABBIX_TOKEN")
-    password = args.password or os.environ.get("ZABBIX_PASSWORD")
-    user = os.environ.get("ZABBIX_USER", "Admin")
+    token = getattr(args, "token", None) or os.environ.get("ZABBIX_TOKEN")
+    password = getattr(args, "password", None) or os.environ.get("ZABBIX_PASSWORD")
+    user = getattr(args, "user", None) or os.environ.get("ZABBIX_USER", "Admin")
 
     if not token and not password:
         raise SystemExit("Auth required: --token or --password (or ZABBIX_TOKEN / ZABBIX_PASSWORD env)")
@@ -53,6 +54,15 @@ def _decree(args, api):
     ex.execute()
 
 
+def _add_user(args, api):    
+    ex = UserOperation(api)
+    data = ex._load_yaml(args.user_file)
+    if isinstance(data, dict) and "add_user" in data:
+        data = data["add_user"]
+    ex.from_data(data)
+    ex.execute()
+
+
 def _scroll(args, api):
     ex = ScrollExecutor(api)
     ex.from_file(args.scroll)
@@ -62,12 +72,12 @@ def _scroll(args, api):
 def _build_parser():
     conn = argparse.ArgumentParser(add_help=False)
     conn.add_argument("--url", help="Zabbix URL (default: http://localhost, or ZABBIX_URL env)")
-    conn.add_argument("--token", dest="user_or_token", help="API token (or ZABBIX_TOKEN env)")
-    conn.add_argument("--user", dest="user_or_token", help="Username (default: Admin, or ZABBIX_USER env)")
+    conn.add_argument("--token", help="API token (or ZABBIX_TOKEN env)")
+    conn.add_argument("--user", help="Username (default: Admin, or ZABBIX_USER env)")
     conn.add_argument("--password", help="Password (or ZABBIX_PASSWORD env)")
 
     parser = argparse.ArgumentParser(description="Zbx Templar Executor — apply configuration to Zabbix")
-    sub = parser.add_subparsers()
+    sub = parser.add_subparsers(dest="command")
 
     sa = sub.add_parser("set_super_admin", parents=[conn], help="Bootstrap or rotate super admin password")
     sa.add_argument("--new-password", required=True, help="New password")
@@ -88,8 +98,8 @@ def _build_parser():
     dec.set_defaults(func=_decree)
 
     usr = sub.add_parser("add_user", parents=[conn], help="Create service or special users")
-    usr.add_argument("user_file", dest="decree_file", help="Path to user definition YAML file")
-    usr.set_defaults(func=_decree)
+    usr.add_argument("user_file", help="Path to user definition YAML file")
+    usr.set_defaults(func=_add_user)
 
     scr = sub.add_parser("scroll", parents=[conn], help="Execute a deployment scroll")
     scr.add_argument("scroll", help="Path to scroll YAML file")
