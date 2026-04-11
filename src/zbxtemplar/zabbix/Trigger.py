@@ -42,8 +42,11 @@ class WithTriggers:
     def add_trigger(self, name: str, expression: str,
                     priority: TriggerPriority = TriggerPriority.NOT_CLASSIFIED,
                     description: str | None = None):
-        if not any(t.name == name for t in self._triggers):
-            self._triggers.append(Trigger(name, expression, priority, description))
+        if any(t.name == name for t in self._triggers):
+            raise ValueError(
+                f"Duplicate trigger '{name}' on '{getattr(self, 'name', type(self).__name__)}'"
+            )
+        self._triggers.append(Trigger(name, expression, priority, description))
         return self
 
     @property

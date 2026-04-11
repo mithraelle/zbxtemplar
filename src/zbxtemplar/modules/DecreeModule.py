@@ -19,19 +19,25 @@ class DecreeModule:
 
     def add_user_group(self, group: UserGroup) -> Self:
         if any(g.name == group.name for g in self.user_groups):
-            return self
+            raise ValueError(
+                f"{type(self).__name__}: duplicate user group '{group.name}'"
+            )
         self.user_groups.append(group)
         return self
 
     def add_user(self, user: User) -> Self:
         if any(u.username == user.username for u in self.users):
-            return self
+            raise ValueError(
+                f"{type(self).__name__}: duplicate user '{user.username}'"
+            )
         self.users.append(user)
         return self
 
     def add_action(self, action: Action) -> Self:
         if any(a.name == action.name for a in self.actions):
-            return self
+            raise ValueError(
+                f"{type(self).__name__}: duplicate action '{action.name}'"
+            )
         self.actions.append(action)
         return self
 
@@ -42,7 +48,9 @@ class DecreeModule:
     def add_host_encryption(self, host: Host | str, encryption: Encryption) -> Self:
         name = host.host if isinstance(host, Host) else str(host)
         if any(e.host == name for e in self.encryptions):
-            return self
+            raise ValueError(
+                f"{type(self).__name__}: duplicate host encryption for '{name}'"
+            )
         self.encryptions.append(HostEncryption.from_encryption(name, encryption))
         return self
 

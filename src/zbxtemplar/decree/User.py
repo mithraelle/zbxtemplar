@@ -98,8 +98,11 @@ class User(DecreeEntity, DictEntity):
 
     def add_group(self, group):
         name = group.name if isinstance(group, UserGroup) else group
-        if name not in self.groups:
-            self.groups.append(name)
+        if name in self.groups:
+            raise ValueError(
+                f"Duplicate group '{name}' on user '{self.username}'"
+            )
+        self.groups.append(name)
         return self
 
     def add_media(self, media: UserMedia):

@@ -104,8 +104,11 @@ class WithGraphs:
         self._graphs: list[Graph] = []
 
     def add_graph(self, graph: Graph):
-        if not any(g.name == graph.name for g in self._graphs):
-            self._graphs.append(graph)
+        if any(g.name == graph.name for g in self._graphs):
+            raise ValueError(
+                f"Duplicate graph '{graph.name}' on '{getattr(self, 'name', type(self).__name__)}'"
+            )
+        self._graphs.append(graph)
         return self
 
     @property

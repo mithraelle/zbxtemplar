@@ -41,19 +41,28 @@ class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGr
         self.groups = groups or []
 
     def add_item(self, item: Item):
-        if not any(i.key == item.key for i in self.items):
-            item._host = self.name
-            self.items.append(item)
+        if any(i.key == item.key for i in self.items):
+            raise ValueError(
+                f"Duplicate item key '{item.key}' on template '{self.name}'"
+            )
+        item._host = self.name
+        self.items.append(item)
         return self
 
     def add_dashboard(self, dashboard: Dashboard):
-        if not any(d.name == dashboard.name for d in self.dashboards):
-            self.dashboards.append(dashboard)
+        if any(d.name == dashboard.name for d in self.dashboards):
+            raise ValueError(
+                f"Duplicate dashboard '{dashboard.name}' on template '{self.name}'"
+            )
+        self.dashboards.append(dashboard)
         return self
 
     def add_value_map(self, value_map: ValueMap):
-        if not any(v.name == value_map.name for v in self.valuemaps):
-            self.valuemaps.append(value_map)
+        if any(v.name == value_map.name for v in self.valuemaps):
+            raise ValueError(
+                f"Duplicate value map '{value_map.name}' on template '{self.name}'"
+            )
+        self.valuemaps.append(value_map)
         return self
 
     @classmethod

@@ -43,14 +43,20 @@ class UserGroup(DecreeEntity, DictEntity):
 
     def add_host_group(self, group, permission: Permission):
         name = group.name if isinstance(group, HostGroup) else group
-        if not any(hg["name"] == name for hg in self.host_groups):
-            self.host_groups.append({"name": name, "permission": permission})
+        if any(hg["name"] == name for hg in self.host_groups):
+            raise ValueError(
+                f"Duplicate host_group '{name}' on user group '{self.name}'"
+            )
+        self.host_groups.append({"name": name, "permission": permission})
         return self
 
     def add_template_group(self, group, permission: Permission):
         name = group.name if isinstance(group, TemplateGroup) else group
-        if not any(tg["name"] == name for tg in self.template_groups):
-            self.template_groups.append({"name": name, "permission": permission})
+        if any(tg["name"] == name for tg in self.template_groups):
+            raise ValueError(
+                f"Duplicate template_group '{name}' on user group '{self.name}'"
+            )
+        self.template_groups.append({"name": name, "permission": permission})
         return self
 
     @classmethod

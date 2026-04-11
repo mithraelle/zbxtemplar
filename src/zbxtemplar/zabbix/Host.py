@@ -58,15 +58,21 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
         self._default_interface: HostInterface | None = None
 
     def add_interface(self, interface: HostInterface, default: bool = False):
-        if not any(i.interface_ref == interface.interface_ref for i in self.interfaces):
-            self.interfaces.append(interface)
+        if any(i.interface_ref == interface.interface_ref for i in self.interfaces):
+            raise ValueError(
+                f"Duplicate interface ref '{interface.interface_ref}' on host '{self.name}'"
+            )
+        self.interfaces.append(interface)
         if default or self._default_interface is None:
             self._default_interface = interface
         return self
 
     def add_template(self, template: Template):
-        if not any(t.name == template.name for t in self.templates):
-            self.templates.append(template)
+        if any(t.name == template.name for t in self.templates):
+            raise ValueError(
+                f"Duplicate template '{template.name}' on host '{self.name}'"
+            )
+        self.templates.append(template)
         return self
 
     def interfaces_to_list(self):
@@ -79,9 +85,12 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
         return [{"name": t.name} for t in self.templates]
 
     def add_item(self, item: Item):
-        if not any(i.key == item.key for i in self.items):
-            item._host = self.name
-            self.items.append(item)
+        if any(i.key == item.key for i in self.items):
+            raise ValueError(
+                f"Duplicate item key '{item.key}' on host '{self.name}'"
+            )
+        item._host = self.name
+        self.items.append(item)
         return self
 
     def get_macro(self, name: str):
@@ -96,8 +105,11 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
         raise KeyError(f"Macro '{{${clean_name}}}' not found on host '{self.name}' or its linked templates")
 
     def add_value_map(self, value_map: ValueMap):
-        if not any(v.name == value_map.name for v in self.valuemaps):
-            self.valuemaps.append(value_map)
+        if any(v.name == value_map.name for v in self.valuemaps):
+            raise ValueError(
+                f"Duplicate value map '{value_map.name}' on host '{self.name}'"
+            )
+        self.valuemaps.append(value_map)
         return self
 
     def to_dict(self, **kwargs):

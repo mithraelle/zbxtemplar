@@ -209,8 +209,11 @@ class WithGroups():
         self.groups: list[ZbxEntity] = []
 
     def add_group(self, group: ZbxEntity):
-        if not any(g.name == group.name for g in self.groups):
-            self.groups.append(group)
+        if any(g.name == group.name for g in self.groups):
+            raise ValueError(
+                f"Duplicate group '{group.name}' on '{getattr(self, 'name', type(self).__name__)}'"
+            )
+        self.groups.append(group)
         return self
 
     def groups_to_list(self):

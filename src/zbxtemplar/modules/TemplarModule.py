@@ -13,13 +13,17 @@ class TemplarModule:
 
     def add_template(self, template: Template) -> Self:
         if any(t.name == template.name for t in self.templates):
-            return self
+            raise ValueError(
+                f"{type(self).__name__}: duplicate template '{template.name}'"
+            )
         self.templates.append(template)
         return self
 
     def add_host(self, host: Host) -> Self:
         if any(h.name == host.name for h in self.hosts):
-            return self
+            raise ValueError(
+                f"{type(self).__name__}: duplicate host '{host.name}'"
+            )
         self.hosts.append(host)
         return self
 
