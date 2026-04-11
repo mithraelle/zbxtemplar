@@ -3,10 +3,11 @@ import re
 
 import yaml
 
+from zbxtemplar.DictEntity import DictEntity
 from zbxtemplar.executor.exceptions import ExecutorParseError
 
 
-class Executor:
+class Executor(DictEntity):
     def __init__(self, api, base_dir=None):
         self._api = api
         self._base_dir = base_dir
@@ -24,6 +25,16 @@ class Executor:
         except yaml.YAMLError as e:
             raise ExecutorParseError(f"Failed to parse '{resolved_path}': {e}", path=resolved_path) from e
         return self._resolve_env(data)
+
+    def from_file(self, path):
+        self.from_data(self._load_yaml(path))
+
+    def from_data(self, data: dict|list|str):
+        if isinstance(data, dict):
+            self.validate(data)
+
+    def execute(self):
+        raise NotImplementedError()
 
     @staticmethod
     def _resolve_env(obj):
@@ -54,6 +65,3 @@ class Executor:
                 "Execution aborted. No changes were made."
             )
         return result
-
-    def execute(self, data):
-        raise NotImplementedError

@@ -13,7 +13,9 @@ def test_reads_file_and_imports(tmp_path):
     yaml_file.write_text(test_str)
 
     api = MagicMock()
-    _executor(api).execute(str(yaml_file))
+    op = _executor(api)
+    op.from_data(str(yaml_file))
+    op.execute()
     api.configuration.import_.assert_called_once()
     call_kwargs = api.configuration.import_.call_args[1]
     assert call_kwargs["source"] == test_str
@@ -28,5 +30,7 @@ def test_list_of_files(tmp_path):
     file2.write_text("zabbix_export:\n  version: '7.4'\n")
 
     api = MagicMock()
-    _executor(api).execute([str(file1), str(file2)])
+    op = _executor(api)
+    op.from_data([str(file1), str(file2)])
+    op.execute()
     assert api.configuration.import_.call_count == 2

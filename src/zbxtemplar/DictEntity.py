@@ -13,6 +13,8 @@ class DictEntity:
 
     @classmethod
     def validate(cls, data: dict) -> bool:
+        if not isinstance(data, dict):
+            raise ValueError(f"{cls.__name__}: expected a mapping, got {type(data).__name__}")
         if not cls._SCHEMA:
             return True
 

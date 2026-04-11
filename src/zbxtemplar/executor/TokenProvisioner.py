@@ -1,15 +1,23 @@
 import os
 
 from zbxtemplar.decree.Token import TokenOutput, TokenExpiry
-from zbxtemplar.executor.Executor import Executor
 
 
-class TokenOperationError(Exception):
-    """Raised by internal TokenOperation methods — contextualized by provision_user."""
+class TokenProvisionerError(Exception):
+    """Raised by internal TokenProvisioner methods — contextualized by provision_user."""
     pass
 
 
-class TokenOperation(Executor):
+class TokenProvisioner:
+    def __init__(self, api, base_dir=None):
+        self._api = api
+        self._base_dir = base_dir
+
+    def _resolve_path(self, path):
+        if self._base_dir and not os.path.isabs(path):
+            return os.path.join(self._base_dir, path)
+        return path
+
     def validate(self, users):
         seen_names = {}
         seen_paths = {}
@@ -20,7 +28,7 @@ class TokenOperation(Executor):
 
             name = user.token.name
             if name in seen_names:
-                raise TokenOperationError(
+                raise TokenProvisionerError(
                     f"Duplicate token name '{name}': "
                     f"users '{seen_names[name]}' and '{user.username}'"
                 )
@@ -31,13 +39,13 @@ class TokenOperation(Executor):
 
             path = os.path.normcase(os.path.abspath(self._resolve_path(user.token.store_at)))
             if path in seen_paths:
-                raise TokenOperationError(
+                raise TokenProvisionerError(
                     f"Duplicate store_at path '{user.token.store_at}': "
                     f"users '{seen_paths[path]}' and '{user.username}'"
                 )
             seen_paths[path] = user.username
             if os.path.exists(path):
-                raise TokenOperationError(
+                raise TokenProvisionerError(
                     f"User '{user.username}': "
                     f"refusing to overwrite existing file '{user.token.store_at}'"
                 )
@@ -46,7 +54,7 @@ class TokenOperation(Executor):
     def _expiration_for_api(token, *, creating):
         if token.expires_at is None:
             if creating:
-                raise TokenOperationError("token.expires_at is required on create")
+                raise TokenProvisionerError("token.expires_at is required on create")
             return None
         if token.expires_at is TokenExpiry.NEVER:
             return 0
@@ -56,11 +64,11 @@ class TokenOperation(Executor):
     def _extract_secret(generate_result):
         if isinstance(generate_result, list):
             if not generate_result:
-                raise TokenOperationError("token.generate returned an empty list")
+                raise TokenProvisionerError("token.generate returned an empty list")
             generate_result = generate_result[0]
         secret = (generate_result or {}).get("token")
         if not secret:
-            raise TokenOperationError("token.generate did not return a secret")
+            raise TokenProvisionerError("token.generate did not return a secret")
         return secret
 
     def _extract_tokenid(self, create_result, token_name, userid):
@@ -73,7 +81,7 @@ class TokenOperation(Executor):
             filter={"name": token_name},
         )
         if not matches:
-            raise TokenOperationError(f"unable to resolve token id for '{token_name}'")
+            raise TokenProvisionerError(f"unable to resolve token id for '{token_name}'")
         return matches[0]["tokenid"]
 
     def _find_existing_token(self, token_name, userid):
@@ -83,11 +91,11 @@ class TokenOperation(Executor):
         )
         for match in matches:
             if str(match.get("userid")) != str(userid):
-                raise TokenOperationError(
+                raise TokenProvisionerError(
                     f"token '{token_name}' belongs to a different user"
                 )
         if len(matches) > 1:
-            raise TokenOperationError(f"multiple tokens named '{token_name}' found")
+            raise TokenProvisionerError(f"multiple tokens named '{token_name}' found")
         return matches[0] if matches else None
 
     def _write_secret(self, path, secret):
@@ -104,7 +112,7 @@ class TokenOperation(Executor):
 
         if existing_token:
             if not force:
-                raise TokenOperationError(
+                raise TokenProvisionerError(
                     f"token '{token_name}' already exists. "
                     f"Set force_token: true to update it."
                 )

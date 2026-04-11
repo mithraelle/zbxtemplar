@@ -31,10 +31,12 @@ class EncryptionOperation(Executor):
 
         return entries
 
-    def execute(self, data):
-        entries = self._parse_entries(data)
-        if entries:
-            self._apply(entries)
+    def from_data(self, data):
+        self._entries = self._parse_entries(data)
+
+    def execute(self):
+        if self._entries:
+            self._apply(self._entries)
 
     def _apply(self, entries: list[HostEncryption]):
         if not entries:

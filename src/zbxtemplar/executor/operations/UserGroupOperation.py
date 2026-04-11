@@ -15,13 +15,15 @@ class UserGroupOperation(Executor):
             rights.append({"id": group_lookup[name], "permission": Permission._API_VALUES[perm]})
         return rights
 
-    def execute(self, data):
+    def from_data(self, data):
+        self._groups = [UserGroup.from_dict(raw) for raw in data]
+
+    def execute(self):
         host_groups = {g["name"]: g["groupid"] for g in self._api.hostgroup.get(output=["groupid", "name"])}
         template_groups = {g["name"]: g["groupid"] for g in self._api.templategroup.get(output=["groupid", "name"])}
         existing = {g["name"]: g["usrgrpid"] for g in self._api.usergroup.get(output=["usrgrpid", "name"])}
 
-        for raw in data:
-            ug = UserGroup.from_dict(raw)
+        for ug in self._groups:
             gui = ug.gui_access or GuiAccess.DEFAULT
             params = {"name": ug.name, "gui_access": GuiAccess._API_VALUES[gui]}
 

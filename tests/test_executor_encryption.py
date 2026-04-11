@@ -77,10 +77,11 @@ def test_decree_merges_defaults(api_mock):
     }]
     ex = DecreeExecutor(api_mock)
 
-    ex.execute({"encryption": {
+    ex.from_data({"encryption": {
         "host_defaults": {"connect": "UNENCRYPTED", "accept": "UNENCRYPTED"},
         "hosts": [{"host": "defaulted_host"}]
     }})
+    ex.execute()
 
     api_mock.host.get.assert_called_once()
     api_mock.host.update.assert_not_called()
@@ -98,13 +99,14 @@ def test_decree_psk_in_defaults(api_mock):
     }]
     ex = DecreeExecutor(api_mock)
 
-    ex.execute({"encryption": {
+    ex.from_data({"encryption": {
         "host_defaults": {
             "connect": "PSK", "accept": "PSK",
             "psk_identity": "root_id", "psk": "root_secret"
         },
         "hosts": [{"host": "psk_host"}]
     }})
+    ex.execute()
 
     api_mock.host.update.assert_called_once_with(
         hostid="1004", tls_connect=2, tls_accept=2,
@@ -124,7 +126,7 @@ def test_decree_host_overrides_psk_defaults_to_cert(api_mock):
     }]
     ex = DecreeExecutor(api_mock)
 
-    ex.execute({"encryption": {
+    ex.from_data({"encryption": {
         "host_defaults": {
             "connect": "PSK", "accept": "UNENCRYPTED, PSK",
             "psk_identity": "default_id", "psk": "default_secret"
@@ -135,6 +137,7 @@ def test_decree_host_overrides_psk_defaults_to_cert(api_mock):
             "issuer": "my_issuer", "subject": "my_subject"
         }]
     }})
+    ex.execute()
 
     api_mock.host.update.assert_called_once_with(
         hostid="1005", tls_connect=4,
@@ -155,7 +158,7 @@ def test_decree_host_overrides_cert_defaults_to_psk(api_mock):
     }]
     ex = DecreeExecutor(api_mock)
 
-    ex.execute({"encryption": {
+    ex.from_data({"encryption": {
         "host_defaults": {
             "connect": "CERT", "accept": "CERT",
             "issuer": "default_issuer", "subject": "default_subject"
@@ -166,6 +169,7 @@ def test_decree_host_overrides_cert_defaults_to_psk(api_mock):
             "psk_identity": "my_id", "psk": "my_secret"
         }]
     }})
+    ex.execute()
 
     api_mock.host.update.assert_called_once_with(
         hostid="1006", tls_connect=2, tls_accept=2,
@@ -185,13 +189,14 @@ def test_decree_host_inherits_defaults(api_mock):
     }]
     ex = DecreeExecutor(api_mock)
 
-    ex.execute({"encryption": {
+    ex.from_data({"encryption": {
         "host_defaults": {
             "connect": "PSK", "accept": "UNENCRYPTED, PSK",
             "psk_identity": "shared_id", "psk": "shared_secret"
         },
         "hosts": [{"host": "inheriting_host"}]
     }})
+    ex.execute()
 
     api_mock.host.update.assert_called_once_with(
         hostid="1007", tls_connect=2,
@@ -204,7 +209,7 @@ def test_decree_requires_host():
     ex = DecreeExecutor(MagicMock())
 
     with pytest.raises(ValueError, match="missing required key.*host"):
-        ex.execute({"encryption": {
+        ex.from_data({"encryption": {
             "host_defaults": {"connect": "UNENCRYPTED", "accept": "UNENCRYPTED"},
             "hosts": [{"connect": "UNENCRYPTED"}]
         }})

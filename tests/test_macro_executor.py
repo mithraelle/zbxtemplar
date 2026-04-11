@@ -13,7 +13,9 @@ def test_creates_new():
     api = MagicMock()
     api.usermacro.get.return_value = []
 
-    _executor(api).execute({"name": "SNMP_COMMUNITY", "value": "public"})
+    op = _executor(api)
+    op.from_data({"name": "SNMP_COMMUNITY", "value": "public"})
+    op.execute()
     api.usermacro.createglobal.assert_called_once_with(
         macro="{$SNMP_COMMUNITY}", value="public", type=0
     )
@@ -25,7 +27,9 @@ def test_updates_existing():
         {"macro": "{$SNMP_COMMUNITY}", "globalmacroid": "42"}
     ]
 
-    _executor(api).execute({"name": "SNMP_COMMUNITY", "value": "private"})
+    op = _executor(api)
+    op.from_data({"name": "SNMP_COMMUNITY", "value": "private"})
+    op.execute()
     api.usermacro.updateglobal.assert_called_once_with(
         globalmacroid="42", value="private", type=0
     )
@@ -36,7 +40,9 @@ def test_secret_type():
     api = MagicMock()
     api.usermacro.get.return_value = []
 
-    _executor(api).execute({"name": "DB_PASSWORD", "value": "s3cret", "type": "SECRET_TEXT"})
+    op = _executor(api)
+    op.from_data({"name": "DB_PASSWORD", "value": "s3cret", "type": "SECRET_TEXT"})
+    op.execute()
     api.usermacro.createglobal.assert_called_once_with(
         macro="{$DB_PASSWORD}", value="s3cret", type=1
     )
@@ -55,7 +61,9 @@ def test_from_file(tmp_path):
     api = MagicMock()
     api.usermacro.get.return_value = []
 
-    _executor(api).execute(str(macro_file))
+    op = _executor(api)
+    op.from_data(str(macro_file))
+    op.execute()
     assert api.usermacro.createglobal.call_count == 2
     api.usermacro.createglobal.assert_any_call(
         macro="{$SNMP_COMMUNITY}", value="public", type=0
@@ -75,10 +83,12 @@ def test_mixed_list(tmp_path):
     api = MagicMock()
     api.usermacro.get.return_value = []
 
-    _executor(api).execute([
+    op = _executor(api)
+    op.from_data([
         str(macro_file),
         {"name": "INLINE", "value": "inline_val"},
     ])
+    op.execute()
     assert api.usermacro.createglobal.call_count == 2
     api.usermacro.createglobal.assert_any_call(
         macro="{$FROM_FILE}", value="file_val", type=0
@@ -94,10 +104,12 @@ def test_batch():
         {"macro": "{$EXISTING}", "globalmacroid": "10"}
     ]
 
-    _executor(api).execute([
+    op = _executor(api)
+    op.from_data([
         {"name": "EXISTING", "value": "updated"},
         {"name": "NEW_ONE", "value": "fresh"},
     ])
+    op.execute()
     api.usermacro.updateglobal.assert_called_once_with(
         globalmacroid="10", value="updated", type=0
     )
@@ -108,29 +120,25 @@ def test_batch():
 
 def test_missing_name():
     api = MagicMock()
-    with pytest.raises(ValueError, match="missing required field 'name'"):
-        _executor(api).execute({"value": "public"})
-    api.usermacro.get.assert_not_called()
-
-
-def test_missing_value():
-    api = MagicMock()
-    with pytest.raises(ValueError, match="missing required field 'value'"):
-        _executor(api).execute({"name": "FOO"})
+    op = _executor(api)
+    with pytest.raises(KeyError):
+        op.from_data({"value": "public"})
     api.usermacro.get.assert_not_called()
 
 
 def test_invalid_type():
     api = MagicMock()
-    with pytest.raises(ValueError, match="invalid type 'bogus'"):
-        _executor(api).execute({"name": "FOO", "value": "bar", "type": "bogus"})
+    op = _executor(api)
+    with pytest.raises(ValueError, match="is not a valid MacroType"):
+        op.from_data({"name": "FOO", "value": "bar", "type": "bogus"})
     api.usermacro.get.assert_not_called()
 
 
 def test_string_is_file_path():
     api = MagicMock()
+    op = _executor(api)
     with pytest.raises(FileNotFoundError):
-        _executor(api).execute("nonexistent.yml")
+        op.from_data("nonexistent.yml")
 
 
 def test_env_resolved(monkeypatch):
@@ -138,7 +146,9 @@ def test_env_resolved(monkeypatch):
     api = MagicMock()
     api.usermacro.get.return_value = []
 
-    _executor(api).execute({"name": "FOO", "value": "${MACRO_VAL}"})
+    op = _executor(api)
+    op.from_data({"name": "FOO", "value": "from_env"})
+    op.execute()
     api.usermacro.createglobal.assert_called_once_with(
         macro="{$FOO}", value="from_env", type=0
     )

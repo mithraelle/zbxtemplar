@@ -31,14 +31,18 @@ def _simple_action(name="Notify Ops"):
 
 def test_creates_action():
     api = _api()
-    ActionOperation(api).execute([_simple_action()])
+    op = ActionOperation(api)
+    op.from_data([_simple_action()])
+    op.execute()
     api.action.create.assert_called_once()
     assert api.action.create.call_args[1]["name"] == "Notify Ops"
 
 
 def test_updates_existing_action():
     api = _api(existing_actions=[{"actionid": "42", "name": "Notify Ops"}])
-    ActionOperation(api).execute([_simple_action()])
+    op = ActionOperation(api)
+    op.from_data([_simple_action()])
+    op.execute()
     api.action.update.assert_called_once()
     call = api.action.update.call_args[1]
     assert call["actionid"] == "42"
@@ -58,8 +62,11 @@ def test_resolves_hostgroup_condition():
         },
         "operations": [],
     }
-    ActionOperation(api).execute([action])
-    assert action["filter"]["conditions"][0]["value"] == "2"
+    op = ActionOperation(api)
+    op.from_data([action])
+    op.execute()
+    call = api.action.create.call_args[1]
+    assert call["filter"]["conditions"][0]["value"] == "2"
 
 
 def test_unknown_condition_entity_raises():
@@ -73,8 +80,10 @@ def test_unknown_condition_entity_raises():
         },
         "operations": [],
     }
+    op = ActionOperation(api)
+    op.from_data([action])
     with pytest.raises(ValueError, match="Host group 'Nonexistent group' not found"):
-        ActionOperation(api).execute([action])
+        op.execute()
 
 
 def test_resolves_opmessage_grp():
@@ -88,8 +97,11 @@ def test_resolves_opmessage_grp():
             "opmessage_grp": [{"usrgrpid": "Ops Team"}],
         }],
     }
-    ActionOperation(api).execute([action])
-    assert action["operations"][0]["opmessage_grp"][0]["usrgrpid"] == "7"
+    op = ActionOperation(api)
+    op.from_data([action])
+    op.execute()
+    call = api.action.create.call_args[1]
+    assert call["operations"][0]["opmessage_grp"][0]["usrgrpid"] == "7"
 
 
 def test_resolves_opmessage_usr():
@@ -103,8 +115,11 @@ def test_resolves_opmessage_usr():
             "opmessage_usr": [{"userid": "alice"}],
         }],
     }
-    ActionOperation(api).execute([action])
-    assert action["operations"][0]["opmessage_usr"][0]["userid"] == "10"
+    op = ActionOperation(api)
+    op.from_data([action])
+    op.execute()
+    call = api.action.create.call_args[1]
+    assert call["operations"][0]["opmessage_usr"][0]["userid"] == "10"
 
 
 def test_resolves_opmessage_media_type():
@@ -117,8 +132,11 @@ def test_resolves_opmessage_media_type():
             "opmessage": {"default_msg": 1, "mediatypeid": "Email"},
         }],
     }
-    ActionOperation(api).execute([action])
-    assert action["operations"][0]["opmessage"]["mediatypeid"] == "5"
+    op = ActionOperation(api)
+    op.from_data([action])
+    op.execute()
+    call = api.action.create.call_args[1]
+    assert call["operations"][0]["opmessage"]["mediatypeid"] == "5"
 
 
 def test_unknown_operation_user_group_raises():
@@ -128,19 +146,25 @@ def test_unknown_operation_user_group_raises():
         "eventsource": 0,
         "operations": [{"operationtype": 0, "opmessage_grp": [{"usrgrpid": "Nobody"}]}],
     }
+    op = ActionOperation(api)
+    op.from_data([action])
     with pytest.raises(ValueError, match="User group 'Nobody' not found"):
-        ActionOperation(api).execute([action])
+        op.execute()
 
 
 def test_api_error_on_create_is_wrapped():
     api = _api()
     api.action.create.side_effect = APIRequestError("network drop")
+    op = ActionOperation(api)
+    op.from_data([_simple_action()])
     with pytest.raises(ExecutorApiError, match="Failed to create action 'Notify Ops'"):
-        ActionOperation(api).execute([_simple_action()])
+        op.execute()
 
 
 def test_api_error_on_update_is_wrapped():
     api = _api(existing_actions=[{"actionid": "42", "name": "Notify Ops"}])
     api.action.update.side_effect = APIRequestError("network drop")
+    op = ActionOperation(api)
+    op.from_data([_simple_action()])
     with pytest.raises(ExecutorApiError, match="Failed to update action 'Notify Ops'"):
-        ActionOperation(api).execute([_simple_action()])
+        op.execute()

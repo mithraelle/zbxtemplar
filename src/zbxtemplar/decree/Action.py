@@ -25,6 +25,15 @@ class Action(DecreeEntity, ABC):
             result["filter"] = self._filter.to_dict()
         return result
 
+    @classmethod
+    def from_dict(cls, data: dict):
+        eventsource = data.get("eventsource", 0)
+        if eventsource == 0:
+            return TriggerAction.from_dict(data)
+        elif eventsource == 2:
+            return AutoregistrationAction.from_dict(data)
+        raise ValueError(f"Unknown eventsource '{eventsource}'")
+
 
 class TriggerAction(Action):
     eventsource = 0
@@ -60,6 +69,33 @@ class TriggerAction(Action):
     def update_operations_to_list(self) -> list:
         return self.update_operations.to_list()
 
+    @classmethod
+    def from_dict(cls, data: dict):
+        obj = cls(data["name"])
+        if "esc_period" in data:
+            obj.set_operation_step(data["esc_period"])
+        if "pause_symptoms" in data:
+            obj.pause_symptoms()
+        if "pause_suppressed" in data:
+            obj.pause_suppressed()
+        if "notify_if_canceled" in data:
+            obj.notify_if_canceled()
+            
+        if "filter" in data:
+            f = data["filter"]
+            if f.get("evaltype") == 3:
+                obj.set_conditions(ConditionExpression.from_dict(f))
+            else:
+                obj.set_conditions(ConditionList.from_dict(f))
+                
+        if "operations" in data:
+            obj.operations = TriggerOperations.from_dict(data["operations"])
+        if "recovery_operations" in data:
+            obj.recovery_operations = TriggerAckOperations.from_dict(data["recovery_operations"])
+        if "update_operations" in data:
+            obj.update_operations = TriggerAckOperations.from_dict(data["update_operations"])
+        return obj
+
 
 class AutoregistrationAction(Action):
     eventsource = 2
@@ -70,3 +106,17 @@ class AutoregistrationAction(Action):
 
     def operations_to_list(self) -> list:
         return self.operations.to_list()
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        obj = cls(data["name"])
+        if "filter" in data:
+            f = data["filter"]
+            if f.get("evaltype") == 3:
+                obj.set_conditions(ConditionExpression.from_dict(f))
+            else:
+                obj.set_conditions(ConditionList.from_dict(f))
+                
+        if "operations" in data:
+            obj.operations = AutoregistrationOperations.from_dict(data["operations"])
+        return obj

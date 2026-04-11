@@ -3,34 +3,41 @@ from unittest.mock import MagicMock
 import pytest
 
 from zbxtemplar.executor.ScrollExecutor import ScrollExecutor
+from zbxtemplar.executor.operations.SuperAdminOperation import SuperAdminOperation
 from zbxtemplar.executor.exceptions import ExecutorParseError
 
 
-# --- set_super_admin ---
+# --- SuperAdminOperation ---
+
+def _run_super_admin(api, data):
+    op = SuperAdminOperation(api)
+    op.from_data(data)
+    op.execute()
+
 
 def test_set_super_admin_string():
     api = MagicMock()
-    ScrollExecutor(api).set_super_admin("newpass123")
+    _run_super_admin(api, "newpass123")
     api.user.update.assert_called_once_with(userid="1", passwd="newpass123")
 
 
 def test_set_super_admin_dict():
     api = MagicMock()
-    ScrollExecutor(api).set_super_admin({"password": "newpass123"})
+    _run_super_admin(api, {"password": "newpass123"})
     api.user.update.assert_called_once_with(userid="1", passwd="newpass123")
 
 
 def test_set_super_admin_env_resolved(monkeypatch):
     monkeypatch.setenv("ADMIN_PW", "from_env")
     api = MagicMock()
-    ScrollExecutor(api).set_super_admin({"password": "${ADMIN_PW}"})
+    _run_super_admin(api, {"password": "${ADMIN_PW}"})
     api.user.update.assert_called_once_with(userid="1", passwd="from_env")
 
 
 def test_set_super_admin_missing_env():
     api = MagicMock()
     with pytest.raises(ValueError, match="UNDEFINED_VAR"):
-        ScrollExecutor(api).set_super_admin({"password": "${UNDEFINED_VAR}"})
+        _run_super_admin(api, {"password": "${UNDEFINED_VAR}"})
     api.user.update.assert_not_called()
 
 
@@ -42,6 +49,6 @@ def test_yaml_parse_error_wrapped(tmp_path):
     api = MagicMock()
 
     with pytest.raises(ExecutorParseError, match="Failed to parse") as exc:
-        ScrollExecutor(api).run_scroll(str(bad_yaml))
+        ScrollExecutor(api).from_file(str(bad_yaml))
 
     assert exc.value.path == str(bad_yaml)

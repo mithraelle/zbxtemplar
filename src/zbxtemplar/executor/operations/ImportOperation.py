@@ -31,9 +31,9 @@ class ImportOperation(Executor):
         except APIRequestError as e:
             raise ExecutorApiError(f"Failed to import '{path}': {e}") from e
 
-    def execute(self, data):
-        if isinstance(data, list):
-            for item in data:
-                self._apply_file(item)
-        else:
-            self._apply_file(data)
+    def from_data(self, data):
+        self._files = data if isinstance(data, list) else [data]
+
+    def execute(self):
+        for path in self._files:
+            self._apply_file(path)

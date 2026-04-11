@@ -1,6 +1,7 @@
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zabbix_utils import APIRequestError
+from zbxtemplar.decree.Action import Action
 
 
 class ActionOperation(Executor):
@@ -69,7 +70,11 @@ class ActionOperation(Executor):
                         raise ValueError(f"Template '{name}' not found in Zabbix")
                     entry["templateid"] = templates[name]
 
-    def execute(self, data):
+    def from_data(self, data):
+        raw_actions = data if isinstance(data, list) else [data]
+        self._actions = [Action.from_dict(raw) for raw in raw_actions]
+
+    def execute(self):
         ugroups = {g["name"]: g["usrgrpid"] for g in self._api.usergroup.get(output=["usrgrpid", "name"])}
         users = {u["username"]: u["userid"] for u in self._api.user.get(output=["userid", "username"])}
         media_types = {m["name"]: m["mediatypeid"] for m in self._api.mediatype.get(output=["mediatypeid", "name"])}
@@ -77,7 +82,8 @@ class ActionOperation(Executor):
         templates = {t["name"]: t["templateid"] for t in self._api.template.get(output=["templateid", "name"])}
         existing = {a["name"]: a["actionid"] for a in self._api.action.get(output=["actionid", "name"])}
 
-        for action in data:
+        for action_obj in self._actions:
+            action = action_obj.to_dict()
             name = action["name"]
 
             if "filter" in action and "conditions" in action["filter"]:

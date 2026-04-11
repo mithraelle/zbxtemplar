@@ -1,6 +1,5 @@
-from unittest.mock import MagicMock, call, patch
-
-import pytest
+import os
+from unittest.mock import MagicMock
 
 from zbxtemplar.executor.ScrollExecutor import ScrollExecutor
 from tests.paths import FIXTURES_DIR
@@ -34,11 +33,18 @@ def _full_api():
     return api
 
 
-def test_scroll_runs_all_stages(monkeypatch):
+def _load(api, path):
+    path = str(path)
+    ex = ScrollExecutor(api, base_dir=os.path.dirname(os.path.abspath(path)))
+    ex.from_file(path)
+    return ex
+
+
+def test_scroll_runs_all_actions(monkeypatch):
     monkeypatch.setenv("ZBX_ADMIN_PASSWORD", "admin123")
     api = _full_api()
 
-    ScrollExecutor(api).run_scroll(str(SCROLL))
+    _load(api, SCROLL).execute()
 
     api.user.update.assert_called_once_with(userid="1", passwd="admin123")
     api.usermacro.createglobal.assert_called_once_with(
@@ -54,39 +60,39 @@ def test_scroll_runs_all_stages(monkeypatch):
     api.token.generate.assert_called_once_with(tokenid="55")
 
 
-def test_scroll_only_stage(monkeypatch):
+def test_scroll_only_action(monkeypatch):
     monkeypatch.setenv("ZBX_ADMIN_PASSWORD", "admin123")
     api = _full_api()
 
-    ScrollExecutor(api).run_scroll(str(SCROLL), only_stage="bootstrap")
+    _load(api, SCROLL).execute(only_action="set_super_admin")
 
     api.user.update.assert_called_once_with(userid="1", passwd="admin123")
-    api.usermacro.createglobal.assert_called_once()
-    # decree and add_user should not run
+    # other actions should not run
+    api.usermacro.createglobal.assert_not_called()
     api.usergroup.create.assert_not_called()
     api.user.create.assert_not_called()
 
 
-def test_scroll_from_stage(monkeypatch):
+def test_scroll_from_action(monkeypatch):
     monkeypatch.setenv("ZBX_ADMIN_PASSWORD", "admin123")
     api = _full_api()
 
-    ScrollExecutor(api).run_scroll(str(SCROLL), from_stage="state")
+    _load(api, SCROLL).execute(from_action="decree")
 
-    # bootstrap should be skipped
+    # earlier actions should be skipped
     api.user.update.assert_not_called()
     api.usermacro.createglobal.assert_not_called()
-    # state should run (user_group + add_user)
+    # decree should run (user_group + add_user)
     api.usergroup.create.assert_called_once()
     api.user.create.assert_called_once()
 
 
-def test_scroll_skips_missing_stage(monkeypatch):
-    """The scroll has no 'templates' stage — runner should skip it silently."""
+def test_scroll_skips_missing_action(monkeypatch):
+    """The scroll has no 'apply' action — runner should skip it silently."""
     monkeypatch.setenv("ZBX_ADMIN_PASSWORD", "admin123")
     api = _full_api()
 
-    ScrollExecutor(api).run_scroll(str(SCROLL))
+    _load(api, SCROLL).execute()
 
     api.configuration.import_.assert_not_called()
 
@@ -106,17 +112,14 @@ def test_scroll_resolves_file_paths_relative_to_scroll_dir(tmp_path, monkeypatch
     )
 
     scroll_file = subdir / "scroll.yml"
-    scroll_file.write_text(
-        "bootstrap:\n"
-        "  set_macro: macros.yml\n"
-    )
+    scroll_file.write_text("set_macro: macros.yml\n")
 
     api = MagicMock()
     api.usermacro.get.return_value = []
 
     # CWD is tmp_path, scroll is in tmp_path/deploy/
     # macros.yml should resolve to tmp_path/deploy/macros.yml
-    ScrollExecutor(api).run_scroll(str(scroll_file))
+    _load(api, scroll_file).execute()
 
     api.usermacro.createglobal.assert_called_once_with(
         macro="{$FROM_FILE}", value="works", type=0

@@ -54,6 +54,23 @@ class SendMessageOperation:
             d["esc_period"] = self.step_duration
         return d
 
+    @classmethod
+    def from_dict(cls, data: dict):
+        opmessage = data.get("opmessage", {})
+        users = [u.get("userid") for u in data.get("opmessage_usr", [])]
+        groups = [g.get("usrgrpid") for g in data.get("opmessage_grp", [])]
+        return cls(
+            users=users,
+            groups=groups,
+            media_type=opmessage.get("mediatypeid"),
+            subject=opmessage.get("subject"),
+            message=opmessage.get("message"),
+            step_from=data.get("esc_step_from"),
+            step_to=data.get("esc_step_to"),
+            step_duration=data.get("esc_period"),
+        )
+
+
 
 class TriggerOperations:
     def __init__(self):
@@ -78,12 +95,24 @@ class TriggerOperations:
     def to_list(self) -> list:
         return [op.to_dict() for op in self._ops]
 
+    @classmethod
+    def from_dict(cls, data: list):
+        obj = cls()
+        for d in data:
+            if d.get("operationtype") == SendMessageOperation.operationtype:
+                obj._ops.append(SendMessageOperation.from_dict(d))
+        return obj
+
 
 class AddHostOperation:
     operationtype = 2
 
     def to_dict(self) -> dict:
         return {"operationtype": self.operationtype}
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls()
 
 
 class AddToGroupOperation:
@@ -98,6 +127,11 @@ class AddToGroupOperation:
             "opgroup": [{"groupid": self.group}],
         }
 
+    @classmethod
+    def from_dict(cls, data: dict):
+        group = data.get("opgroup", [{}])[0].get("groupid")
+        return cls(group)
+
 
 class LinkTemplateOperation:
     operationtype = 6
@@ -111,6 +145,11 @@ class LinkTemplateOperation:
             "optemplate": [{"templateid": self.template}],
         }
 
+    @classmethod
+    def from_dict(cls, data: dict):
+        template = data.get("optemplate", [{}])[0].get("templateid")
+        return cls(template)
+
 
 class EnableHostOperation:
     operationtype = 8
@@ -118,12 +157,20 @@ class EnableHostOperation:
     def to_dict(self) -> dict:
         return {"operationtype": self.operationtype}
 
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls()
+
 
 class DisableHostOperation:
     operationtype = 9
 
     def to_dict(self) -> dict:
         return {"operationtype": self.operationtype}
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls()
 
 
 class SetInventoryModeOperation:
@@ -140,6 +187,11 @@ class SetInventoryModeOperation:
             "operationtype": self.operationtype,
             "opinventory": {"inventory_mode": self.inventory_mode},
         }
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        mode = data.get("opinventory", {}).get("inventory_mode", cls.MANUAL)
+        return cls(mode)
 
 
 class AutoregistrationOperations:
@@ -185,6 +237,24 @@ class AutoregistrationOperations:
     def to_list(self) -> list:
         return [op.to_dict() for op in self._ops]
 
+    @classmethod
+    def from_dict(cls, data: list):
+        obj = cls()
+        mapping = {
+            0: SendMessageOperation,
+            2: AddHostOperation,
+            4: AddToGroupOperation,
+            6: LinkTemplateOperation,
+            8: EnableHostOperation,
+            9: DisableHostOperation,
+            10: SetInventoryModeOperation,
+        }
+        for d in data:
+            op_cls = mapping.get(d.get("operationtype"))
+            if op_cls:
+                obj._ops.append(op_cls.from_dict(d))
+        return obj
+
 
 class TriggerAckOperations:
     def __init__(self):
@@ -204,3 +274,11 @@ class TriggerAckOperations:
 
     def to_list(self) -> list:
         return [op.to_dict() for op in self._ops]
+
+    @classmethod
+    def from_dict(cls, data: list):
+        obj = cls()
+        for d in data:
+            if d.get("operationtype") == SendMessageOperation.operationtype:
+                obj._ops.append(SendMessageOperation.from_dict(d))
+        return obj

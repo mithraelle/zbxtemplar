@@ -1,24 +1,26 @@
 from zbxtemplar.decree import User, Severity
 from zbxtemplar.decree.Token import TokenOutput
 from zbxtemplar.executor.Executor import Executor
-from zbxtemplar.executor.operations.TokenOperation import TokenOperation, TokenOperationError
+from zbxtemplar.executor.TokenProvisioner import TokenProvisioner, TokenProvisionerError
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zabbix_utils import APIRequestError
 
 
 class UserOperation(Executor):
-    def execute(self, data):
+    def from_data(self, data):
         raw_users = data if isinstance(data, list) else [data]
-        users = [User.from_dict(raw) for raw in raw_users]
-        token_executor = TokenOperation(self._api, self._base_dir)
-        token_executor.validate(users)
+        self._users = [User.from_dict(raw) for raw in raw_users]
+        token_executor = TokenProvisioner(self._api, self._base_dir)
+        token_executor.validate(self._users)
 
+    def execute(self):
+        token_executor = TokenProvisioner(self._api, self._base_dir)
         roles = {r["name"]: r["roleid"] for r in self._api.role.get(output=["roleid", "name"])}
         ugroups = {g["name"]: g["usrgrpid"] for g in self._api.usergroup.get(output=["usrgrpid", "name"])}
         media_types = {m["name"]: m["mediatypeid"] for m in self._api.mediatype.get(output=["mediatypeid", "name"])}
         existing = {u["username"]: u["userid"] for u in self._api.user.get(output=["userid", "username"])}
 
-        for user in users:
+        for user in self._users:
             if user.role not in roles:
                 raise ValueError(f"Role '{user.role}' not found in Zabbix")
             params = {"username": user.username, "roleid": roles[user.role]}
@@ -75,7 +77,7 @@ class UserOperation(Executor):
                     print(f"{action} API token '{user.token.name}' for '{user.username}'.")
                     if user.token.store_at is not TokenOutput.STDOUT:
                         print(f"Wrote token to '{user.token.store_at}'.")
-                except TokenOperationError as e:
-                    raise TokenOperationError(
+                except TokenProvisionerError as e:
+                    raise TokenProvisionerError(
                         f"User '{user.username}' token '{user.token.name}': {e}"
                     ) from e

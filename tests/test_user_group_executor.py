@@ -25,7 +25,8 @@ def _api(existing_ugroups=None):
 
 def test_creates_user_group():
     api = _api()
-    UserGroupOperation(api).execute([{
+    op = UserGroupOperation(api)
+    op.from_data([{
         "name": "Templar Users",
         "gui_access": "INTERNAL",
         "host_groups": [
@@ -36,6 +37,7 @@ def test_creates_user_group():
             {"name": "Test Template", "permission": "READ_WRITE"},
         ],
     }])
+    op.execute()
     api.usergroup.create.assert_called_once_with(
         name="Templar Users",
         gui_access=1,
@@ -51,33 +53,41 @@ def test_creates_user_group():
 
 def test_updates_existing_user_group():
     api = _api(existing_ugroups=[{"usrgrpid": "99", "name": "Templar Users"}])
-    UserGroupOperation(api).execute([{
+    op = UserGroupOperation(api)
+    op.from_data([{
         "name": "Templar Users",
         "gui_access": "DISABLED",
     }])
+    op.execute()
     api.usergroup.update.assert_called_once_with(usrgrpid="99", gui_access=3)
     api.usergroup.create.assert_not_called()
 
 
 def test_unknown_host_group_raises():
     api = _api()
+    op = UserGroupOperation(api)
+    op.from_data([{
+        "name": "Bad Group",
+        "host_groups": [{"name": "Nonexistent", "permission": "READ"}],
+    }])
     with pytest.raises(ValueError, match="Host group 'Nonexistent' not found"):
-        UserGroupOperation(api).execute([{
-            "name": "Bad Group",
-            "host_groups": [{"name": "Nonexistent", "permission": "READ"}],
-        }])
+        op.execute()
 
 
 
 def test_api_error_on_create_is_wrapped():
     api = _api()
     api.usergroup.create.side_effect = APIRequestError("network drop")
+    op = UserGroupOperation(api)
+    op.from_data([{"name": "Ops Team", "gui_access": "DEFAULT"}])
     with pytest.raises(ExecutorApiError, match="Failed to create user group 'Ops Team'"):
-        UserGroupOperation(api).execute([{"name": "Ops Team", "gui_access": "DEFAULT"}])
+        op.execute()
 
 
 def test_api_error_on_update_is_wrapped():
     api = _api(existing_ugroups=[{"usrgrpid": "99", "name": "Ops Team"}])
     api.usergroup.update.side_effect = APIRequestError("network drop")
+    op = UserGroupOperation(api)
+    op.from_data([{"name": "Ops Team", "gui_access": "DEFAULT"}])
     with pytest.raises(ExecutorApiError, match="Failed to update user group 'Ops Team'"):
-        UserGroupOperation(api).execute([{"name": "Ops Team", "gui_access": "DEFAULT"}])
+        op.execute()

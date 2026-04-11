@@ -164,6 +164,6 @@ class TestUnknownFormat:
             Context().load(str(FIXTURES_DIR / "scroll.yml"))
 
     def test_error_shows_keys(self):
-        with pytest.raises(ValueError, match="bootstrap"):
+        with pytest.raises(ValueError, match="set_super_admin"):
             Context().load(str(FIXTURES_DIR / "scroll.yml"))
 

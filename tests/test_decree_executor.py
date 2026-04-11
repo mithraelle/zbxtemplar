@@ -4,8 +4,8 @@ import pytest
 from zabbix_utils import APIRequestError
 
 from zbxtemplar.executor.DecreeExecutor import DecreeExecutor
-from zbxtemplar.executor.operations.TokenOperation import TokenOperationError
-from zbxtemplar.executor.exceptions import ExecutorApiError, ExecutorParseError
+from zbxtemplar.executor.TokenProvisioner import TokenProvisionerError
+from zbxtemplar.executor.exceptions import ExecutorApiError
 from tests.paths import FIXTURES_DIR
 
 DECREE_USER_GROUP = FIXTURES_DIR / "user_group.decree.yml"
@@ -46,11 +46,27 @@ def _user_api():
     return api
 
 
+def _run(api, data):
+    ex = DecreeExecutor(api)
+    ex.from_data(data)
+    ex.execute()
+
+
+def _run_add_user(api, data):
+    if isinstance(data, dict):
+        data = [data]
+    ex = DecreeExecutor(api)
+    ex.from_data({"add_user": data})
+    ex.execute()
+
+
 # --- decree ---
 
 def test_decree_creates_user_group():
     api = _decree_api()
-    DecreeExecutor(api).execute(str(DECREE_USER_GROUP))
+    ex = DecreeExecutor(api)
+    ex.from_file(str(DECREE_USER_GROUP))
+    ex.execute()
     api.usergroup.create.assert_called_once_with(
         name="Templar Users",
         gui_access=1,
@@ -68,7 +84,7 @@ def test_decree_updates_existing_user_group():
     api = _decree_api()
     api.usergroup.get.return_value = [{"usrgrpid": "99", "name": "Templar Users"}]
 
-    DecreeExecutor(api).execute({
+    _run(api, {
         "user_group": [{
             "name": "Templar Users",
             "gui_access": "DISABLED",
@@ -83,19 +99,21 @@ def test_decree_updates_existing_user_group():
 
 def test_decree_unknown_host_group():
     api = _decree_api()
+    ex = DecreeExecutor(api)
+    ex.from_data({
+        "user_group": [{
+            "name": "Bad Group",
+            "host_groups": [{"name": "Nonexistent", "permission": "READ"}],
+        }]
+    })
     with pytest.raises(ValueError, match="Host group 'Nonexistent' not found"):
-        DecreeExecutor(api).execute({
-            "user_group": [{
-                "name": "Bad Group",
-                "host_groups": [{"name": "Nonexistent", "permission": "READ"}],
-            }]
-        })
+        ex.execute()
 
 
 def test_decree_invalid_permission():
     api = _decree_api()
     with pytest.raises(ValueError, match="Invalid permission 'ADMIN'"):
-        DecreeExecutor(api).execute({
+        _run(api, {
             "user_group": [{
                 "name": "Bad Group",
                 "host_groups": [{"name": "Linux servers", "permission": "ADMIN"}],
@@ -106,7 +124,7 @@ def test_decree_invalid_permission():
 def test_decree_invalid_gui_access():
     api = _decree_api()
     with pytest.raises(ValueError, match="Invalid gui_access 'YES'"):
-        DecreeExecutor(api).execute({
+        _run(api, {
             "user_group": [{
                 "name": "Bad Group",
                 "gui_access": "YES",
@@ -116,8 +134,8 @@ def test_decree_invalid_gui_access():
 
 def test_decree_unknown_keys_raises():
     api = _decree_api()
-    with pytest.raises(ExecutorParseError, match="Unknown keys in decree document: something_else"):
-        DecreeExecutor(api).execute({"something_else": []})
+    with pytest.raises(ValueError, match="unknown key 'something_else'"):
+        _run(api, {"something_else": []})
     api.usergroup.create.assert_not_called()
     api.usergroup.update.assert_not_called()
 
@@ -141,7 +159,7 @@ def test_decree_list_of_files(tmp_path):
     api.mediatype.get.return_value = []
     api.user.get.return_value = []
 
-    DecreeExecutor(api).execute([str(groups_file), str(users_file)])
+    _run(api, [str(groups_file), str(users_file)])
     api.usergroup.create.assert_called_once()
     api.user.create.assert_called_once()
 
@@ -158,7 +176,7 @@ def test_decree_mixed_files_and_inline(tmp_path):
     api.mediatype.get.return_value = []
     api.user.get.return_value = []
 
-    DecreeExecutor(api).execute([
+    _run(api, [
         str(groups_file),
         {"add_user": [{"username": "ops-bot", "role": "User role", "password": "pass"}]},
     ])
@@ -173,7 +191,7 @@ def test_decree_combined_user_group_and_add_user():
     api.user.get.return_value = []
     api.token.get.return_value = []
 
-    DecreeExecutor(api).execute({
+    _run(api, {
         "user_group": [{
             "name": "Ops Team",
             "gui_access": "DEFAULT",
@@ -200,7 +218,9 @@ def test_add_user_from_file(monkeypatch):
     ]
     api.token.get.return_value = []
 
-    DecreeExecutor(api).add_user(str(ADD_USER))
+    ex = DecreeExecutor(api)
+    ex.from_file(str(ADD_USER))
+    ex.execute()
 
     # First user: zbx-service with password, group, medias
     first_call = api.user.create.call_args_list[0][1]
@@ -229,7 +249,7 @@ def test_add_user_updates_existing():
     api = _user_api()
     api.user.get.return_value = [{"userid": "10", "username": "zbx-service"}]
 
-    DecreeExecutor(api).add_user({
+    _run_add_user(api, {
         "username": "zbx-service",
         "role": "Admin role",
         "password": "newpass",
@@ -248,7 +268,7 @@ def test_add_user_creates_token():
     api.user.create.return_value = {"userids": ["20"]}
     api.token.get.return_value = []
 
-    DecreeExecutor(api).add_user({
+    _run_add_user(api, {
         "username": "api-reader",
         "role": "User role",
         "token": {
@@ -279,7 +299,7 @@ def test_add_user_updates_existing_token_without_changing_expiration(capsys):
         }
     ]
 
-    DecreeExecutor(api).add_user({
+    _run_add_user(api, {
         "username": "api-reader",
         "role": "User role",
         "token": {
@@ -298,7 +318,7 @@ def test_add_user_force_token_updates():
     api.user.get.return_value = [{"userid": "20", "username": "api-reader"}]
     api.token.get.return_value = [{"tokenid": "55", "name": "api-reader-token", "userid": "20"}]
 
-    DecreeExecutor(api).add_user({
+    _run_add_user(api, {
         "username": "api-reader",
         "role": "User role",
         "token": {
@@ -318,8 +338,8 @@ def test_add_user_rejects_token_owned_by_other_user():
     api.user.get.return_value = [{"userid": "20", "username": "api-reader"}]
     api.token.get.return_value = [{"tokenid": "55", "name": "api-reader-token", "userid": "99"}]
 
-    with pytest.raises(TokenOperationError, match="belongs to a different user"):
-        DecreeExecutor(api).add_user({
+    with pytest.raises(TokenProvisionerError, match="belongs to a different user"):
+        _run_add_user(api, {
             "username": "api-reader",
             "role": "User role",
             "token": {
@@ -333,7 +353,7 @@ def test_add_user_rejects_token_owned_by_other_user():
 def test_add_user_requires_token_store_at():
     api = _user_api()
     with pytest.raises(ValueError, match="missing required key.*store_at"):
-        DecreeExecutor(api).add_user({
+        _run_add_user(api, {
             "username": "api-reader",
             "role": "User role",
             "token": {
@@ -347,8 +367,8 @@ def test_add_user_requires_expires_at_on_create():
     api = _user_api()
     api.user.get.return_value = [{"userid": "20", "username": "api-reader"}]
 
-    with pytest.raises(TokenOperationError, match="expires_at is required on create"):
-        DecreeExecutor(api).add_user({
+    with pytest.raises(TokenProvisionerError, match="expires_at is required on create"):
+        _run_add_user(api, {
             "username": "api-reader",
             "role": "User role",
             "token": {
@@ -363,7 +383,7 @@ def test_add_user_writes_token_to_file(tmp_path):
     api.user.get.return_value = [{"userid": "20", "username": "api-reader"}]
     out_file = tmp_path / "api-reader.token"
 
-    DecreeExecutor(api).add_user({
+    _run_add_user(api, {
         "username": "api-reader",
         "role": "User role",
         "token": {
@@ -380,8 +400,8 @@ def test_add_user_rejects_duplicate_store_at(tmp_path):
     api = _user_api()
     out_file = str(tmp_path / "shared.token")
 
-    with pytest.raises(TokenOperationError, match="Duplicate store_at path"):
-        DecreeExecutor(api).add_user([
+    with pytest.raises(TokenProvisionerError, match="Duplicate store_at path"):
+        _run_add_user(api, [
             {
                 "username": "api-reader-a",
                 "role": "User role",
@@ -406,8 +426,8 @@ def test_add_user_rejects_duplicate_store_at(tmp_path):
 def test_add_user_rejects_duplicate_token_name():
     api = _user_api()
 
-    with pytest.raises(TokenOperationError, match="Duplicate token name"):
-        DecreeExecutor(api).add_user([
+    with pytest.raises(TokenProvisionerError, match="Duplicate token name"):
+        _run_add_user(api, [
             {
                 "username": "api-reader-a",
                 "role": "User role",
@@ -434,8 +454,8 @@ def test_add_user_rejects_existing_store_at_file(tmp_path):
     out_file = tmp_path / "existing.token"
     out_file.write_text("present", encoding="utf-8")
 
-    with pytest.raises(TokenOperationError, match="refusing to overwrite existing file"):
-        DecreeExecutor(api).add_user({
+    with pytest.raises(TokenProvisionerError, match="refusing to overwrite existing file"):
+        _run_add_user(api, {
             "username": "api-reader",
             "role": "User role",
             "token": {
@@ -449,7 +469,7 @@ def test_add_user_rejects_existing_store_at_file(tmp_path):
 def test_add_user_unknown_role():
     api = _user_api()
     with pytest.raises(ValueError, match="Role 'Nonexistent' not found"):
-        DecreeExecutor(api).add_user({
+        _run_add_user(api, {
             "username": "bad",
             "role": "Nonexistent",
             "password": "pass",
@@ -459,7 +479,7 @@ def test_add_user_unknown_role():
 def test_add_user_unknown_group():
     api = _user_api()
     with pytest.raises(ValueError, match="User group 'Nonexistent' not found"):
-        DecreeExecutor(api).add_user({
+        _run_add_user(api, {
             "username": "bad",
             "role": "User role",
             "password": "pass",
@@ -470,7 +490,7 @@ def test_add_user_unknown_group():
 def test_add_user_unknown_media_type():
     api = _user_api()
     with pytest.raises(ValueError, match="Media type 'Slack' not found"):
-        DecreeExecutor(api).add_user({
+        _run_add_user(api, {
             "username": "bad",
             "role": "User role",
             "password": "pass",
@@ -485,7 +505,7 @@ def test_api_error_wrapped():
     api.usergroup.create.side_effect = APIRequestError("Simulated network drop")
 
     with pytest.raises(ExecutorApiError, match="Failed to create user group 'Ops Team': Simulated network drop"):
-        DecreeExecutor(api).execute({
+        _run(api, {
             "user_group": [{
                 "name": "Ops Team",
                 "gui_access": "DEFAULT",

@@ -117,6 +117,22 @@ class Condition(ConditionExpr):
             "value": self.value,
         }
 
+    @classmethod
+    def from_dict(cls, data: dict):
+        ctype = int(data["conditiontype"])
+        for sub_cls in cls.__subclasses__():
+            if getattr(sub_cls, "conditiontype", None) == ctype:
+                obj = sub_cls.__new__(sub_cls)
+                obj.conditiontype = ctype
+                if "operator" in data:
+                    obj.op = sub_cls.Op(int(data["operator"]))
+                if "value" in data:
+                    obj.value = data["value"]
+                if "value2" in data:
+                    obj.value2 = data["value2"]
+                return obj
+        raise ValueError(f"Unknown condition type: {ctype}")
+
 
 # --- Condition types (conditiontype 0..28) ---
 
@@ -436,6 +452,14 @@ class ConditionList:
             "conditions": [c.to_dict() for c in self.conditions],
         }
 
+    @classmethod
+    def from_dict(cls, data: dict):
+        eval_type = data.get("evaltype", 0)
+        cl = cls(EvalType(int(eval_type)))
+        for c in data.get("conditions", []):
+            cl.add(Condition.from_dict(c))
+        return cl
+
 
 class ConditionExpression:
     """Custom expression filter — evaltype 3 with formula string."""
@@ -471,6 +495,12 @@ class ConditionExpression:
         return result
 
     def to_dict(self):
+        if hasattr(self, "_raw_formula"):
+            return {
+                "evaltype": 3,
+                "formula": self._raw_formula,
+                "conditions": [c.to_dict() for c in self._raw_conditions],
+            }
         conditions = []
         formula = self._walk(self.expr, conditions, {})
         return {
@@ -478,3 +508,11 @@ class ConditionExpression:
             "formula": formula,
             "conditions": conditions,
         }
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        obj = cls.__new__(cls)
+        obj.expr = None
+        obj._raw_formula = data.get("formula", "")
+        obj._raw_conditions = [Condition.from_dict(c) for c in data.get("conditions", [])]
+        return obj

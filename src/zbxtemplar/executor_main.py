@@ -6,6 +6,9 @@ from zabbix_utils import ZabbixAPI
 
 from zbxtemplar.executor.DecreeExecutor import DecreeExecutor
 from zbxtemplar.executor.ScrollExecutor import ScrollExecutor
+from zbxtemplar.executor.operations.ImportOperation import ImportOperation
+from zbxtemplar.executor.operations.MacroOperation import MacroOperation
+from zbxtemplar.executor.operations.SuperAdminOperation import SuperAdminOperation
 
 
 def _make_api(args):
@@ -22,12 +25,38 @@ def _make_api(args):
     return ZabbixAPI(url=url, user=user, password=password)
 
 
+def _run_op(op_class, data, api):
+    op = op_class(api)
+    op.from_data(data)
+    op.execute()
+
+
+def _set_super_admin(args, api):
+    _run_op(SuperAdminOperation, args.new_password, api)
+
+
 def _set_macro(args, api):
     if args.value is not None:
         payload = {"name": args.name_or_file, "value": args.value, "type": args.type}
     else:
         payload = args.name_or_file
-    ScrollExecutor(api).set_macro(payload)
+    _run_op(MacroOperation, payload, api)
+
+
+def _apply(args, api):
+    _run_op(ImportOperation, args.yaml_file, api)
+
+
+def _decree(args, api):
+    ex = DecreeExecutor(api)
+    ex.from_file(args.decree_file)
+    ex.execute()
+
+
+def _scroll(args, api):
+    ex = ScrollExecutor(api)
+    ex.from_file(args.scroll)
+    ex.execute(from_action=args.from_action, only_action=args.only_action)
 
 
 def _build_parser():
@@ -42,7 +71,7 @@ def _build_parser():
 
     sa = sub.add_parser("set_super_admin", parents=[conn], help="Bootstrap or rotate super admin password")
     sa.add_argument("--new-password", required=True, help="New password")
-    sa.set_defaults(func=lambda args, api: ScrollExecutor(api).set_super_admin(args.new_password))
+    sa.set_defaults(func=_set_super_admin)
 
     mac = sub.add_parser("set_macro", parents=[conn], help="Set global macros (inline or from file)")
     mac.add_argument("name_or_file", help="Macro name or path to YAML file")
@@ -52,23 +81,21 @@ def _build_parser():
 
     app = sub.add_parser("apply", parents=[conn], help="Import Zabbix-native YAML")
     app.add_argument("yaml_file", help="Path to Zabbix-native YAML file")
-    app.set_defaults(func=lambda args, api: ScrollExecutor(api).apply(args.yaml_file))
+    app.set_defaults(func=_apply)
 
     dec = sub.add_parser("decree", parents=[conn], help="Apply state configuration (user groups, actions, SAML)")
     dec.add_argument("decree_file", help="Path to decree YAML file")
-    dec.set_defaults(func=lambda args, api: DecreeExecutor(api).execute(args.decree_file))
+    dec.set_defaults(func=_decree)
 
     usr = sub.add_parser("add_user", parents=[conn], help="Create service or special users")
-    usr.add_argument("user_file", help="Path to user definition YAML file")
-    usr.set_defaults(func=lambda args, api: DecreeExecutor(api).add_user(args.user_file))
+    usr.add_argument("user_file", dest="decree_file", help="Path to user definition YAML file")
+    usr.set_defaults(func=_decree)
 
     scr = sub.add_parser("scroll", parents=[conn], help="Execute a deployment scroll")
     scr.add_argument("scroll", help="Path to scroll YAML file")
-    scr.add_argument("--from-stage", help="Start execution from this stage")
-    scr.add_argument("--only-stage", help="Execute only this stage")
-    scr.set_defaults(func=lambda args, api: ScrollExecutor(api).run_scroll(
-        args.scroll, from_stage=args.from_stage, only_stage=args.only_stage
-    ))
+    scr.add_argument("--from-action", help="Start execution from this action")
+    scr.add_argument("--only-action", help="Execute only this action")
+    scr.set_defaults(func=_scroll)
 
     return parser
 
