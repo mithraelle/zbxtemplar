@@ -2,16 +2,20 @@
 Integration test: generate sample artifacts, apply to a clean Zabbix instance.
 
 Usage:
-    python scripts/integration_test.py [--no-docker]
+    python scripts/integration_test.py [--no-docker] [--keep]
 
 Requires: Docker with Compose v2 plugin, zbxtemplar and zbxtemplar-exec installed.
 Generated artifacts are written to examples/ and referenced by examples/sample_scroll.yml.
 """
 import argparse
+import json
 import os
 import shutil
 import subprocess
 import sys
+import time
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -60,6 +64,40 @@ def docker_up():
         label="Docker up")
 
 
+def wait_zabbix(timeout=120):
+    print("\n=== Wait for Zabbix API ===")
+    deadline = time.monotonic() + timeout
+    payload = json.dumps({
+        "jsonrpc": "2.0",
+        "method": "user.login",
+        "params": {"username": "Admin", "password": "zabbix"},
+        "id": 1,
+    }).encode()
+    api_url = f"{ZBX_URL}/api_jsonrpc.php"
+    last_error = None
+
+    while time.monotonic() < deadline:
+        try:
+            request = urllib.request.Request(
+                api_url,
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(request, timeout=5) as response:
+                data = json.load(response)
+            if data.get("result"):
+                print("Zabbix API is ready")
+                return
+            last_error = data.get("error", data)
+        except (OSError, urllib.error.URLError, json.JSONDecodeError) as exc:
+            last_error = exc
+        time.sleep(5)
+
+    print(f"FAILED: Zabbix API did not become ready at {api_url}: {last_error}", file=sys.stderr)
+    sys.exit(1)
+
+
 def apply():
     shutil.rmtree(EXAMPLES / ".secrets", ignore_errors=True)
     run("zbxtemplar-exec", "scroll", str(SCROLL),
@@ -79,6 +117,8 @@ def main():
                         help="Generate only, skip Docker steps")
     parser.add_argument("--down", action="store_true",
                         help="Tear down the test environment and exit")
+    parser.add_argument("--keep", action="store_true",
+                        help="Keep the test environment running after execution")
     args = parser.parse_args()
 
     if args.down:
@@ -87,8 +127,13 @@ def main():
 
     generate()
     if not args.no_docker:
-        docker_up()
-        apply()
+        try:
+            docker_up()
+            wait_zabbix()
+            apply()
+        finally:
+            if not args.keep:
+                docker_down()
 
 
 if __name__ == "__main__":

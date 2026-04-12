@@ -1,0 +1,32 @@
+name: Integration Checker
+
+on:
+  push:
+    branches: [integration_tests]
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install package and executor dependencies
+        run: pip install -e ".[executor]"
+
+      - name: Verify CLI entry points
+        run: |
+          zbxtemplar --help
+          zbxtemplar-exec --help
+
+      - name: Show Docker Compose version
+        run: docker compose version
+
+      - name: Run integration checker
+        run: python scripts/integration_test.py
