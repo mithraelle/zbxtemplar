@@ -145,6 +145,7 @@ One important implementation detail: `--context` is forwarded into module constr
 
 ## Where To Go Next
 
+- Browse [`examples/`](../examples/) for complete working modules, sample YAML artifacts, and a reference scroll.
 - Read [Architecture](./architecture.md) for the overall design.
 - Read [Generator Guide](./generator.md) for CLI and module-loading details.
 - Read [Executor Guide](./executor.md) before applying to a live instance.

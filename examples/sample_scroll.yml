@@ -1,0 +1,11 @@
+set_macro:
+  - name: MY_GLOBAL_MACRO
+    value: My Macro
+  - sample_set_macro.yml
+apply:
+  - sample_templates.yml
+  - sample_hosts.yml
+decree:
+  - sample_user_group.yml
+  - sample_set_user.yml
+  - sample_encryption_decree.yml

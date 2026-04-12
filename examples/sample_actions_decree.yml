@@ -1,0 +1,54 @@
+actions:
+- eventsource: 0
+  name: Test Action
+  operations:
+  - operationtype: 0
+    opmessage:
+      default_msg: 0
+      message: Test message
+    opmessage_grp:
+    - usrgrpid: Templar Users
+    esc_step_from: 1
+    esc_step_to: 1
+    esc_period: 0
+  recovery_operations:
+  - operationtype: 0
+    opmessage:
+      default_msg: 0
+      message: Resolved
+    opmessage_grp:
+    - usrgrpid: Templar Users
+  update_operations:
+  - operationtype: 0
+    opmessage:
+      default_msg: 0
+      message: Acknowledged
+    opmessage_grp:
+    - usrgrpid: Templar Users
+  filter:
+    evaltype: 3
+    formula: A or B
+    conditions:
+    - conditiontype: 0
+      operator: 0
+      value: Templar Hosts
+      formulaid: A
+    - conditiontype: 13
+      operator: 0
+      value: Test Template
+      formulaid: B
+- eventsource: 2
+  name: Test Registration
+  operations:
+  - operationtype: 2
+  - operationtype: 6
+    optemplate:
+    - templateid: Test Template
+  filter:
+    evaltype: 3
+    formula: A
+    conditions:
+    - conditiontype: 24
+      operator: 2
+      value: test
+      formulaid: A

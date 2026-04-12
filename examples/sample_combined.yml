@@ -1,0 +1,335 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+  - name: Templar Templates
+    uuid: e8a89d57d35d41eb9fbbe23dbe294a09
+  templates:
+  - groups:
+    - name: Templar Templates
+    macros:
+    - macro: '{$MY_MACRO}'
+      type: TEXT
+      value: '1'
+      description: Testing The Things
+    tags:
+    - tag: Service
+      value: Testing
+    name: Test Template
+    uuid: 1bc04e29f646471488819f96fde20bcc
+    template: Test Template
+    items:
+    - tags:
+      - tag: Service
+        value: Testing 1
+      name: Item 1
+      uuid: a88409bc1d004b0ca0fa8b6bfbcc43db
+      key: item.test[1]
+      type: ZABBIX_PASSIVE
+      value_type: UNSIGNED
+      history: 90d
+      trends: 365d
+      triggers:
+      - name: Simple trigger
+        uuid: 2968b019ed11459087759353780c7a15
+        expression: min(/Test Template/item.test[1],10)>{$MY_MACRO}
+        priority: HIGH
+        description: A single item trigger
+    - tags:
+      - tag: Service
+        value: Testing 2
+      name: Item 2
+      uuid: ee20f6387ede4375a129d775c3e50598
+      key: item.test[2]
+      type: ZABBIX_ACTIVE
+      value_type: UNSIGNED
+      history: 90d
+      trends: 365d
+      valuemap:
+        name: Test Map
+    - tags:
+      - tag: Service
+        value: Testing 3
+      name: Item 3
+      uuid: cb6cee2a72484a5f8df196db8cdb0ed0
+      key: item.test[3]
+      type: TRAP
+      value_type: UNSIGNED
+      history: 90d
+      trends: 365d
+    dashboards:
+    - name: Sample Dashboard
+      uuid: 10c5c90b123344db860fc35b39a9917c
+      display_period: '60'
+      auto_start: 'NO'
+      pages:
+      - display_period: '120'
+        widgets:
+        - type: graph
+          width: '36'
+          height: '5'
+          fields:
+          - type: STRING
+            name: reference
+            value: AAAAA
+          - type: GRAPH
+            name: graphid.0
+            value:
+              host: Test Template
+              name: Test Graph
+        - type: itemhistory
+          x: '36'
+          width: '18'
+          height: '5'
+          fields:
+          - type: STRING
+            name: reference
+            value: AAAAB
+          - type: ITEM
+            name: columns.0.itemid
+            value:
+              host: Test Template
+              key: item.test[2]
+          - type: STRING
+            name: columns.0.name
+            value: Item 2
+          - type: ITEM
+            name: columns.1.itemid
+            value:
+              host: Test Template
+              key: item.test[1]
+          - type: STRING
+            name: columns.1.name
+            value: Item 1
+          - type: INTEGER
+            name: show_timestamp
+            value: '1'
+          - type: INTEGER
+            name: show_column_header
+            value: '1'
+        - type: svggraph
+          name: Complex graph
+          y: '5'
+          width: '18'
+          height: '8'
+          fields:
+          - type: STRING
+            name: reference
+            value: AAAAC
+          - type: STRING
+            name: ds.0.items.0
+            value: item
+          - type: STRING
+            name: ds.0.data_set_label
+            value: The Pattern
+          - type: INTEGER
+            name: ds.0.color_palette
+            value: '0'
+          - type: INTEGER
+            name: ds.0.dataset_type
+            value: '1'
+          - type: INTEGER
+            name: ds.0.axisy
+            value: '1'
+          - type: ITEM
+            name: ds.1.itemids.0
+            value:
+              host: Test Template
+              key: item.test[3]
+          - type: STRING
+            name: ds.1.color.0
+            value: 1A7C11
+          - type: ITEM
+            name: ds.1.itemids.1
+            value:
+              host: Test Template
+              key: item.test[2]
+          - type: STRING
+            name: ds.1.color.1
+            value: '274482'
+          - type: STRING
+            name: ds.1.data_set_label
+            value: Two Items
+          - type: INTEGER
+            name: ds.1.dataset_type
+            value: '0'
+          - type: STRING
+            name: name
+            value: Complex graph
+          - type: INTEGER
+            name: x
+            value: '0'
+          - type: INTEGER
+            name: y
+            value: '5'
+          - type: INTEGER
+            name: width
+            value: '18'
+          - type: INTEGER
+            name: height
+            value: '8'
+          - type: INTEGER
+            name: legend
+            value: '1'
+          - type: INTEGER
+            name: legend_statistic
+            value: '1'
+          - type: INTEGER
+            name: legend_aggregation
+            value: '1'
+          - type: INTEGER
+            name: legend_lines_mode
+            value: '1'
+          - type: INTEGER
+            name: legend_lines
+            value: '4'
+          - type: INTEGER
+            name: legend_columns
+            value: '1'
+      - name: Individual graphs
+        widgets:
+        - type: graph
+          name: Graph for Item1
+          width: '36'
+          height: '5'
+          fields:
+          - type: STRING
+            name: reference
+            value: AAAAD
+          - type: INTEGER
+            name: source_type
+            value: '1'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Test Template
+              key: item.test[1]
+        - type: graph
+          x: '36'
+          width: '36'
+          height: '5'
+          fields:
+          - type: STRING
+            name: reference
+            value: AAAAE
+          - type: INTEGER
+            name: source_type
+            value: '1'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Test Template
+              key: item.test[2]
+    valuemaps:
+    - name: Test Map
+      uuid: 8f03d4d366a94523b6070c404ff377a9
+      mappings:
+      - value: '1'
+        newvalue: UP
+        type: EQUAL
+      - value: '0'
+        newvalue: DOWN
+        type: EQUAL
+  host_groups:
+  - name: Templar Hosts
+    uuid: 06fa0ec20ab54eb4843996f8589df4ea
+  hosts:
+  - groups:
+    - name: Templar Hosts
+    macros:
+    - macro: '{$MY_HOST_MACRO}'
+      type: TEXT
+      value: '1'
+      description: Testing The Host Macro
+    - macro: '{$MY_SECRET_MACRO}'
+      type: SECRET_TEXT
+      value: some secret
+      description: Testing The Secrets
+    name: Templar Host
+    host: Templar Host
+    templates:
+    - name: Test Template
+    interfaces:
+    - type: ZABBIX
+      useip: 'YES'
+      ip: 127.0.0.1
+      dns: ''
+      port: '10050'
+      interface_ref: if1
+      default: 'YES'
+    items:
+    - tags:
+      - tag: Service
+        value: Testing Host
+      name: Item Own
+      key: item.test[own]
+      type: ZABBIX_PASSIVE
+      value_type: UNSIGNED
+      history: 90d
+      trends: 365d
+      triggers:
+      - name: Host Simple trigger
+        expression: min(/Templar Host/item.test[own],10)>{$MY_HOST_MACRO}
+        priority: HIGH
+        description: A single host item trigger
+      interface_ref: if1
+  triggers:
+  - name: Complex trigger
+    uuid: bc81a964ebf94fb0926600eb7222a1a7
+    expression: last(/Test Template/item.test[1])>{$MY_MACRO} and last(/Test Template/item.test[2])
+      < {$MY_MACRO}
+    priority: WARNING
+    description: Trigger using two items
+  - name: Host Complex trigger
+    uuid: 3963e32bd2ed483b85f9da9b12a88d8e
+    expression: last(/Templar Host/item.test[own])>{$MY_HOST_MACRO} and last(/Templar
+      Host/item.test[own]) < {$MY_MACRO}
+    priority: WARNING
+    description: Host trigger using two items
+  graphs:
+  - name: Test Graph
+    uuid: f9fdc63a12ef41599f3ef4bb954fa1ee
+    type: NORMAL
+    show_triggers: 'YES'
+    show_legend: 'YES'
+    ymin_type_1: CALCULATED
+    ymax_type_1: ITEM
+    yaxismin: '1'
+    ymax_item_1:
+      host: Test Template
+      key: item.test[3]
+    graph_items:
+    - item:
+        host: Test Template
+        key: item.test[1]
+      color: 1A7C11
+      sortorder: '0'
+      drawtype: SINGLE_LINE
+      calc_fnc: AVG
+      type: SIMPLE
+      yaxisside: LEFT
+    - item:
+        host: Test Template
+        key: item.test[2]
+      color: '274482'
+      sortorder: '1'
+      drawtype: SINGLE_LINE
+      calc_fnc: AVG
+      type: SIMPLE
+      yaxisside: RIGHT
+  - name: Host Graph
+    uuid: a5f00437fc4f43e580e891b7a2e21edd
+    type: NORMAL
+    show_triggers: 'YES'
+    show_legend: 'YES'
+    ymin_type_1: CALCULATED
+    ymax_type_1: CALCULATED
+    graph_items:
+    - item:
+        host: Templar Host
+        key: item.test[own]
+      color: 1A7C11
+      sortorder: '0'
+      drawtype: SINGLE_LINE
+      calc_fnc: AVG
+      type: SIMPLE
+      yaxisside: LEFT

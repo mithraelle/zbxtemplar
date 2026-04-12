@@ -19,7 +19,7 @@ venv/
 
 # Output files
 !.github/workflows/*.yml
-/examples/sample_*.yml
+/examples/.*
 /test.yml
 
 # OS

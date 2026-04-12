@@ -1,0 +1,70 @@
+zabbix_export:
+  version: '7.4'
+  host_groups:
+  - name: Templar Hosts
+    uuid: 06fa0ec20ab54eb4843996f8589df4ea
+  hosts:
+  - groups:
+    - name: Templar Hosts
+    macros:
+    - macro: '{$MY_HOST_MACRO}'
+      type: TEXT
+      value: '1'
+      description: Testing The Host Macro
+    - macro: '{$MY_SECRET_MACRO}'
+      type: SECRET_TEXT
+      value: some secret
+      description: Testing The Secrets
+    name: Templar Host
+    host: Templar Host
+    templates:
+    - name: Test Template
+    interfaces:
+    - type: ZABBIX
+      useip: 'YES'
+      ip: 127.0.0.1
+      dns: ''
+      port: '10050'
+      interface_ref: if1
+      default: 'YES'
+    items:
+    - tags:
+      - tag: Service
+        value: Testing Host
+      name: Item Own
+      key: item.test[own]
+      type: ZABBIX_PASSIVE
+      value_type: UNSIGNED
+      history: 90d
+      trends: 365d
+      triggers:
+      - name: Host Simple trigger
+        expression: min(/Templar Host/item.test[own],10)>{$MY_HOST_MACRO}
+        priority: HIGH
+        description: A single host item trigger
+      interface_ref: if1
+  triggers:
+  - name: Host Complex trigger
+    uuid: 3963e32bd2ed483b85f9da9b12a88d8e
+    expression: last(/Templar Host/item.test[own])>{$MY_HOST_MACRO} and last(/Templar
+      Host/item.test[own]) < {$MY_MACRO}
+    priority: WARNING
+    description: Host trigger using two items
+  graphs:
+  - name: Host Graph
+    uuid: a5f00437fc4f43e580e891b7a2e21edd
+    type: NORMAL
+    show_triggers: 'YES'
+    show_legend: 'YES'
+    ymin_type_1: CALCULATED
+    ymax_type_1: CALCULATED
+    graph_items:
+    - item:
+        host: Templar Host
+        key: item.test[own]
+      color: 1A7C11
+      sortorder: '0'
+      drawtype: SINGLE_LINE
+      calc_fnc: AVG
+      type: SIMPLE
+      yaxisside: LEFT

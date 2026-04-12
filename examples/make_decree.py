@@ -1,6 +1,3 @@
-from aiohttp.helpers import set_exception
-from packaging.metadata import Metadata
-
 from zbxtemplar.modules import DecreeModule
 from zbxtemplar.decree import Token, UserGroup, User, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
 from zbxtemplar.decree.Action import TriggerAction, AutoregistrationAction
@@ -43,6 +40,8 @@ class SampleDecree(DecreeModule):
 
         test_action = TriggerAction("Test Action")
         test_action.operations.send_message(groups=[ops_group], message="Test message")
+        test_action.recovery_operations.send_message(groups=[ops_group], message="Resolved")
+        test_action.update_operations.send_message(groups=[ops_group], message="Acknowledged")
         self.add_action(test_action)
         group_condition = HostGroupCondition(test_host_group)
         template_condition = HostTemplateCondition(test_template)

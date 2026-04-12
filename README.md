@@ -116,6 +116,8 @@ This project assumes a test-environment-first workflow rather than a separate dr
 
 ## Documentation
 
+The [`examples/`](./examples/) directory contains complete working modules (`make_template.py`, `make_decree.py`), the sample YAML artifacts they generate, and a reference scroll (`sample_scroll.yml`).
+
 The structured docs live in [`doc/`](./doc/README.md):
 
 - [`doc/getting-started.md`](./doc/getting-started.md) for the first end-to-end workflow

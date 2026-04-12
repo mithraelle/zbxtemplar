@@ -1,0 +1,56 @@
+services:
+  mysql:
+    image: mysql:8.4-oracle
+    command:
+      - mysqld
+      - --skip-mysqlx
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_bin
+      - --log_bin_trust_function_creators=1
+    environment:
+      MYSQL_DATABASE: zabbix
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix
+      MYSQL_ROOT_PASSWORD: zabbix_root
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  zabbix-db-init:
+    image: zabbix/zabbix-server-mysql:alpine-7.4-latest
+    command: init_db_only
+    environment: &zabbix_db_env
+      DB_SERVER_HOST: mysql
+      MYSQL_DATABASE: zabbix
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:alpine-7.4-latest
+    environment:
+      <<: *zabbix_db_env
+    depends_on:
+      zabbix-db-init:
+        condition: service_completed_successfully
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-mysql:alpine-7.4-latest
+    environment:
+      <<: *zabbix_db_env
+      ZBX_SERVER_HOST: zabbix-server
+      PHP_TZ: Europe/Berlin
+    ports:
+      - "127.0.0.1:${ZBX_TEST_HTTP_PORT:-8888}:8080"
+    depends_on:
+      zabbix-server:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 60

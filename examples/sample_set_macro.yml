@@ -1,0 +1,6 @@
+set_macro:
+  - name: SNMP_COMMUNITY
+    value: public
+  - name: DB_PASSWORD
+    value: ${ZBX_DB_PASSWORD}
+    type: secret
