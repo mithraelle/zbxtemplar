@@ -27,11 +27,13 @@ from zbxtemplar.decree.UserGroup import UserGroup
 
 
 class UserMedia(DictEntity):
+    """Notification media configuration for a managed user."""
+
     _SCHEMA = [
-        SchemaField("type", optional=False),
-        SchemaField("sendto", optional=False),
-        SchemaField("severity"),
-        SchemaField("period"),
+        SchemaField("type", optional=False, description="Zabbix media type name."),
+        SchemaField("sendto", optional=False, description="Recipient address or target for the media type."),
+        SchemaField("severity", str_type="list[str] | str", description="Enabled trigger severities as a list or comma-separated string."),
+        SchemaField("period", description="Zabbix media active time period, for example 1-7,00:00-24:00."),
     ]
 
     def __init__(self, media_type: str, sendto: str):
@@ -73,14 +75,16 @@ class UserMedia(DictEntity):
 
 
 class User(DecreeEntity, DictEntity):
+    """Zabbix user account managed by decree YAML."""
+
     _SCHEMA = [
-        SchemaField("username", optional=False),
-        SchemaField("role", optional=False),
-        SchemaField("password"),
-        SchemaField("groups"),
-        SchemaField("medias"),
-        SchemaField("token"),
-        SchemaField("force_token"),
+        SchemaField("username", optional=False, description="Zabbix username."),
+        SchemaField("role", optional=False, description="Zabbix role name assigned to the user."),
+        SchemaField("password", description="Password to set when creating or updating the user."),
+        SchemaField("groups", str_type="list[str]", description="User group names to attach to the user."),
+        SchemaField("medias", str_type="list[UserMedia]", description="Media definitions for the user."),
+        SchemaField("token", str_type="Token", description="API token provisioning configuration for the user."),
+        SchemaField("force_token", str_type="bool", description="Update and re-generate an existing token with the same name."),
     ]
 
     def __init__(self, username: str, role: str):

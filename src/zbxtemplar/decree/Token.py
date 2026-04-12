@@ -15,13 +15,15 @@ class TokenExpiry(Enum):
 
 
 class Token(DecreeEntity, DictEntity):
+    """API token provisioning settings for a managed user."""
+
     STDOUT = TokenOutput.STDOUT
     NEVER = TokenExpiry.NEVER
 
     _SCHEMA = [
-        SchemaField("name", optional=False),
-        SchemaField("store_at", optional=False),
-        SchemaField("expires_at"),
+        SchemaField("name", optional=False, description="API token name."),
+        SchemaField("store_at", optional=False, description="Output sink for the generated token secret: a file path or STDOUT."),
+        SchemaField("expires_at", str_type="int | NEVER", description="Token expiration as a future Unix timestamp, or NEVER for a non-expiring token."),
     ]
 
     def __init__(self, name: str, store_at, expires_at=None):

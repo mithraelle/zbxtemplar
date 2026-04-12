@@ -106,14 +106,16 @@ class Encryption:
 
 
 class HostEncryption(DictEntity, Encryption):
+    """Host-level encryption settings applied through the Zabbix API."""
+
     _SCHEMA = [
-        SchemaField("host", optional=False),
-        SchemaField("connect", optional=False),
-        SchemaField("accept", optional=False),
-        SchemaField("psk_identity"),
-        SchemaField("psk"),
-        SchemaField("issuer"),
-        SchemaField("subject"),
+        SchemaField("host", optional=False, description="Zabbix host technical name to update."),
+        SchemaField("connect", optional=False, description="Comma-separated encryption modes used for outbound connections: UNENCRYPTED, PSK, or CERT."),
+        SchemaField("accept", optional=False, description="Comma-separated encryption modes accepted by the host: UNENCRYPTED, PSK, or CERT."),
+        SchemaField("psk_identity", description="PSK identity required when PSK mode is enabled."),
+        SchemaField("psk", description="PSK secret required when PSK mode is enabled."),
+        SchemaField("issuer", description="TLS certificate issuer required with subject when CERT mode is enabled."),
+        SchemaField("subject", description="TLS certificate subject required with issuer when CERT mode is enabled."),
     ]
 
     def __init__(self, host, connect_unencrypted: bool = False, accept_unencrypted: bool = False):

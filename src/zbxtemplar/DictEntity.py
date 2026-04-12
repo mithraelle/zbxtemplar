@@ -6,6 +6,8 @@ from dataclasses import dataclass
 class SchemaField:
     key: str
     optional: bool = True
+    str_type: str = "str"
+    description: str = ""
 
 
 class DictEntity:

@@ -7,6 +7,7 @@ from zbxtemplar.executor.operations.ActionOperation import ActionOperation
 
 
 class DecreeExecutor(Executor):
+    """Executor for decree YAML sections such as user groups, users, actions, and encryption."""
 
     _DECREE_ACTIONS = (
         ("user_group", UserGroupOperation),
@@ -15,7 +16,12 @@ class DecreeExecutor(Executor):
         ("encryption", EncryptionOperation),
     )
 
-    _SCHEMA = [SchemaField(key) for key, _ in _DECREE_ACTIONS]
+    _SCHEMA = [
+        SchemaField("user_group", str_type="list[UserGroup]", description="User group definitions to create or update before users."),
+        SchemaField("add_user", str_type="list[User]", description="User definitions to create or update."),
+        SchemaField("actions", str_type="list[dict]", description="Zabbix action definitions to create or update."),
+        SchemaField("encryption", str_type="dict | list[dict]", description="Host encryption settings with host_defaults and hosts entries."),
+    ]
 
     def _merge_decree(self, sources):
         merged = {}

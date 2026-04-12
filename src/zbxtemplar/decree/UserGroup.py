@@ -24,11 +24,13 @@ class Permission:
 
 
 class UserGroup(DecreeEntity, DictEntity):
+    """Zabbix user group and permission mapping managed by decree YAML."""
+
     _SCHEMA = [
-        SchemaField("name", optional=False),
-        SchemaField("gui_access"),
-        SchemaField("host_groups"),
-        SchemaField("template_groups"),
+        SchemaField("name", optional=False, description="Zabbix user group name."),
+        SchemaField("gui_access", description="GUI access mode: DEFAULT, INTERNAL, LDAP, or DISABLED."),
+        SchemaField("host_groups", str_type="list[dict]", description="Host group permission entries with name and permission."),
+        SchemaField("template_groups", str_type="list[dict]", description="Template group permission entries with name and permission."),
     ]
 
     def __init__(self, name: str, gui_access: GuiAccess = None):
