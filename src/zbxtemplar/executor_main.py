@@ -26,8 +26,8 @@ def _make_api(args):
     return ZabbixAPI(url=url, user=user, password=password)
 
 
-def _run_op(op_class, data, api):
-    op = op_class(api)
+def _run_op(op_class, data, api, base_dir=None):
+    op = op_class(api, base_dir)
     op.from_data(data)
     op.execute()
 
@@ -39,23 +39,27 @@ def _set_super_admin(args, api):
 def _set_macro(args, api):
     if args.value is not None:
         payload = {"name": args.name_or_file, "value": args.value, "type": args.type}
+        _run_op(MacroOperation, payload, api)
     else:
-        payload = args.name_or_file
-    _run_op(MacroOperation, payload, api)
+        base_dir = os.path.dirname(os.path.abspath(args.name_or_file))
+        _run_op(MacroOperation, args.name_or_file, api, base_dir)
 
 
 def _apply(args, api):
-    _run_op(ImportOperation, args.yaml_file, api)
+    base_dir = os.path.dirname(os.path.abspath(args.yaml_file))
+    _run_op(ImportOperation, args.yaml_file, api, base_dir)
 
 
 def _decree(args, api):
-    ex = DecreeExecutor(api)
+    base_dir = os.path.dirname(os.path.abspath(args.decree_file))
+    ex = DecreeExecutor(api, base_dir)
     ex.from_file(args.decree_file)
     ex.execute()
 
 
-def _add_user(args, api):    
-    ex = UserOperation(api)
+def _add_user(args, api):
+    base_dir = os.path.dirname(os.path.abspath(args.user_file))
+    ex = UserOperation(api, base_dir)
     data = ex._load_yaml(args.user_file)
     if isinstance(data, dict) and "add_user" in data:
         data = data["add_user"]
@@ -64,7 +68,8 @@ def _add_user(args, api):
 
 
 def _scroll(args, api):
-    ex = ScrollExecutor(api)
+    base_dir = os.path.dirname(os.path.abspath(args.scroll))
+    ex = ScrollExecutor(api, base_dir)
     ex.from_file(args.scroll)
     ex.execute(from_action=args.from_action, only_action=args.only_action)
 
