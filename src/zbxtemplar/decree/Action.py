@@ -6,6 +6,7 @@ from zbxtemplar.decree.action_operations import TriggerOperations, TriggerAckOpe
 
 
 class Action(DecreeEntity, ABC):
+    _OMIT_FROM_SCHEMA_DOCS = True
     eventsource = None
 
     def __init__(self, name: str):
@@ -36,6 +37,8 @@ class Action(DecreeEntity, ABC):
 
 
 class TriggerAction(Action):
+    """Zabbix action for trigger events."""
+    _OMIT_FROM_SCHEMA_DOCS = True
     eventsource = 0
 
     def __init__(self, name: str):
@@ -98,6 +101,8 @@ class TriggerAction(Action):
 
 
 class AutoregistrationAction(Action):
+    """Zabbix action for active agent autoregistration events."""
+    _OMIT_FROM_SCHEMA_DOCS = True
     eventsource = 2
 
     def __init__(self, name: str):

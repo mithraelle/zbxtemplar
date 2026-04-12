@@ -14,9 +14,9 @@ import zbxtemplar
 REFERENCE_ORDER = {
     "ScrollExecutor": 10,
     "DecreeExecutor": 20,
-    "UserGroup": 30,
-    "User": 40,
-    "UserMedia": 50,
+    "UserMedia": 30,
+    "UserGroup": 40,
+    "User": 50,
     "Token": 60,
     "HostEncryption": 70,
 }
@@ -73,6 +73,9 @@ def generate():
     subclasses = sorted(iter_subclasses(DictEntity), key=reference_sort_key)
     
     for cls in subclasses:
+        if cls.__dict__.get("_OMIT_FROM_SCHEMA_DOCS", False):
+            continue
+
         schema = getattr(cls, "_SCHEMA", [])
         if not schema:
             print(f"  [WARNING] Class '{cls.__name__}' has no _SCHEMA defined!")

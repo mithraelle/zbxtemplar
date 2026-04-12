@@ -6,6 +6,9 @@ from zbxtemplar.decree.Action import Action
 
 class ActionOperation(Executor):
     # Condition types that store names needing ID resolution
+
+    _OMIT_FROM_SCHEMA_DOCS = True
+
     _CONDITION_RESOLVERS = {
         0: ("hostgroup", "groupid", "Host group"),
         1: ("host", "hostid", "Host"),

@@ -61,6 +61,8 @@ def _validate(value, allowed, label):
 
 
 class DecreeEntity(DictEntity):
+    _OMIT_FROM_SCHEMA_DOCS = True
+
     def to_dict(self) -> dict:
         result = {}
         for key, value in self.__dict__.items():

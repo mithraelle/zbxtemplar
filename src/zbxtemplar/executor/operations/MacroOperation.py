@@ -6,6 +6,7 @@ from zbxtemplar.executor.exceptions import ExecutorApiError
 
 
 class MacroOperation(Executor):
+    _OMIT_FROM_SCHEMA_DOCS = True
 
     def _load_macros_from_file(self, path):
         data = self._load_yaml(path)

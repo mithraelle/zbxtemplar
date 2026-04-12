@@ -5,6 +5,7 @@ from zbxtemplar.executor.exceptions import ExecutorApiError
 
 
 class SuperAdminOperation(Executor):
+    _OMIT_FROM_SCHEMA_DOCS = True
 
     def from_data(self, data):
         data = self._resolve_env(data)

@@ -66,6 +66,8 @@ Applies decree YAML sections in dependency order:
 zbxtemplar-exec decree decree.yml --url ... --token ...
 ```
 
+The `decree` sections such as `actions` natively support loading from external YAML files. Passing a file path string instead of a nested dictionary allows you to manage and reload large action/trigger configurations independently.
+
 The `encryption` section manages host communication security — PSK, TLS certificate, or unencrypted. This means encryption settings live in version-controlled code rather than being configured ad-hoc in the UI. It supports `host_defaults` for shared settings and per-host overrides:
 
 ```yaml
@@ -128,10 +130,11 @@ Safety rails on token output:
 
 ### `set_macro`
 
-Sets global macros inline or from a file.
+Sets global macros inline or from a file. When setting an inline macro, you can optionally specify its storage type using the `--type` flag.
 
 ```bash
 zbxtemplar-exec set_macro SNMP_COMMUNITY public --url ... --token ...
+zbxtemplar-exec set_macro DB_PASSWORD "$DB_PASS" --type secret --url ... --token ...
 zbxtemplar-exec set_macro macros.yml --url ... --token ...
 ```
 
@@ -168,20 +171,31 @@ Updates the built-in super admin password:
 zbxtemplar-exec set_super_admin --new-password "$ZBX_ADMIN_PASSWORD" --url ... --password ...
 ```
 
-Every Zabbix install ships with `Admin/zabbix` as the default credentials. In a scroll pipeline, `set_super_admin` belongs in the `bootstrap` stage so the default password is changed before anything else runs.
+Every Zabbix install ships with `Admin/zabbix` as the default credentials. In a scroll pipeline, `set_super_admin` is the first action that runs so the default password is changed before anything else.
 
 ### `scroll`
 
-Runs a staged deployment file using the built-in pipeline:
+Runs an ordered deployment configuration file using the built-in action sequence:
 
-- `bootstrap`
-- `templates`
-- `state`
+- `set_super_admin`
+- `set_macro`
+- `apply`
+- `decree`
+
+```yaml
+set_super_admin:
+  new_password: ${ZBX_ADMIN_PASSWORD}
+set_macro: macros.yml
+apply: 
+  - templates.yml
+  - hosts.yml
+decree: decree.yml
+```
 
 ```bash
 zbxtemplar-exec scroll deploy.scroll.yml --url ... --token ...
-zbxtemplar-exec scroll deploy.scroll.yml --from-stage templates --url ... --token ...
-zbxtemplar-exec scroll deploy.scroll.yml --only-stage state --url ... --token ...
+zbxtemplar-exec scroll deploy.scroll.yml --from-action apply --url ... --token ...
+zbxtemplar-exec scroll deploy.scroll.yml --only-action decree --url ... --token ...
 ```
 
 ## Environment Variable Interpolation
@@ -198,7 +212,19 @@ This applies to:
 - encryption PSK values
 - scroll inputs that feed those actions
 
-For scrolls, the pre-flight scan runs across all stages before the first stage executes. This means a typo in a stage-3 secret is caught before stage 1 begins.
+For scrolls, the pre-flight scan runs across all actions before the first action executes. This means a typo in the secret for a late action is caught before the first action begins.
+
+## Schema Validation and Typo Assistance
+
+The executor enforces schema correctness through a "Fail Fast" mechanism. Before applying your yaml, the `DictEntity` validator checks the entire parsed dictionary against internal schemas.
+
+If an invalid key is detected (for example, `expire_at` instead of `expires_at`), execution halts immediately and the executor offers a typo suggestion using `difflib.get_close_matches`:
+
+```
+ValueError: Token: unknown key 'expire_at', did you mean 'expires_at'?
+```
+
+This prevents typos from silently dropping intended configuration and mutating your live production environment.
 
 ## How Name Resolution Works
 

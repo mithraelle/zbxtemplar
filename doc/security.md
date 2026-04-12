@@ -21,7 +21,7 @@ This is enforced by design:
 
 - Missing environment variables cause a hard abort, never empty-string substitution.
 - The executor runs a pre-flight scan of all values before any API call. If any variable is missing, nothing is touched.
-- For scrolls, the scan covers all stages upfront — a missing variable in stage 3 is caught before stage 1 begins.
+- For scrolls, the scan covers all actions upfront — a missing variable in a late action is caught before the first action begins.
 
 ### Global Macro Types
 
@@ -89,12 +89,11 @@ Token output has deliberate guardrails:
 
 Every Zabbix installation ships with hardcoded default credentials (`Admin/zabbix`). The `set_super_admin` command exists to change this immediately.
 
-In a scroll pipeline, this belongs in the `bootstrap` stage — first thing that runs, before any templates are imported or users are created.
+In a scroll pipeline, this is configured as the `set_super_admin` action — the first thing that runs, before any templates are imported or users are created.
 
 ```yaml
-bootstrap:
-  set_super_admin:
-    password: ${ZBX_ADMIN_PASSWORD}
+set_super_admin:
+  password: ${ZBX_ADMIN_PASSWORD}
 ```
 
 ## Fail-Fast Validation
@@ -103,10 +102,11 @@ Errors are surfaced as early as possible, at the cheapest point in the pipeline:
 
 | What | When | Effect |
 |------|------|--------|
-| Unknown YAML keys in decree files | Parse time | Hard error, no API calls |
-| Unknown keys in scroll documents | Parse time | Hard error, no API calls |
+| Unknown YAML keys in decree files | Pre-flight | Hard error with Typo suggestions (`difflib`) |
+| Missing required keys in decree files | Pre-flight | Hard error, no API calls |
+| Unknown keys in scroll documents | Pre-flight | Hard error, no API calls |
 | Unknown context file format | Load time | Hard error, no generation |
-| Missing `${ENV_VAR}` references | Pre-flight scan | Hard abort before any mutation |
+| Missing `${ENV_VAR}` references | Pre-flight | Hard abort before any mutation |
 | Invalid encryption settings | Parse time | Validation error |
 | Python `and`/`or` on action conditions | Write time | `TypeError` with clear message |
 | Macro not found on template/host | Generation time | `KeyError` |

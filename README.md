@@ -21,7 +21,7 @@ Once you are there, secrets need handling. `${ENV_VAR}` placeholders keep creden
 
 Actions are where the Zabbix API gets awkward and error-prone: numeric codes for everything, manual formula labels, invalid operator-condition combinations accepted without complaint. `zbxtemplar` replaces that with typed Python — `HostGroupCondition("Production") & SeverityCondition("HIGH")`. Names, not IDs. Wrong operator on the wrong condition type? Type error at write time, not a silent misfire during an incident ([`doc/actions.md`](./doc/actions.md)).
 
-On top of all this, `Context` validates references at generation time — against previously generated or exported YAML — so a typo in a host group name or a missing template is caught before any artifact is written. Deterministic UUIDs prevent import duplicates. Mistakes break against your code, not against production ([`doc/generator.md`](./doc/generator.md)).
+On top of all this, `Context` validates references at generation time — against previously generated or exported YAML. Additionally, the executor applies **fail-fast typo checking** to your `decree` YAML configurations. A typo in a host group name, a missing template, or even misspelling a configuration key (like `expire_at` instead of `expires_at`) halts execution *before* any mutating API calls are made. Deterministic UUIDs prevent import duplicates. Mistakes break against your code, not against production ([`doc/generator.md`](./doc/generator.md)).
 
 ## What It Does
 
@@ -124,6 +124,7 @@ The structured docs live in [`doc/`](./doc/README.md):
 - [`doc/executor.md`](./doc/executor.md) for apply/decree/scroll usage
 - [`doc/actions.md`](./doc/actions.md) for action conditions and operations
 - [`doc/security.md`](./doc/security.md) for the operational safety model
+- [`doc/decree_reference.md`](./doc/decree_reference.md) for the generated YAML schema reference
 
 ## Current Scope
 

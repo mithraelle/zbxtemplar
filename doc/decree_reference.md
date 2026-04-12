@@ -21,6 +21,14 @@ Executor for decree YAML sections such as user groups, users, actions, and encry
 * `actions` (Optional, *list[dict]*): Zabbix action definitions to create or update.
 * `encryption` (Optional, *dict | list[dict]*): Host encryption settings with host_defaults and hosts entries.
 
+## UserMedia
+Notification media configuration for a managed user.
+
+* `type` (**Required**, *str*): Zabbix media type name.
+* `sendto` (**Required**, *str*): Recipient address or target for the media type.
+* `severity` (Optional, *list[str] | str*): Enabled trigger severities as a list or comma-separated string.
+* `period` (Optional, *str*): Zabbix media active time period, for example 1-7,00:00-24:00.
+
 ## UserGroup
 Zabbix user group and permission mapping managed by decree YAML.
 
@@ -39,14 +47,6 @@ Zabbix user account managed by decree YAML.
 * `medias` (Optional, *list[UserMedia]*): Media definitions for the user.
 * `token` (Optional, *Token*): API token provisioning configuration for the user.
 * `force_token` (Optional, *bool*): Update and re-generate an existing token with the same name.
-
-## UserMedia
-Notification media configuration for a managed user.
-
-* `type` (**Required**, *str*): Zabbix media type name.
-* `sendto` (**Required**, *str*): Recipient address or target for the media type.
-* `severity` (Optional, *list[str] | str*): Enabled trigger severities as a list or comma-separated string.
-* `period` (Optional, *str*): Zabbix media active time period, for example 1-7,00:00-24:00.
 
 ## Token
 API token provisioning settings for a managed user.

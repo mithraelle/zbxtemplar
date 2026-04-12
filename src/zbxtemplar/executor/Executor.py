@@ -8,6 +8,8 @@ from zbxtemplar.executor.exceptions import ExecutorParseError
 
 
 class Executor(DictEntity):
+    _OMIT_FROM_SCHEMA_DOCS = True
+    
     def __init__(self, api, base_dir=None):
         self._api = api
         self._base_dir = base_dir

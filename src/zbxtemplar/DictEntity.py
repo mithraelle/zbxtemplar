@@ -13,6 +13,7 @@ class SchemaField:
 class DictEntity:
     _SCHEMA: list[SchemaField] = []
 
+
     @classmethod
     def validate(cls, data: dict) -> bool:
         if not isinstance(data, dict):

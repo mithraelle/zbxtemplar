@@ -32,6 +32,9 @@ The project is aimed at teams who want monitoring configuration, access control,
 - [Security & Safety](./security.md)  
   Secret management, macro types, host encryption, token safety, fail-fast validation, and the two-stage validation model.
 
+- [Decree Reference](./decree_reference.md)  
+  Automatically generated reference for all valid configuration fields.
+
 ## Recommended Reading Order
 
 1. Start with [Getting Started](./getting-started.md).

@@ -5,6 +5,8 @@ from zbxtemplar.executor.exceptions import ExecutorApiError
 
 
 class ImportOperation(Executor):
+    _OMIT_FROM_SCHEMA_DOCS = True
+
     _IMPORT_RULES = {
         "template_groups": {"createMissing": True, "updateExisting": True},
         "templates": {"createMissing": True, "updateExisting": True},
