@@ -41,26 +41,30 @@ def _set_macro(args, api):
         payload = {"name": args.name_or_file, "value": args.value, "type": args.type}
         _run_op(MacroOperation, payload, api)
     else:
-        base_dir = os.path.dirname(os.path.abspath(args.name_or_file))
-        _run_op(MacroOperation, args.name_or_file, api, base_dir)
+        macro_path = os.path.abspath(args.name_or_file)
+        base_dir = os.path.dirname(macro_path)
+        _run_op(MacroOperation, macro_path, api, base_dir)
 
 
 def _apply(args, api):
-    base_dir = os.path.dirname(os.path.abspath(args.yaml_file))
-    _run_op(ImportOperation, args.yaml_file, api, base_dir)
+    yaml_path = os.path.abspath(args.yaml_file)
+    base_dir = os.path.dirname(yaml_path)
+    _run_op(ImportOperation, yaml_path, api, base_dir)
 
 
 def _decree(args, api):
-    base_dir = os.path.dirname(os.path.abspath(args.decree_file))
+    decree_path = os.path.abspath(args.decree_file)
+    base_dir = os.path.dirname(decree_path)
     ex = DecreeExecutor(api, base_dir)
-    ex.from_file(args.decree_file)
+    ex.from_file(decree_path)
     ex.execute()
 
 
 def _add_user(args, api):
-    base_dir = os.path.dirname(os.path.abspath(args.user_file))
+    user_path = os.path.abspath(args.user_file)
+    base_dir = os.path.dirname(user_path)
     ex = UserOperation(api, base_dir)
-    data = ex._load_yaml(args.user_file)
+    data = ex._load_yaml(user_path)
     if isinstance(data, dict) and "add_user" in data:
         data = data["add_user"]
     ex.from_data(data)
@@ -68,9 +72,10 @@ def _add_user(args, api):
 
 
 def _scroll(args, api):
-    base_dir = os.path.dirname(os.path.abspath(args.scroll))
+    scroll_path = os.path.abspath(args.scroll)
+    base_dir = os.path.dirname(scroll_path)
     ex = ScrollExecutor(api, base_dir)
-    ex.from_file(args.scroll)
+    ex.from_file(scroll_path)
     ex.execute(from_action=args.from_action, only_action=args.only_action)
 
 

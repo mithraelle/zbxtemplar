@@ -130,6 +130,8 @@ class Condition(ConditionExpr):
                     obj.value = data["value"]
                 if "value2" in data:
                     obj.value2 = data["value2"]
+                if "formulaid" in data:
+                    obj.formulaid = data["formulaid"]
                 return obj
         raise ValueError(f"Unknown condition type: {ctype}")
 
@@ -496,10 +498,15 @@ class ConditionExpression:
 
     def to_dict(self):
         if hasattr(self, "_raw_formula"):
+            conditions = []
+            for c in self._raw_conditions:
+                d = c.to_dict()
+                d["formulaid"] = c.formulaid
+                conditions.append(d)
             return {
                 "evaltype": 3,
                 "formula": self._raw_formula,
-                "conditions": [c.to_dict() for c in self._raw_conditions],
+                "conditions": conditions,
             }
         conditions = []
         formula = self._walk(self.expr, conditions, {})
