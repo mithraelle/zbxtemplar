@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+remote="$1"
+
+while read local_ref local_sha remote_ref remote_sha; do
+    if [[ "$remote_ref" == refs/heads/main ]]; then
+        head_tags=$(git tag --points-at HEAD)
+
+        if [[ -z "$head_tags" ]]; then
+            echo "REJECTED: pushing to main requires a tag on HEAD"
+            exit 1
+        fi
+    fi
+
+    if [[ "$local_ref" == refs/tags/v* ]]; then
+        tag_version="${local_ref#refs/tags/v}"
+        toml_version=$(sed -n 's/^version *= *"\(.*\)"/\1/p' pyproject.toml)
+
+        if [[ "$tag_version" != "$toml_version" ]]; then
+            echo "REJECTED: tag v${tag_version} does not match pyproject.toml version ${toml_version}"
+            exit 1
+        fi
+    fi
+done
+
+exit 0
