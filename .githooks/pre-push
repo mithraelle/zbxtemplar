@@ -12,8 +12,8 @@ while read local_ref local_sha remote_ref remote_sha; do
         fi
     fi
 
-    if [[ "$local_ref" == refs/tags/v* ]]; then
-        tag_version="${local_ref#refs/tags/v}"
+    if [[ "$local_ref" == refs/tags/[0-9]* ]]; then
+        tag_version="${local_ref#refs/tags/}"
         toml_version=$(sed -n 's/^version *= *"\(.*\)"/\1/p' pyproject.toml)
 
         if [[ "$tag_version" != "$toml_version" ]]; then
