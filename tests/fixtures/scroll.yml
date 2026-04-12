@@ -1,5 +1,6 @@
 set_super_admin:
   password: ${ZBX_ADMIN_PASSWORD}
+  current_password: ${ZBX_ADMIN_PASSWORD}
 set_macro:
   - name: SNMP_COMMUNITY
     value: public

@@ -14,6 +14,7 @@ import zbxtemplar
 REFERENCE_ORDER = {
     "ScrollExecutor": 10,
     "DecreeExecutor": 20,
+    "SuperAdminOperation": 25,
     "UserMedia": 30,
     "UserGroup": 40,
     "User": 50,

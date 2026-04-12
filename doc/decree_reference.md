@@ -8,7 +8,7 @@
 ## ScrollExecutor
 Executor for ordered scroll actions that combine bootstrap, import, and decree steps.
 
-* `set_super_admin` (Optional, *str | dict*): New built-in Admin password as a string or password mapping.
+* `set_super_admin` (Optional, *dict*): Super admin update — password and/or username. Requires current_password when changing password.
 * `set_macro` (Optional, *str | dict | list*): Global macro definition, list of definitions, or path to a macro YAML file.
 * `apply` (Optional, *str | list[str]*): Zabbix-native YAML file path or paths to import.
 * `decree` (Optional, *dict | list | str*): Inline decree data, merged decree data list, or decree YAML path.
@@ -20,6 +20,13 @@ Executor for decree YAML sections such as user groups, users, actions, and encry
 * `add_user` (Optional, *list[User]*): User definitions to create or update.
 * `actions` (Optional, *list[dict]*): Zabbix action definitions to create or update.
 * `encryption` (Optional, *dict | list[dict]*): Host encryption settings with host_defaults and hosts entries.
+
+## SuperAdminOperation
+Update the currently authenticated super admin — password, username, or both.
+
+* `username` (Optional, *str*): New login name for the super admin.
+* `password` (Optional, *str*): New password.
+* `current_password` (Optional, *str*): Current password (required when changing password).
 
 ## UserMedia
 Notification media configuration for a managed user.

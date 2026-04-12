@@ -89,11 +89,12 @@ Token output has deliberate guardrails:
 
 Every Zabbix installation ships with hardcoded default credentials (`Admin/zabbix`). The `set_super_admin` command exists to change this immediately.
 
-In a scroll pipeline, this is configured as the `set_super_admin` action — the first thing that runs, before any templates are imported or users are created.
+In a scroll pipeline, this is configured as the `set_super_admin` action — the first thing that runs, before any templates are imported or users are created. The `current_password` field is required when changing the password.
 
 ```yaml
 set_super_admin:
   password: ${ZBX_ADMIN_PASSWORD}
+  current_password: zabbix
 ```
 
 ## Fail-Fast Validation

@@ -33,7 +33,15 @@ def _run_op(op_class, data, api, base_dir=None):
 
 
 def _set_super_admin(args, api):
-    _run_op(SuperAdminOperation, args.new_password, api)
+    data = {}
+    if args.new_password:
+        data["password"] = args.new_password
+    if args.username:
+        data["username"] = args.username
+    current = getattr(args, "current_password", None) or getattr(args, "password", None)
+    if current:
+        data["current_password"] = current
+    _run_op(SuperAdminOperation, data, api)
 
 
 def _set_macro(args, api):
@@ -91,6 +99,8 @@ def _build_parser():
 
     sa = sub.add_parser("set_super_admin", parents=[conn], help="Bootstrap or rotate super admin password")
     sa.add_argument("--new-password", required=True, help="New password")
+    sa.add_argument("--current-password", help="Current password (required by Zabbix 7.x for self-update)")
+    sa.add_argument("--username", help="New login name for the super admin")
     sa.set_defaults(func=_set_super_admin)
 
     mac = sub.add_parser("set_macro", parents=[conn], help="Set global macros (inline or from file)")

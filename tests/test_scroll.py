@@ -9,6 +9,8 @@ SCROLL = FIXTURES_DIR / "scroll.yml"
 
 def _full_api():
     api = MagicMock()
+    # set_super_admin
+    api.user.checkAuthentication.return_value = {"userid": "1"}
     # set_macro
     api.usermacro.get.return_value = []
     # decree
@@ -46,7 +48,7 @@ def test_scroll_runs_all_actions(monkeypatch):
 
     _load(api, SCROLL).execute()
 
-    api.user.update.assert_called_once_with(userid="1", passwd="admin123")
+    api.user.update.assert_called_once_with(userid="1", passwd="admin123", current_passwd="admin123")
     api.usermacro.createglobal.assert_called_once_with(
         macro="{$SNMP_COMMUNITY}", value="public", type=0
     )
@@ -66,7 +68,7 @@ def test_scroll_only_action(monkeypatch):
 
     _load(api, SCROLL).execute(only_action="set_super_admin")
 
-    api.user.update.assert_called_once_with(userid="1", passwd="admin123")
+    api.user.update.assert_called_once_with(userid="1", passwd="admin123", current_passwd="admin123")
     # other actions should not run
     api.usermacro.createglobal.assert_not_called()
     api.usergroup.create.assert_not_called()

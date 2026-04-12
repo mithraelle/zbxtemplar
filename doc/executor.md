@@ -165,13 +165,15 @@ Type values match the Zabbix native export format: `TEXT` (default), `SECRET_TEX
 
 ### `set_super_admin`
 
-Updates the built-in super admin password:
+Updates the currently authenticated super admin user — password, username, or both:
 
 ```bash
-zbxtemplar-exec set_super_admin --new-password "$ZBX_ADMIN_PASSWORD" --url ... --password ...
+zbxtemplar-exec set_super_admin --new-password "$ZBX_NEW_PASSWORD" --current-password "$ZBX_CURRENT_PASSWORD" --url ... --password ...
 ```
 
-Every Zabbix install ships with `Admin/zabbix` as the default credentials. In a scroll pipeline, `set_super_admin` is the first action that runs so the default password is changed before anything else.
+When `--current-password` is omitted, the CLI falls back to the `--password` used for authentication. The `--username` flag optionally renames the admin account.
+
+After a password change with session auth (not token), the executor automatically re-logs in with the new credentials so subsequent scroll actions continue working.
 
 ### `scroll`
 
@@ -184,7 +186,8 @@ Runs an ordered deployment configuration file using the built-in action sequence
 
 ```yaml
 set_super_admin:
-  new_password: ${ZBX_ADMIN_PASSWORD}
+  password: ${ZBX_ADMIN_PASSWORD}
+  current_password: zabbix
 set_macro: macros.yml
 apply: 
   - templates.yml

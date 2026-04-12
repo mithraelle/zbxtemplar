@@ -1,3 +1,7 @@
+set_super_admin:
+  username: TemplarAdmin
+  password: ${ZBX_ADMIN_PASSWORD}
+  current_password: zabbix
 set_macro:
   - name: MY_GLOBAL_MACRO
     value: My Macro
