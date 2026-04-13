@@ -10,6 +10,7 @@ Aimed at teams that want:
 - readable, programmable definitions instead of large generated exports
 - a lightweight way to manage users, permissions, and alert-routing state
 - confidence that deploying monitoring configuration cannot accidentally leak credentials, partially apply state, or silently ignore misconfiguration
+- a structured, sequenced run trace that records every file loaded, every entity created or updated with its live ID, and every secret write — without ever logging a secret value
 
 ## Why
 

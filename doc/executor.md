@@ -243,6 +243,52 @@ Examples:
 
 This keeps decree YAML readable and reviewable.
 
+## Log Output
+
+Every run emits a structured, sequenced event stream to stdout. Each line carries a `[NNN]` counter and a `event.type key=value` payload.
+
+```
+[001] run.start run_id=20260413T192659Z-1070 target=zabbix.example.com auth=token
+[002] input.loaded path=deploy.scroll.yml sha256=3e61fbdc... bytes=256
+[003] action.start name=set_macro items=3
+[004] lookup.end type=global_macros count=1
+[005] entity.end type=macro action=update result=ok name={$SNMP_COMMUNITY} value_redacted=true
+[006] action.end name=set_macro result=ok duration_ms=34
+[007] action.start name=apply files=2
+[008] input.loaded path=templates.yml sha256=64856a76... bytes=6856
+[009] api.result method=configuration.import result=ok path=templates.yml
+[010] entity.end type=template_group action=import result=ok name="Templar Templates" id=25
+[011] entity.end type=template action=import result=ok name="Test Template" id=10659
+...
+[037] run.end run_id=20260413T192659Z-1070 result=ok actions=3 created=0 updated=9 failed=0 duration_ms=698
+```
+
+Event types:
+
+| Event | When emitted |
+|---|---|
+| `run.start` | Beginning of every invocation — run ID, target URL, auth method |
+| `run.end` | End of every invocation — aggregate counts, total duration |
+| `action.start` / `action.end` | Around each top-level action (`set_macro`, `apply`, `decree`, …) with duration |
+| `input.loaded` | Each YAML file read — path, SHA-256, byte size |
+| `lookup.end` | Bulk existence check before create-or-update decisions |
+| `entity.end` | Outcome of each create, update, or import — entity type, name, live ID |
+| `api.result` | Outcome of bulk API operations such as `configuration.import` |
+| `secret.write` | Token write events — token name and destination, value always redacted |
+| `entity.plan` | Pre-flight summary of what an operation intends to change |
+
+Sensitive values are never logged. Macro values appear as `value_redacted=true`, PSK secrets are absent entirely, and API tokens appear as `secret_redacted=true`.
+
+### JSON output
+
+Pass `--json` to any command for newline-delimited JSON, suitable for log aggregation:
+
+```bash
+zbxtemplar-exec --json scroll deploy.scroll.yml --url ... --token ...
+```
+
+Each line is a self-contained JSON object with the same fields as the text format.
+
 ## Recommended Operating Model
 
 Use a test Zabbix instance first, then production.
@@ -256,6 +302,3 @@ That is the intended safety model for this project:
 
 The executor is designed around idempotent re-apply more than around a separate dry-run engine.
 
-## Current Operational Caveats
-
-- Partial progress logging could be clearer during long or multi-step applies.
