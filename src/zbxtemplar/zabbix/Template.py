@@ -49,13 +49,13 @@ class WithTemplates:
 
 
 class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates):
-    def __init__(self, name: str, groups: list[TemplateGroup] | None = None):
+    def __init__(self, name: str, groups: list[TemplateGroup]):
         super().__init__(name)
         self.template = name
         self.items: list[Item] = []
         self.dashboards: list[Dashboard] = []
         self.valuemaps: list[ValueMap] = []
-        self.groups = groups or []
+        self.groups = groups
 
     def add_item(self, item: Item):
         if any(i.key == item.key for i in self.items):

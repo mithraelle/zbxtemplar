@@ -128,26 +128,31 @@ def main():
         print(f"No TemplarModule/DecreeModule subclasses found in {args.module}")
         return 1
 
-    for name, mod in modules.items():
-        if isinstance(mod, TemplarModule):
-            if args.output:
-                _write_yaml(mod.to_export(), args.output, name)
-            if args.templates_output:
-                _write_yaml(mod.export_templates(), args.templates_output, f"{name} [templates]")
-            if args.hosts_output:
-                _write_yaml(mod.export_hosts(), args.hosts_output, f"{name} [hosts]")
+    try:
+        for name, mod in modules.items():
+            if isinstance(mod, TemplarModule):
+                if args.output:
+                    _write_yaml(mod.to_export(), args.output, name)
+                if args.templates_output:
+                    _write_yaml(mod.export_templates(), args.templates_output, f"{name} [templates]")
+                if args.hosts_output:
+                    _write_yaml(mod.export_hosts(), args.hosts_output, f"{name} [hosts]")
 
-        if isinstance(mod, DecreeModule):
-            if args.output:
-                _write_yaml(mod.to_export(), args.output, name)
-            if args.user_groups_output:
-                _write_yaml(mod.export_user_groups(), args.user_groups_output, f"{name} [user_groups]")
-            if args.users_output:
-                _write_yaml(mod.export_users(), args.users_output, f"{name} [users]")
-            if args.actions_output:
-                _write_yaml(mod.export_actions(), args.actions_output, f"{name} [actions]")
-            if args.encryption_output:
-                _write_yaml(mod.export_encryption(), args.encryption_output, f"{name} [encryption]")
+            if isinstance(mod, DecreeModule):
+                if args.output:
+                    _write_yaml(mod.to_export(), args.output, name)
+                if args.user_groups_output:
+                    _write_yaml(mod.export_user_groups(), args.user_groups_output, f"{name} [user_groups]")
+                if args.users_output:
+                    _write_yaml(mod.export_users(), args.users_output, f"{name} [users]")
+                if args.actions_output:
+                    _write_yaml(mod.export_actions(), args.actions_output, f"{name} [actions]")
+                if args.encryption_output:
+                    _write_yaml(mod.export_encryption(), args.encryption_output, f"{name} [encryption]")
+    except ValueError as e:
+        import sys
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
 
     return 0
 

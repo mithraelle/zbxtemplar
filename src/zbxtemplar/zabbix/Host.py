@@ -48,13 +48,13 @@ class AgentInterface(HostInterface):
 
 
 class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates):
-    def __init__(self, name: str, groups: list[HostGroup] | None = None):
+    def __init__(self, name: str, groups: list[HostGroup]):
         super().__init__(name)
         self.host = name
         self.interfaces: list[HostInterface] = []
         self.items: list[Item] = []
         self.valuemaps: list[ValueMap] = []
-        self.groups = groups or []
+        self.groups = groups
         self._default_interface: HostInterface | None = None
 
     def add_interface(self, interface: HostInterface, default: bool = False):
@@ -114,10 +114,10 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
             name = tname["name"]
             if templates is not None:
                 if name not in templates:
-                    templates[name] = Template(name=name)
+                    templates[name] = Template(name=name, groups=[])
                 host.templates.append(templates[name])
             else:
-                host.templates.append(Template(name=name))
+                host.templates.append(Template(name=name, groups=[]))
         for i in data.get("items", []):
             host.items.append(Item.from_dict(i, host=data["name"]))
         return host
