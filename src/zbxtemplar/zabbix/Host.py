@@ -5,7 +5,7 @@ from zbxtemplar.zabbix.macro import Macro, WithMacros
 from zbxtemplar.zabbix.Trigger import WithTriggers
 from zbxtemplar.zabbix.Graph import WithGraphs
 from zbxtemplar.zabbix.Item import Item
-from zbxtemplar.zabbix.Template import Template, ValueMap
+from zbxtemplar.zabbix.Template import Template, ValueMap, WithTemplates
 
 
 class HostGroup(ZbxEntity):
@@ -47,11 +47,10 @@ class AgentInterface(HostInterface):
         }
 
 
-class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs):
+class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates):
     def __init__(self, name: str, groups: list[HostGroup] | None = None):
         super().__init__(name)
         self.host = name
-        self.templates: list[Template] = []
         self.interfaces: list[HostInterface] = []
         self.items: list[Item] = []
         self.valuemaps: list[ValueMap] = []
@@ -68,22 +67,11 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
             self._default_interface = interface
         return self
 
-    def add_template(self, template: Template):
-        if any(t.name == template.name for t in self.templates):
-            raise ValueError(
-                f"Duplicate template '{template.name}' on host '{self.name}'"
-            )
-        self.templates.append(template)
-        return self
-
     def interfaces_to_list(self):
         return [
             {**iface.to_dict(), "default": YesNo.YES.value if iface is self._default_interface else YesNo.NO.value}
             for iface in self.interfaces
         ]
-
-    def templates_to_list(self):
-        return [{"name": t.name} for t in self.templates]
 
     def add_item(self, item: Item):
         if any(i.key == item.key for i in self.items):

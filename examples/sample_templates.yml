@@ -229,6 +229,17 @@ zabbix_export:
       - value: '0'
         newvalue: DOWN
         type: EQUAL
+  - templates:
+    - name: Test Template
+    groups:
+    - name: Templar Templates
+    macros:
+    - macro: '{$SUPER_TEMPLATE_MACRO}'
+      type: TEXT
+      value: SUPER TEMPLATE MACRO
+    name: Super Template
+    uuid: 81e85747cf6f4d0689ace169414abace
+    template: Super Template
   triggers:
   - name: Complex trigger
     uuid: bc81a964ebf94fb0926600eb7222a1a7

@@ -31,8 +31,24 @@ class ValueMap(ZbxEntity):
         self.mappings.append({"value": value, "newvalue": newvalue, "type": type.value})
         return self
 
+class WithTemplates:
+    def __init__(self):
+        super().__init__()
+        self.templates: list["Template"] = []
 
-class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs):
+    def add_template(self, template: "Template"):
+        if any(t.name == template.name for t in self.templates):
+            raise ValueError(
+                f"Duplicate template '{template.name}' on host '{self.name}'"
+            )
+        self.templates.append(template)
+        return self
+
+    def templates_to_list(self):
+        return [{"name": t.name} for t in self.templates]
+
+
+class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates):
     def __init__(self, name: str, groups: list[TemplateGroup] | None = None):
         super().__init__(name)
         self.template = name

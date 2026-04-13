@@ -229,11 +229,24 @@ zabbix_export:
       - value: '0'
         newvalue: DOWN
         type: EQUAL
+  - templates:
+    - name: Test Template
+    groups:
+    - name: Templar Templates
+    macros:
+    - macro: '{$SUPER_TEMPLATE_MACRO}'
+      type: TEXT
+      value: SUPER TEMPLATE MACRO
+    name: Super Template
+    uuid: 81e85747cf6f4d0689ace169414abace
+    template: Super Template
   host_groups:
   - name: Templar Hosts
     uuid: 06fa0ec20ab54eb4843996f8589df4ea
   hosts:
-  - groups:
+  - templates:
+    - name: Test Template
+    groups:
     - name: Templar Hosts
     macros:
     - macro: '{$MY_HOST_MACRO}'
@@ -246,8 +259,6 @@ zabbix_export:
       description: Testing The Secrets
     name: Templar Host
     host: Templar Host
-    templates:
-    - name: Test Template
     interfaces:
     - type: ZABBIX
       useip: 'YES'
@@ -272,6 +283,20 @@ zabbix_export:
         priority: HIGH
         description: A single host item trigger
       interface_ref: if1
+  - templates:
+    - name: Super Template
+    groups:
+    - name: Templar Hosts
+    name: Templar Super Host
+    host: Templar Super Host
+    interfaces:
+    - type: ZABBIX
+      useip: 'YES'
+      ip: 127.0.0.1
+      dns: ''
+      port: '10050'
+      interface_ref: if1
+      default: 'YES'
   triggers:
   - name: Complex trigger
     uuid: bc81a964ebf94fb0926600eb7222a1a7

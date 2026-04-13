@@ -15,7 +15,10 @@ class SampleTemplate(TemplarModule):
     def __init__(self):
         super().__init__()
 
-        template = Template(name="Test Template", groups=[TemplateGroup("Templar Templates")]).add_tag("Service",
+        template_group = TemplateGroup("Templar Templates")
+        host_group = HostGroup("Templar Hosts")
+
+        template = Template(name="Test Template", groups=[template_group]).add_tag("Service",
                                                                                                        "Testing")
         template.add_macro("MY_MACRO", 1, "Testing The Things")
 
@@ -86,7 +89,7 @@ class SampleTemplate(TemplarModule):
         dashboard.add_page(first_page).add_page(second_page)
         template.add_dashboard(dashboard)
 
-        host = Host("Templar Host", groups=[HostGroup("Templar Hosts")])
+        host = Host("Templar Host", groups=[host_group])
         host.add_macro("MY_HOST_MACRO", 1, "Testing The Host Macro")
         host.add_macro("MY_SECRET_MACRO", "some secret", "Testing The Secrets", MacroType.SECRET)
         host.add_template(template)
@@ -110,6 +113,16 @@ class SampleTemplate(TemplarModule):
         host.add_trigger(name="Host Complex trigger", expression=host_trigger_expr,
                          priority=TriggerPriority.WARNING,
                          description="Host trigger using two items")
+
+        super_template = Template(name="Super Template", groups=[template_group])
+        self.add_template(super_template)
+        super_template.add_template(template)
+        super_template.add_macro("SUPER_TEMPLATE_MACRO", "SUPER TEMPLATE MACRO")
+
+        host2 = Host("Templar Super Host", groups=[host_group])
+        self.add_host(host2)
+        host2.add_template(super_template)
+        host2.add_interface(host_if1)
 
 
 if __name__ == "__main__":
