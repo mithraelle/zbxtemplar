@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
-from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, YesNo, WithTags, WithMacros, WithGroups, Macro
+from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, YesNo, WithTags, WithGroups
+from zbxtemplar.zabbix.macro import Macro, WithMacros
 from zbxtemplar.zabbix.Trigger import WithTriggers
 from zbxtemplar.zabbix.Graph import WithGraphs
 from zbxtemplar.zabbix.Item import Item
@@ -92,17 +93,6 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
         item._host = self.name
         self.items.append(item)
         return self
-
-    def get_macro(self, name: str):
-        clean_name = name.replace("{$", "").replace("}", "")
-        macro = self.macros.get(clean_name)
-        if macro is not None:
-            return macro
-        for t in self.templates:
-            macro = t.macros.get(clean_name)
-            if macro is not None:
-                return macro
-        raise KeyError(f"Macro '{{${clean_name}}}' not found on host '{self.name}' or its linked templates")
 
     def add_value_map(self, value_map: ValueMap):
         if any(v.name == value_map.name for v in self.valuemaps):

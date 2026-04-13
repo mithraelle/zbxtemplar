@@ -1,6 +1,7 @@
 from zabbix_utils import APIRequestError
 
-from zbxtemplar.zabbix.ZbxEntity import Macro, MacroType
+from zbxtemplar.zabbix.macro import Macro
+from zbxtemplar.zabbix import MacroType
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zbxtemplar.executor.log import log

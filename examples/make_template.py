@@ -1,7 +1,7 @@
 from zbxtemplar.modules import TemplarModule
-from zbxtemplar.zabbix.ZbxEntity import YesNo, MacroType
+from zbxtemplar.zabbix.ZbxEntity import YesNo
 from zbxtemplar.zabbix import Template, Item, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
-    DashboardPage, Host
+    DashboardPage, Host, MacroType
 from zbxtemplar.zabbix.DashboardWidget import ClassicGraph
 from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph
 from zbxtemplar.zabbix.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader

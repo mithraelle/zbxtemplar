@@ -1,6 +1,7 @@
 from enum import StrEnum
 
-from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags, WithMacros, WithGroups, Macro
+from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags, WithGroups
+from zbxtemplar.zabbix.macro import Macro, WithMacros
 from zbxtemplar.zabbix.Trigger import WithTriggers
 from zbxtemplar.zabbix.Graph import WithGraphs
 from zbxtemplar.zabbix.Dashboard import Dashboard
