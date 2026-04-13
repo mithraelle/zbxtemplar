@@ -3,6 +3,7 @@ from zbxtemplar.decree.Token import TokenOutput
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.TokenProvisioner import TokenProvisioner, TokenProvisionerError
 from zbxtemplar.executor.exceptions import ExecutorApiError
+from zbxtemplar.executor.log import log
 from zabbix_utils import APIRequestError
 
 
@@ -21,6 +22,7 @@ class UserOperation(Executor):
         ugroups = {g["name"]: g["usrgrpid"] for g in self._api.usergroup.get(output=["usrgrpid", "name"])}
         media_types = {m["name"]: m["mediatypeid"] for m in self._api.mediatype.get(output=["mediatypeid", "name"])}
         existing = {u["username"]: u["userid"] for u in self._api.user.get(output=["userid", "username"])}
+        log.lookup_end("users", count=len(existing))
 
         for user in self._users:
             if user.role not in roles:
@@ -54,13 +56,12 @@ class UserOperation(Executor):
             if user.username in existing:
                 params["userid"] = existing[user.username]
                 del params["username"]
-                print(f"Updating user '{user.username}'...")
                 try:
                     self._api.user.update(**params)
                 except APIRequestError as e:
                     raise ExecutorApiError(f"Failed to update user '{user.username}': {e}") from e
+                log.entity_end("user", action="update", username=user.username, id=existing[user.username])
             else:
-                print(f"Creating user '{user.username}'...")
                 try:
                     create_result = self._api.user.create(**params)
                 except APIRequestError as e:
@@ -69,16 +70,24 @@ class UserOperation(Executor):
                 if not userids:
                     raise ValueError(f"Unable to resolve created user id for '{user.username}'")
                 existing[user.username] = userids[0]
+                log.entity_end(
+                    "user", action="create",
+                    username=user.username,
+                    id=userids[0],
+                    role=user.role,
+                    groups=len(user.groups) if user.groups else 0,
+                )
 
             if user.token:
                 try:
                     updated = token_executor.provision(
                         user.token, existing[user.username], force=user.force_token
                     )
-                    action = "Updated" if updated else "Created"
-                    print(f"{action} API token '{user.token.name}' for '{user.username}'.")
+                    action = "updated" if updated else "created"
+                    extra = {"token_name": user.token.name, "owner": user.username, "result": action, "secret_redacted": True}
                     if user.token.store_at is not TokenOutput.STDOUT:
-                        print(f"Wrote token to '{user.token.store_at}'.")
+                        extra["store_at"] = str(user.token.store_at)
+                    log.secret_write("api_token", **extra)
                 except TokenProvisionerError as e:
                     raise TokenProvisionerError(
                         f"User '{user.username}' token '{user.token.name}': {e}"

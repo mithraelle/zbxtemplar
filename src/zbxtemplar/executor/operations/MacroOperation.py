@@ -3,6 +3,7 @@ from zabbix_utils import APIRequestError
 from zbxtemplar.zabbix.ZbxEntity import Macro, MacroType
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError
+from zbxtemplar.executor.log import log
 
 
 class MacroOperation(Executor):
@@ -24,15 +25,18 @@ class MacroOperation(Executor):
                 flat.append(item)
         self._macros = [Macro.from_dict(m) for m in flat]
 
+    def action_info(self):
+        return {"items": len(self._macros)}
+
     def execute(self):
         existing = {
             m["macro"]: m["globalmacroid"]
             for m in self._api.usermacro.get(globalmacro=True)
         }
+        log.lookup_end("global_macros", count=len(existing))
 
         for macro in self._macros:
             if macro.full_name in existing:
-                print(f"Updating macro {macro.full_name}...")
                 try:
                     self._api.usermacro.updateglobal(
                         globalmacroid=existing[macro.full_name],
@@ -41,8 +45,8 @@ class MacroOperation(Executor):
                     )
                 except APIRequestError as e:
                     raise ExecutorApiError(f"Failed to update macro '{macro.full_name}': {e}") from e
+                log.entity_end("macro", action="update", name=macro.full_name, value_redacted=True)
             else:
-                print(f"Creating macro {macro.full_name}...")
                 try:
                     self._api.usermacro.createglobal(
                         macro=macro.full_name,
@@ -51,3 +55,7 @@ class MacroOperation(Executor):
                     )
                 except APIRequestError as e:
                     raise ExecutorApiError(f"Failed to create macro '{macro.full_name}': {e}") from e
+                extra = {"value_redacted": True}
+                if macro.type != MacroType.TEXT:
+                    extra["secret_type"] = str(macro.type)
+                log.entity_end("macro", action="create", name=macro.full_name, **extra)

@@ -1,3 +1,4 @@
+import hashlib
 import os
 import re
 
@@ -5,6 +6,7 @@ import yaml
 
 from zbxtemplar.DictEntity import DictEntity
 from zbxtemplar.executor.exceptions import ExecutorParseError
+from zbxtemplar.executor.log import log
 
 
 class Executor(DictEntity):
@@ -23,9 +25,12 @@ class Executor(DictEntity):
         resolved_path = self._resolve_path(path)
         try:
             with open(resolved_path) as f:
-                data = yaml.safe_load(f)
+                raw = f.read()
+            data = yaml.safe_load(raw)
         except yaml.YAMLError as e:
             raise ExecutorParseError(f"Failed to parse '{resolved_path}': {e}", path=resolved_path) from e
+        sha256 = hashlib.sha256(raw.encode()).hexdigest()
+        log.input_loaded(path, sha256=sha256, bytes=os.path.getsize(resolved_path))
         return self._resolve_env(data)
 
     def from_file(self, path):
@@ -34,6 +39,9 @@ class Executor(DictEntity):
     def from_data(self, data: dict|list|str):
         if isinstance(data, dict):
             self.validate(data)
+
+    def action_info(self):
+        return {}
 
     def execute(self):
         raise NotImplementedError()

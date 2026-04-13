@@ -1,15 +1,24 @@
 import argparse
 import os
+import secrets
 import sys
+import time
+from datetime import datetime, timezone
 
 from zabbix_utils import ZabbixAPI
 
 from zbxtemplar.executor.DecreeExecutor import DecreeExecutor
 from zbxtemplar.executor.ScrollExecutor import ScrollExecutor
+from zbxtemplar.executor.log import log
 from zbxtemplar.executor.operations.ImportOperation import ImportOperation
 from zbxtemplar.executor.operations.MacroOperation import MacroOperation
 from zbxtemplar.executor.operations.SuperAdminOperation import SuperAdminOperation
 from zbxtemplar.executor.operations.UserOperation import UserOperation
+
+
+def _make_run_id():
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return f"{ts}-{secrets.token_hex(2)}"
 
 
 def _make_api(args):
@@ -26,10 +35,13 @@ def _make_api(args):
     return ZabbixAPI(url=url, user=user, password=password)
 
 
-def _run_op(op_class, data, api, base_dir=None):
+def _run_op(name, op_class, data, api, base_dir=None):
     op = op_class(api, base_dir)
     op.from_data(data)
+    t0 = time.time()
+    log.action_start(name, **op.action_info())
     op.execute()
+    log.action_end(name, result="ok", duration_ms=int((time.time() - t0) * 1000))
 
 
 def _set_super_admin(args, api):
@@ -41,23 +53,23 @@ def _set_super_admin(args, api):
     current = getattr(args, "current_password", None) or getattr(args, "password", None)
     if current:
         data["current_password"] = current
-    _run_op(SuperAdminOperation, data, api)
+    _run_op("set_super_admin", SuperAdminOperation, data, api)
 
 
 def _set_macro(args, api):
     if args.value is not None:
         payload = {"name": args.name_or_file, "value": args.value, "type": args.type}
-        _run_op(MacroOperation, payload, api)
+        _run_op("set_macro", MacroOperation, payload, api)
     else:
         macro_path = os.path.abspath(args.name_or_file)
         base_dir = os.path.dirname(macro_path)
-        _run_op(MacroOperation, macro_path, api, base_dir)
+        _run_op("set_macro", MacroOperation, macro_path, api, base_dir)
 
 
 def _apply(args, api):
     yaml_path = os.path.abspath(args.yaml_file)
     base_dir = os.path.dirname(yaml_path)
-    _run_op(ImportOperation, yaml_path, api, base_dir)
+    _run_op("apply", ImportOperation, yaml_path, api, base_dir)
 
 
 def _decree(args, api):
@@ -65,7 +77,10 @@ def _decree(args, api):
     base_dir = os.path.dirname(decree_path)
     ex = DecreeExecutor(api, base_dir)
     ex.from_file(decree_path)
+    t0 = time.time()
+    log.action_start("decree", **ex.action_info())
     ex.execute()
+    log.action_end("decree", result="ok", duration_ms=int((time.time() - t0) * 1000))
 
 
 def _add_user(args, api):
@@ -76,7 +91,10 @@ def _add_user(args, api):
     if isinstance(data, dict) and "add_user" in data:
         data = data["add_user"]
     ex.from_data(data)
+    t0 = time.time()
+    log.action_start("add_user", **ex.action_info())
     ex.execute()
+    log.action_end("add_user", result="ok", duration_ms=int((time.time() - t0) * 1000))
 
 
 def _scroll(args, api):
@@ -93,6 +111,7 @@ def _build_parser():
     conn.add_argument("--token", help="API token (or ZABBIX_TOKEN env)")
     conn.add_argument("--user", help="Username (default: Admin, or ZABBIX_USER env)")
     conn.add_argument("--password", help="Password (or ZABBIX_PASSWORD env)")
+    conn.add_argument("--json", action="store_true", help="Output logs as JSON lines")
 
     parser = argparse.ArgumentParser(description="Zbx Templar Executor — apply configuration to Zabbix")
     sub = parser.add_subparsers(dest="command")
@@ -137,10 +156,21 @@ def main():
         parser.print_help()
         return 1
 
+    log.configure(json_output=getattr(args, "json", False))
+
+    run_id = _make_run_id()
+    url = args.url or os.environ.get("ZABBIX_URL", "http://localhost")
+    token = getattr(args, "token", None) or os.environ.get("ZABBIX_TOKEN")
+    auth = "token" if token else "password"
+    log.run_start(run_id, target=url, auth=auth)
+
+    t0 = time.time()
     try:
         args.func(args, _make_api(args))
+        log.run_end(run_id, result="ok", actions=log._actions, duration_ms=int((time.time() - t0) * 1000))
         return 0
     except Exception as e:
+        log.run_end(run_id, result="failed", actions=log._actions, duration_ms=int((time.time() - t0) * 1000))
         print(f"Error: {e}", file=sys.stderr)
         return 1
 

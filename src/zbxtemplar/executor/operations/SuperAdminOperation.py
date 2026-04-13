@@ -3,6 +3,7 @@ from zabbix_utils import APIRequestError
 from zbxtemplar.DictEntity import SchemaField
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError
+from zbxtemplar.executor.log import log
 
 
 class SuperAdminOperation(Executor):
@@ -24,7 +25,11 @@ class SuperAdminOperation(Executor):
             raise ValueError("current_password is required when changing password")
 
     def execute(self):
-        print("Updating super admin...")
+        log.entity_plan(
+            "super_admin",
+            password_change=bool(self._password),
+            username_change=bool(self._username),
+        )
         use_token = self._api._ZabbixAPI__use_token
         session_id = self._api._ZabbixAPI__session_id
         if use_token:
@@ -46,5 +51,6 @@ class SuperAdminOperation(Executor):
             self._api.user.update(**params)
         except APIRequestError as e:
             raise ExecutorApiError(f"Failed to update super admin: {e}") from e
+        log.entity_end("super_admin", action="update", id=userid)
         if self._password and not use_token:
             self._api.login(user=login_user, password=self._password)

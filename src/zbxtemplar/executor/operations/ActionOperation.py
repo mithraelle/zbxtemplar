@@ -1,5 +1,6 @@
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError
+from zbxtemplar.executor.log import log
 from zabbix_utils import APIRequestError
 from zbxtemplar.decree.Action import Action
 
@@ -84,6 +85,7 @@ class ActionOperation(Executor):
         host_groups = {g["name"]: g["groupid"] for g in self._api.hostgroup.get(output=["groupid", "name"])}
         templates = {t["name"]: t["templateid"] for t in self._api.template.get(output=["templateid", "name"])}
         existing = {a["name"]: a["actionid"] for a in self._api.action.get(output=["actionid", "name"])}
+        log.lookup_end("actions", count=len(existing))
 
         for action_obj in self._actions:
             action = action_obj.to_dict()
@@ -99,14 +101,15 @@ class ActionOperation(Executor):
             if name in existing:
                 action["actionid"] = existing[name]
                 del action["name"]
-                print(f"Updating action '{name}'...")
                 try:
                     self._api.action.update(**action)
                 except APIRequestError as e:
                     raise ExecutorApiError(f"Failed to update action '{name}': {e}") from e
+                log.entity_end("action", action="update", name=name, id=existing[name])
             else:
-                print(f"Creating action '{name}'...")
                 try:
-                    self._api.action.create(**action)
+                    result = self._api.action.create(**action)
                 except APIRequestError as e:
                     raise ExecutorApiError(f"Failed to create action '{name}': {e}") from e
+                actionid = (result or {}).get("actionids", [None])[0]
+                log.entity_end("action", action="create", name=name, id=actionid)

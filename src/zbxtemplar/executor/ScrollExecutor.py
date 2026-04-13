@@ -1,6 +1,9 @@
+import time
+
 from zbxtemplar.DictEntity import SchemaField
 from zbxtemplar.executor.DecreeExecutor import DecreeExecutor
 from zbxtemplar.executor.Executor import Executor
+from zbxtemplar.executor.log import log
 from zbxtemplar.executor.operations.ImportOperation import ImportOperation
 from zbxtemplar.executor.operations.MacroOperation import MacroOperation
 from zbxtemplar.executor.operations.SuperAdminOperation import SuperAdminOperation
@@ -43,5 +46,7 @@ class ScrollExecutor(Executor):
                 ops = ops[start:]
 
         for key, op in ops:
-            print(f"--- {key}")
+            t0 = time.time()
+            log.action_start(key, **op.action_info())
             op.execute()
+            log.action_end(key, result="ok", duration_ms=int((time.time() - t0) * 1000))

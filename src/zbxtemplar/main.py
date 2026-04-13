@@ -88,7 +88,7 @@ def _build_context(filenames):
 def _write_yaml(data: dict, path: str, label: str):
     if not data:
         return
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
         yaml.dump(data, f, default_flow_style=False, sort_keys=False)
     print(f"{label} -> {path}")
 

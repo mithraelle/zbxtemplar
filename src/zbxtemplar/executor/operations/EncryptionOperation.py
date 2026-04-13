@@ -3,6 +3,7 @@ from zabbix_utils import APIRequestError
 from zbxtemplar.decree.Encryption import HostEncryption, EncryptionMode
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError, ExecutorParseError
+from zbxtemplar.executor.log import log
 
 
 class EncryptionOperation(Executor):
@@ -116,8 +117,9 @@ class EncryptionOperation(Executor):
                 params["tls_issuer"] = ""
                 params["tls_subject"] = ""
 
-            print(f"Updating encryption settings for host '{entry.host}'...")
             try:
                 self._api.host.update(**params)
             except APIRequestError as e:
                 raise ExecutorApiError(f"Failed to update encryption for host '{entry.host}': {e}") from e
+            reason = "psk_write_only_enforced" if has_psk else None
+            log.entity_end("encryption", action="update", host=entry.host, reason=reason)

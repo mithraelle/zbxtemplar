@@ -48,6 +48,11 @@ class DecreeExecutor(Executor):
             op.from_data(data[key])
             self._ops.append(op)
 
+    def action_info(self):
+        key_by_cls = {cls: key for key, cls in self._DECREE_ACTIONS}
+        sections = ",".join(key_by_cls[type(op)] for op in self._ops)
+        return {"sections": sections}
+
     def execute(self):
         for op in self._ops:
             op.execute()
