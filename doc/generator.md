@@ -21,6 +21,7 @@ For `TemplarModule`:
 - `-o, --output`
 - `--templates-output`
 - `--hosts-output`
+- `--macros-output` — required if module-level macros are defined (see [Macro Resolution](#macro-resolution))
 
 For `DecreeModule`:
 
@@ -29,6 +30,7 @@ For `DecreeModule`:
 - `--users-output`
 - `--actions-output`
 - `--encryption-output`
+- `--macros-output` — optional; module-level macros are already included in `-o` output
 
 ### Other flags
 
@@ -142,6 +144,26 @@ Multiple `--context` flags accumulate into one registry. Unknown formats are rej
 - `DecreeModule` and `TemplarModule` base classes accept `context=None`, so subclasses that do not hide it will receive `self.context`.
 - If you override `__init__` in `TemplarModule`, include `context=None` and pass it to `super().__init__(context=context)`.
 
+## Macro Resolution
+
+`get_macro(name)` walks a fixed resolution chain in order:
+
+1. **Entity macros** — macros defined directly on the template or host (`entity.add_macro(...)`)
+2. **Linked template macros** — macros on templates linked to the current entity
+3. **Module macros** — macros defined on the module itself (`self.add_macro(...)` inside `__init__`)
+4. **Context macros** — macros loaded from `--context` files in `set_macro` format
+
+A `KeyError` is raised if the name is not found at any level.
+
+Module-level macros are the "global" tier — shared across every template and host in the module. Since Zabbix has no native import format for global macros, `TemplarModule` writes them as `set_macro` YAML via `--macros-output`. The executor applies them to the live instance via `usermacro.createglobal` / `usermacro.updateglobal`.
+
+`add_macro()` returns the `Macro` object, so you can capture it and use it directly without a separate `get_macro()` call:
+
+```python
+threshold = self.add_macro("THRESHOLD", 90, "Alert threshold")
+item.add_trigger("High CPU", "last", ">", threshold, ...)
+```
+
 ## Output Behavior
 
 ### `TemplarModule`
@@ -154,10 +176,11 @@ Template and host groups are deduplicated automatically during export.
 
 ### `DecreeModule`
 
-`to_export()` merges any defined sections into one decree mapping.
+`to_export()` merges any defined sections into one decree mapping, including module-level macros if any are defined.
 
 The split export helpers are:
 
+- `export_macros()`
 - `export_user_groups()`
 - `export_users()`
 - `export_actions()`
