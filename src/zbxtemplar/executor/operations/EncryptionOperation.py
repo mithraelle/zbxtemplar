@@ -7,8 +7,6 @@ from zbxtemplar.executor.log import log
 
 
 class EncryptionOperation(Executor):
-    _OMIT_FROM_SCHEMA_DOCS = True
-
     def _compute_bitmap(self, modes: list[EncryptionMode]) -> int:
         bitmap = 0
         for mode in modes:

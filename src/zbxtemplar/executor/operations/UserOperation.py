@@ -8,8 +8,6 @@ from zabbix_utils import APIRequestError
 
 
 class UserOperation(Executor):
-    _OMIT_FROM_SCHEMA_DOCS = True
-
     def from_data(self, data):
         raw_users = data if isinstance(data, list) else [data]
         self._users = [User.from_dict(raw) for raw in raw_users]

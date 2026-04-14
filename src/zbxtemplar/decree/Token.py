@@ -1,6 +1,6 @@
 from enum import Enum
 
-from zbxtemplar.DictEntity import DictEntity, SchemaField
+from zbxtemplar.dicts.DictEntity import DictEntity, SchemaField
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 
 

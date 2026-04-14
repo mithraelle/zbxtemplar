@@ -1,4 +1,4 @@
-from zbxtemplar.DictEntity import SchemaField
+from zbxtemplar.dicts.Decree import Decree
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.operations.EncryptionOperation import EncryptionOperation
 from zbxtemplar.executor.operations.UserGroupOperation import UserGroupOperation
@@ -16,13 +16,6 @@ class DecreeExecutor(Executor):
         ("encryption", EncryptionOperation),
     )
 
-    _SCHEMA = [
-        SchemaField("user_group", str_type="list[UserGroup]", description="User group definitions to create or update before users."),
-        SchemaField("add_user", str_type="list[User]", description="User definitions to create or update."),
-        SchemaField("actions", str_type="list[dict]", description="Zabbix action definitions to create or update."),
-        SchemaField("encryption", str_type="dict | list[dict]", description="Host encryption settings with host_defaults and hosts entries."),
-    ]
-
     def _merge_decree(self, sources):
         merged = {}
         for src in sources:
@@ -39,7 +32,7 @@ class DecreeExecutor(Executor):
             data = self._load_yaml(data)
         if isinstance(data, list):
             data = self._merge_decree(data)
-        super().from_data(data)
+        Decree.validate(data)
         self._ops = []
         for key, op_class in self._DECREE_ACTIONS:
             if key not in data:

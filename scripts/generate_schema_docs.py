@@ -7,7 +7,7 @@ import pkgutil
 src_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
 sys.path.insert(0, src_dir)
 
-from zbxtemplar.DictEntity import DictEntity
+from zbxtemplar.dicts.DictEntity import DictEntity
 import zbxtemplar
 
 

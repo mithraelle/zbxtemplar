@@ -4,14 +4,11 @@ import re
 
 import yaml
 
-from zbxtemplar.DictEntity import DictEntity
 from zbxtemplar.executor.exceptions import ExecutorParseError
 from zbxtemplar.executor.log import log
 
 
-class Executor(DictEntity):
-    _OMIT_FROM_SCHEMA_DOCS = True
-    
+class Executor:
     def __init__(self, api, base_dir=None):
         self._api = api
         self._base_dir = base_dir
@@ -37,8 +34,7 @@ class Executor(DictEntity):
         self.from_data(self._load_yaml(path))
 
     def from_data(self, data: dict|list|str):
-        if isinstance(data, dict):
-            self.validate(data)
+        raise NotImplementedError()
 
     def action_info(self):
         return {}

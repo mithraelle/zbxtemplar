@@ -6,8 +6,6 @@ from zabbix_utils import APIRequestError
 
 
 class UserGroupOperation(Executor):
-    _OMIT_FROM_SCHEMA_DOCS = True
-
     def _resolve_rights(self, groups, group_lookup, label):
         rights = []
         for g in groups:

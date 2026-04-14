@@ -1,6 +1,6 @@
 from enum import Enum
 
-from zbxtemplar.DictEntity import DictEntity
+from zbxtemplar.dicts.DictEntity import DictEntity
 
 
 class MediaType:

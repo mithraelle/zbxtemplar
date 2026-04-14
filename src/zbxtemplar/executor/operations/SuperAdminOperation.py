@@ -1,6 +1,6 @@
 from zabbix_utils import APIRequestError
 
-from zbxtemplar.DictEntity import SchemaField
+from zbxtemplar.dicts.SuperAdmin import SuperAdmin
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zbxtemplar.executor.log import log
@@ -9,15 +9,9 @@ from zbxtemplar.executor.log import log
 class SuperAdminOperation(Executor):
     """Update the currently authenticated super admin — password, username, or both."""
 
-    _SCHEMA = [
-        SchemaField("username", description="New login name for the super admin."),
-        SchemaField("password", description="New password."),
-        SchemaField("current_password", description="Current password (required when changing password)."),
-    ]
-
     def from_data(self, data):
         data = self._resolve_env(data)
-        super().from_data(data)
+        SuperAdmin.validate(data)
         self._username = data.get("username")
         self._password = data.get("password")
         self._current_password = data.get("current_password")

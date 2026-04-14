@@ -8,8 +8,6 @@ from zbxtemplar.executor.log import log
 
 
 class MacroOperation(Executor):
-    _OMIT_FROM_SCHEMA_DOCS = True
-
     def _load_macros_from_file(self, path):
         data = self._load_yaml(path)
         if isinstance(data, dict) and "set_macro" in data:
