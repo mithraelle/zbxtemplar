@@ -1,0 +1,5 @@
+set_macro:
+- macro: '{$TEMPLAR_GLOBAL_MACRO}'
+  type: TEXT
+  value: '1'
+  description: Global macro

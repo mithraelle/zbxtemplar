@@ -4,13 +4,14 @@ from zbxtemplar.decree.Action import Action
 from zbxtemplar.decree.Encryption import Encryption, HostEncryption
 from zbxtemplar.decree.User import User
 from zbxtemplar.decree.UserGroup import UserGroup
+from zbxtemplar.modules.BaseModule import BaseModule
 from zbxtemplar.modules.Context import Context
 from zbxtemplar.zabbix.Host import Host
 
 
-class DecreeModule:
+class DecreeModule(BaseModule):
     def __init__(self, context: Context | None = None):
-        self.context = context
+        super().__init__(context)
         self.user_groups: list[UserGroup] = []
         self.users: list[User] = []
         self.actions: list[Action] = []
@@ -81,6 +82,7 @@ class DecreeModule:
 
     def to_export(self) -> dict:
         result = {}
+        result.update(self.export_macros())
         result.update(self.export_user_groups())
         result.update(self.export_users())
         result.update(self.export_actions())

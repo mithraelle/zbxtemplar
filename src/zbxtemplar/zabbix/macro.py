@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import StrEnum
 
 
@@ -20,12 +21,12 @@ class MacroType(StrEnum):
         return super()._missing_(value)
 
 
-class Macro():
-    def __init__(self, name: str, value: str, description: str | None = None, type: MacroType = MacroType.TEXT):
-        self.name = name
-        self.value = value
-        self.description = description
-        self.type = type
+@dataclass(frozen=True)
+class Macro:
+    name: str
+    value: str
+    description: str | None = None
+    type: MacroType = MacroType.TEXT
 
     @property
     def full_name(self) -> str:
@@ -62,14 +63,17 @@ class Macro():
 
 
 class WithMacros():
+    _lookup: dict[str, Macro] = {}
+    _context: dict[str, Macro] = {}
+
     def __init__(self):
         super().__init__()
         self.macros: dict[str, Macro] = {}
 
-    def add_macro(self, name: str, value: str | int, description: str | None = None, type: MacroType = MacroType.TEXT):
+    def add_macro(self, name: str, value: str | int, description: str | None = None, type: MacroType = MacroType.TEXT) -> Macro:
         clean_name = name.replace("{$", "").replace("}", "")
         self.macros[clean_name] = Macro(name=clean_name, value=str(value), description=description, type=type)
-        return self
+        return self.macros[clean_name]
 
     def load_macros(self, macros: dict[str, str | tuple] | list[dict]):
         """Load macros from a dict or a list of dicts.
@@ -114,9 +118,16 @@ class WithMacros():
         templates = getattr(self, "templates", None)
         if templates:
             for t in templates:
-                macro = t.macros.get(clean_name)
+                macro = t.get_macro(name)
                 if macro is not None:
                     return macro
+
+        macro = self._lookup.get(clean_name)
+        if macro is not None:
+            return macro
+        macro = self._context.get(clean_name)
+        if macro is not None:
+            return macro
 
         owner_name = getattr(self, "name", None)
         if owner_name is None:

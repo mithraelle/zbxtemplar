@@ -57,6 +57,21 @@ zabbix_export:
       port: '10050'
       interface_ref: if1
       default: 'YES'
+    items:
+    - name: Super Host Item
+      key: item.test[super]
+      type: ZABBIX_PASSIVE
+      value_type: UNSIGNED
+      history: 90d
+      trends: 365d
+      triggers:
+      - name: Global Macro Test
+        expression: min(/Templar Super Host/item.test[super],10)>{$TEMPLAR_GLOBAL_MACRO}
+        priority: NOT_CLASSIFIED
+      - name: Global Macro Test
+        expression: min(/Templar Super Host/item.test[super],10)>{$MY_MACRO}
+        priority: NOT_CLASSIFIED
+      interface_ref: if1
   triggers:
   - name: Host Complex trigger
     uuid: 3963e32bd2ed483b85f9da9b12a88d8e

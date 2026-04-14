@@ -37,6 +37,8 @@ class SampleDecree(DecreeModule):
             force=True
         )
         self.add_user(service)
+        service_slack = UserMedia(MediaType.SLACK, self.get_macro("TEMPLAR_GLOBAL_MACRO").value)
+        service.add_media(service_slack)
 
         test_action = TriggerAction("Test Action")
         test_action.operations.send_message(groups=[ops_group], message="Test message")

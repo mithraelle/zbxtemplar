@@ -2,6 +2,7 @@ import argparse
 import importlib.util
 import inspect
 import os
+import sys
 
 import yaml
 
@@ -103,6 +104,7 @@ def main():
     parser.add_argument("--users-output", help="Output YAML for users only")
     parser.add_argument("--actions-output", help="Output YAML for actions only")
     parser.add_argument("--encryption-output", help="Output YAML for encryption only")
+    parser.add_argument("--macros-output", help="Output YAML for global macros (set_macro format, applied via executor)")
     parser.add_argument("--namespace", help="UUID namespace for deterministic ID generation")
     parser.add_argument("--context", action="append", metavar="FILE",
                         help="Context YAML for module lookups: zabbix_export, set_macro, decree snippets (repeatable)")
@@ -112,10 +114,10 @@ def main():
 
     has_output = (args.output or args.templates_output or args.hosts_output
                   or args.user_groups_output or args.users_output or args.actions_output
-                  or args.encryption_output)
+                  or args.encryption_output or args.macros_output)
     if not has_output:
         parser.error("at least one output is required: -o, --templates-output, --hosts-output, "
-                      "--user-groups-output, --users-output, --actions-output, or --encryption-output")
+                      "--user-groups-output, --users-output, --actions-output, --encryption-output, or --macros-output")
 
     if args.namespace:
         set_uuid_namespace(args.namespace)
@@ -123,12 +125,12 @@ def main():
     params = _parse_params(parser, args.param)
     context = _build_context(args.context)
 
-    modules = load_module(args.module, params=params or None, context=context)
-    if not modules:
-        print(f"No TemplarModule/DecreeModule subclasses found in {args.module}")
-        return 1
-
     try:
+        modules = load_module(args.module, params=params or None, context=context)
+        if not modules:
+            print(f"No TemplarModule/DecreeModule subclasses found in {args.module}")
+            return 1
+
         for name, mod in modules.items():
             if isinstance(mod, TemplarModule):
                 if args.output:
@@ -137,6 +139,10 @@ def main():
                     _write_yaml(mod.export_templates(), args.templates_output, f"{name} [templates]")
                 if args.hosts_output:
                     _write_yaml(mod.export_hosts(), args.hosts_output, f"{name} [hosts]")
+                if args.macros_output:
+                    _write_yaml(mod.export_macros(), args.macros_output, f"{name} [macros]")
+                elif mod.macros:
+                    raise ValueError("Global macros are defined but --macros-output is not specified")
 
             if isinstance(mod, DecreeModule):
                 if args.output:
@@ -149,8 +155,9 @@ def main():
                     _write_yaml(mod.export_actions(), args.actions_output, f"{name} [actions]")
                 if args.encryption_output:
                     _write_yaml(mod.export_encryption(), args.encryption_output, f"{name} [encryption]")
-    except ValueError as e:
-        import sys
+                if args.macros_output:
+                    _write_yaml(mod.export_macros(), args.macros_output, f"{name} [macros]")
+    except (ValueError, ImportError, KeyError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
 

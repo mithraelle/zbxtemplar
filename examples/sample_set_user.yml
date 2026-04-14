@@ -9,12 +9,15 @@ add_user:
     sendto: alerts@example.com
     severity: AVERAGE,HIGH,DISASTER
   - type: Slack
-    sendto: ''
+    sendto: '#ops-alerts'
 - username: zbx-service
   role: User role
   password: ${ZBX_SERVICE_PASSWORD}
   groups:
   - Templar Users
+  medias:
+  - type: Slack
+    sendto: '1'
   token:
     name: monitoring-ro
     store_at: .secrets/monitoring-ro.token

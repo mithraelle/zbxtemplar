@@ -12,7 +12,7 @@ from zbxtemplar.zabbix.Trigger import Trigger
 
 class Context:
     def __init__(self):
-        self._macros = {}
+        self._macros: dict[str, Macro] = {}
         self._template_groups = {}
         self._host_groups = {}
         self._templates = {}

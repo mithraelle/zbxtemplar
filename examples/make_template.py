@@ -15,12 +15,14 @@ class SampleTemplate(TemplarModule):
     def __init__(self):
         super().__init__()
 
+        self.add_macro("TEMPLAR_GLOBAL_MACRO", 1, "Global macro")
+
         template_group = TemplateGroup("Templar Templates")
         host_group = HostGroup("Templar Hosts")
 
         template = Template(name="Test Template", groups=[template_group]).add_tag("Service",
                                                                                                        "Testing")
-        template.add_macro("MY_MACRO", 1, "Testing The Things")
+        template_macro = template.add_macro("MY_MACRO", 1, "Testing The Things")
 
         value_map = ValueMap("Test Map").add_mapping("1", "UP", ValueMapType.EQUAL).add_mapping("0", "DOWN",
                                                                                                 ValueMapType.EQUAL)
@@ -28,7 +30,7 @@ class SampleTemplate(TemplarModule):
 
         item1 = Item("Item 1", "item.test[1]", template.name).add_tag("Service", "Testing 1")
         item1.add_trigger(name="Simple trigger", fn="min", op=">",
-                          threshold=template.get_macro("MY_MACRO"),
+                          threshold=template_macro,
                           priority=TriggerPriority.HIGH, description="A single item trigger",
                           fn_args=(10,))
 
@@ -90,7 +92,7 @@ class SampleTemplate(TemplarModule):
         template.add_dashboard(dashboard)
 
         host = Host("Templar Host", groups=[host_group])
-        host.add_macro("MY_HOST_MACRO", 1, "Testing The Host Macro")
+        host_macro = host.add_macro("MY_HOST_MACRO", 1, "Testing The Host Macro")
         host.add_macro("MY_SECRET_MACRO", "some secret", "Testing The Secrets", MacroType.SECRET)
         host.add_template(template)
         host_item = Item("Item Own", "item.test[own]", host.name).add_tag("Service", "Testing Host")
@@ -100,7 +102,7 @@ class SampleTemplate(TemplarModule):
         host.add_interface(host_if1)
         host_item.set_interface(host_if1)
         host_item.add_trigger(name="Host Simple trigger", fn="min", op=">",
-                              threshold=host.get_macro("MY_HOST_MACRO"),
+                              threshold=host_macro,
                               priority=TriggerPriority.HIGH, description="A single host item trigger",
                               fn_args=(10,))
 
@@ -108,7 +110,7 @@ class SampleTemplate(TemplarModule):
         host_graph.add_item(host_item, "1A7C11")
         host.add_graph(host_graph)
 
-        host_trigger_expr = (host_item.expr("last") + ">" + host.get_macro("MY_HOST_MACRO")
+        host_trigger_expr = (host_item.expr("last") + ">" + host_macro
                              + " and " + host_item.expr("last") + " < " + host.get_macro("MY_MACRO"))
         host.add_trigger(name="Host Complex trigger", expression=host_trigger_expr,
                          priority=TriggerPriority.WARNING,
@@ -119,10 +121,17 @@ class SampleTemplate(TemplarModule):
         super_template.add_template(template)
         super_template.add_macro("SUPER_TEMPLATE_MACRO", "SUPER TEMPLATE MACRO")
 
-        host2 = Host("Templar Super Host", groups=[host_group])
-        self.add_host(host2)
-        host2.add_template(super_template)
-        host2.add_interface(host_if1)
+        super_host = Host("Templar Super Host", groups=[host_group])
+        self.add_host(super_host)
+        super_host.add_template(super_template)
+        super_host.add_interface(host_if1)
+        super_host_item = Item("Super Host Item", "item.test[super]", host.name)
+        super_host_item.set_interface(host_if1)
+        super_host.add_item(super_host_item)
+        super_host_item.add_trigger(name="Global Macro Test", fn="min", op=">",
+                                    threshold=super_host.get_macro("TEMPLAR_GLOBAL_MACRO"), fn_args=(10,))
+        super_host_item.add_trigger(name="Global Macro Test", fn="min", op=">",
+                                    threshold=super_host.get_macro("MY_MACRO"), fn_args=(10,))
 
 
 if __name__ == "__main__":
