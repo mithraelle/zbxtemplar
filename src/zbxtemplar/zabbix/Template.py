@@ -12,6 +12,10 @@ class TemplateGroup(ZbxEntity):
     def __init__(self, name: str):
         super().__init__(name)
 
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(data["name"])
+
 
 class ValueMapType(StrEnum):
     EQUAL = "EQUAL"
@@ -83,16 +87,8 @@ class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGr
         return self
 
     @classmethod
-    def from_dict(cls, data: dict, template_groups=None):
-        groups = []
-        for g in data.get("groups", []):
-            name = g["name"]
-            if template_groups is not None:
-                if name not in template_groups:
-                    template_groups[name] = TemplateGroup(name)
-                groups.append(template_groups[name])
-            else:
-                groups.append(TemplateGroup(name))
+    def from_dict(cls, data: dict):
+        groups = [TemplateGroup(g["name"]) for g in data.get("groups", [])]
         template = cls(name=data["name"], groups=groups)
         for m in data.get("macros", []):
             macro = Macro.from_dict(m)

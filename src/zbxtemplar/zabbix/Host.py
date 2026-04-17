@@ -12,6 +12,10 @@ class HostGroup(ZbxEntity):
     def __init__(self, name: str):
         super().__init__(name)
 
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(data["name"])
+
 
 _interface_counter = 0
 
@@ -94,16 +98,8 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
         return super().to_dict(skip_uuid=True)
 
     @classmethod
-    def from_dict(cls, data: dict, host_groups=None, templates=None):
-        groups = []
-        for g in data.get("groups", []):
-            name = g["name"]
-            if host_groups is not None:
-                if name not in host_groups:
-                    host_groups[name] = HostGroup(name)
-                groups.append(host_groups[name])
-            else:
-                groups.append(HostGroup(name))
+    def from_dict(cls, data: dict):
+        groups = [HostGroup(g["name"]) for g in data.get("groups", [])]
         host = cls(name=data["name"], groups=groups)
         for m in data.get("macros", []):
             macro = Macro.from_dict(m)
@@ -111,13 +107,7 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
         for t in data.get("tags", []):
             host.add_tag(t["tag"], t.get("value", ""))
         for tname in data.get("templates", []):
-            name = tname["name"]
-            if templates is not None:
-                if name not in templates:
-                    templates[name] = Template(name=name, groups=[])
-                host.templates.append(templates[name])
-            else:
-                host.templates.append(Template(name=name, groups=[]))
+            host.templates.append(Template(name=tname["name"], groups=[]))
         for i in data.get("items", []):
             host.items.append(Item.from_dict(i, host=data["name"]))
         return host

@@ -159,11 +159,15 @@ class TestMultipleLoads:
 
 
 class TestUnknownFormat:
-    def test_scroll_rejected(self):
+    def test_unknown_keys_rejected(self, tmp_path):
+        p = tmp_path / "junk.yml"
+        p.write_text("totally_bogus_key: 1\nanother_nonsense: 2\n")
         with pytest.raises(ValueError, match="unknown format"):
-            Context().load(str(FIXTURES_DIR / "scroll.yml"))
+            Context().load(str(p))
 
-    def test_error_shows_keys(self):
-        with pytest.raises(ValueError, match="set_super_admin"):
-            Context().load(str(FIXTURES_DIR / "scroll.yml"))
+    def test_error_shows_keys(self, tmp_path):
+        p = tmp_path / "junk.yml"
+        p.write_text("totally_bogus_key: 1\nanother_nonsense: 2\n")
+        with pytest.raises(ValueError, match="totally_bogus_key"):
+            Context().load(str(p))
 
