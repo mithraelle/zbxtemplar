@@ -29,7 +29,18 @@ class EncryptionMode(Enum):
         return [cls.from_string(t) for t in tokens if t]
 
 
-class Encryption:
+class Encryption(DictEntity):
+    _SCHEMA = [
+        SchemaField("connect", type=list[EncryptionMode],
+                    description="Comma-separated encryption modes used for outbound connections: UNENCRYPTED, PSK, or CERT."),
+        SchemaField("accept", type=list[EncryptionMode],
+                    description="Comma-separated encryption modes accepted by the host: UNENCRYPTED, PSK, or CERT."),
+        SchemaField("psk_identity", description="PSK identity required when PSK mode is enabled."),
+        SchemaField("psk", description="PSK secret required when PSK mode is enabled."),
+        SchemaField("issuer", description="TLS certificate issuer required with subject when CERT mode is enabled."),
+        SchemaField("subject", description="TLS certificate subject required with issuer when CERT mode is enabled."),
+    ]
+
     _MODE_FIELDS = {
         EncryptionMode.PSK: ("psk_identity", "psk"),
         EncryptionMode.CERT: ("issuer", "subject"),
@@ -105,13 +116,13 @@ class Encryption:
                         raise ValueError(f"{label}: {f!r} provided but {mode.name} not enabled in connect or accept.")
 
 
-class HostEncryption(DictEntity, Encryption):
+class HostEncryption(Encryption):
     """Host-level encryption settings applied through the Zabbix API."""
 
     _SCHEMA = [
         SchemaField("host", optional=False, description="Zabbix host technical name to update."),
-        SchemaField("connect", optional=False, description="Comma-separated encryption modes used for outbound connections: UNENCRYPTED, PSK, or CERT."),
-        SchemaField("accept", optional=False, description="Comma-separated encryption modes accepted by the host: UNENCRYPTED, PSK, or CERT."),
+        SchemaField("connect", optional=False, type=list[EncryptionMode], description="Comma-separated encryption modes used for outbound connections: UNENCRYPTED, PSK, or CERT."),
+        SchemaField("accept", optional=False, type=list[EncryptionMode], description="Comma-separated encryption modes accepted by the host: UNENCRYPTED, PSK, or CERT."),
         SchemaField("psk_identity", description="PSK identity required when PSK mode is enabled."),
         SchemaField("psk", description="PSK secret required when PSK mode is enabled."),
         SchemaField("issuer", description="TLS certificate issuer required with subject when CERT mode is enabled."),

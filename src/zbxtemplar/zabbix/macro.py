@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
+from zbxtemplar.dicts.DictEntity import DictEntity, SchemaField
+
 
 class MacroType(StrEnum):
     """Macro types (Zabbix export values)."""
@@ -22,7 +24,14 @@ class MacroType(StrEnum):
 
 
 @dataclass(frozen=True)
-class Macro:
+class Macro(DictEntity):
+    _SCHEMA = [
+        SchemaField("name", optional=False, description="Macro name without {$...} braces.", type=str),
+        SchemaField("value", optional=False, description="Macro value.", type=str),
+        SchemaField("description", description="Optional macro description.", type=str),
+        SchemaField("type", str_type="MacroType", description="Macro type: TEXT, SECRET_TEXT, SECRET, or VAULT.", type=MacroType),
+    ]
+
     name: str
     value: str
     description: str | None = None

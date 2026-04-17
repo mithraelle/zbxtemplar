@@ -1,6 +1,5 @@
 from zabbix_utils import APIRequestError
 
-from zbxtemplar.dicts.SuperAdmin import SuperAdmin
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zbxtemplar.executor.log import log
@@ -11,7 +10,6 @@ class SuperAdminOperation(Executor):
 
     def from_data(self, data):
         data = self._resolve_env(data)
-        SuperAdmin.validate(data)
         self._username = data.get("username")
         self._password = data.get("password")
         self._current_password = data.get("current_password")
