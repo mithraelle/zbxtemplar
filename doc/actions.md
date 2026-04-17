@@ -237,11 +237,11 @@ When actions reference templates, groups, or other generated objects, use `--con
 
 ```python
 class MyDecree(DecreeModule):
-    def __init__(self, context=None):
-        super().__init__(context=context)
+    def __init__(self):
+        super().__init__()
 
-        prod_group = context.get_host_group("Production")
-        web_template = context.get_template("Web Server Template")
+        prod_group = self.context.get_host_group("Production")
+        web_template = self.context.get_template("Web Server Template")
 
         action = TriggerAction("Notify production incidents")
         action.set_conditions(
@@ -249,7 +249,7 @@ class MyDecree(DecreeModule):
         )
 ```
 
-`context.get_host_group("Prodction")` raises `ValueError: Host group 'Prodction' not found in context` during `zbxtemplar generate`. Not during `zbxtemplar-exec decree` against production.
+`self.context.get_host_group("Prodction")` raises `ValueError: Host group 'Prodction' not found in context` during `zbxtemplar generate`. Not during `zbxtemplar-exec decree` against production.
 
 This creates a two-stage safety net:
 

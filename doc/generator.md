@@ -93,7 +93,7 @@ Context can load exported or otherwise prepared YAML that represents an already 
 zbxtemplar new_decree.py -o decree.yml --context existing_templates.yml
 ```
 
-A typo like `context.get_host_group("Prodction")` raises `ValueError` during generation — before any YAML is produced, before any API call happens.
+A typo like `self.context.get_host_group("Prodction")` raises `ValueError` during generation — before any YAML is produced, before any API call happens.
 
 ### 2. Composing Multi-Step Generation
 
@@ -140,9 +140,9 @@ Multiple `--context` flags accumulate into one registry. Unknown formats are rej
 
 ### Notes on context injection
 
-- The loader injects `context` only when the module's `__init__` signature includes a `context` parameter.
-- `DecreeModule` and `TemplarModule` base classes accept `context=None`, so subclasses that do not hide it will receive `self.context`.
-- If you override `__init__` in `TemplarModule`, include `context=None` and pass it to `super().__init__(context=context)`.
+- The loader builds context once for the module run.
+- `DecreeModule` and `TemplarModule` expose it as `self.context`.
+- Module constructors do not need a `context` parameter.
 
 ## Macro Resolution
 

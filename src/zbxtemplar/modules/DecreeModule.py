@@ -5,13 +5,12 @@ from zbxtemplar.decree.Encryption import Encryption, HostEncryption
 from zbxtemplar.decree.User import User
 from zbxtemplar.decree.UserGroup import UserGroup
 from zbxtemplar.modules.BaseModule import BaseModule
-from zbxtemplar.modules.Context import Context
 from zbxtemplar.zabbix.Host import Host
 
 
 class DecreeModule(BaseModule):
-    def __init__(self, context: Context | None = None):
-        super().__init__(context)
+    def __init__(self):
+        super().__init__()
         self.user_groups: list[UserGroup] = []
         self.users: list[User] = []
         self.actions: list[Action] = []

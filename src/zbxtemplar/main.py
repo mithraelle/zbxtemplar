@@ -7,29 +7,26 @@ import sys
 import yaml
 
 from zbxtemplar.zabbix.ZbxEntity import set_uuid_namespace
+from zbxtemplar.modules.BaseModule import BaseModule
 from zbxtemplar.modules.TemplarModule import TemplarModule
 from zbxtemplar.modules.DecreeModule import DecreeModule
 from zbxtemplar.modules.Context import Context
+from zbxtemplar.zabbix.macro import WithMacros
 
 _COERCE = {int: int, float: float, bool: lambda v: v.lower() in ("1", "true", "yes")}
 
 _BASE_CLASSES = (TemplarModule, DecreeModule)
 
 
-_LOADER_INJECTED = {"context"}
-
-
 def _build_kwargs(cls_name, sig, params):
     init_params = {k: v for k, v in sig.parameters.items() if k != "self"}
 
-    unknown = set(params) - set(init_params) - _LOADER_INJECTED
+    unknown = set(params) - set(init_params)
     if unknown:
         raise TypeError(f"{cls_name}: unknown parameter(s): {', '.join(sorted(unknown))}")
 
     kwargs = {}
     for pname, param in init_params.items():
-        if pname in _LOADER_INJECTED:
-            continue
         if pname in params:
             value = params[pname]
             ann = param.annotation
@@ -47,6 +44,8 @@ def _build_kwargs(cls_name, sig, params):
 
 
 def load_module(filename: str, params: dict = None, context: Context = None) -> dict:
+    BaseModule.context = context
+    WithMacros._context = context._macros if context else {}
     mod_name = os.path.splitext(os.path.basename(filename))[0]
     spec = importlib.util.spec_from_file_location(mod_name, filename)
     mod = importlib.util.module_from_spec(spec)
@@ -59,8 +58,6 @@ def load_module(filename: str, params: dict = None, context: Context = None) -> 
             if issubclass(obj, base) and obj is not base:
                 sig = inspect.signature(obj.__init__)
                 kwargs = _build_kwargs(name, sig, params)
-                if context is not None and "context" in sig.parameters:
-                    kwargs["context"] = context
                 instance = obj(**kwargs)
                 result[name] = instance
                 break

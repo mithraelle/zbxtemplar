@@ -6,16 +6,16 @@ from zbxtemplar.decree.Encryption import HostEncryption, Encryption
 
 
 class SampleDecree(DecreeModule):
-    def __init__(self, context=None, alert_email: str = "alerts@example.com", admin_slack: str = ""):
-        super().__init__(context=context)
+    def __init__(self, alert_email: str = "alerts@example.com", admin_slack: str = ""):
+        super().__init__()
 
-        test_host_group = context.get_host_group("Templar Hosts")
-        test_template = context.get_template("Test Template")
+        test_host_group = self.context.get_host_group("Templar Hosts")
+        test_template = self.context.get_template("Test Template")
 
         ops_group = UserGroup("Templar Users", gui_access=GuiAccess.INTERNAL)
         ops_group.add_host_group("Linux servers", Permission.NONE)
         ops_group.add_host_group("Virtual machines", Permission.READ)
-        ops_group.add_template_group(context.get_template_group("Templar Templates"), Permission.READ_WRITE)
+        ops_group.add_template_group(self.context.get_template_group("Templar Templates"), Permission.READ_WRITE)
         ops_group.add_host_group(test_host_group, Permission.READ)
         self.add_user_group(ops_group)
 
@@ -58,7 +58,7 @@ class SampleDecree(DecreeModule):
         self.set_encryption_defaults(Encryption(connect_unencrypted=True))
         host_encryption = Encryption(accept_unencrypted=True)
         host_encryption.set_psk(identity="zbxtemplar_psk", psk="${ZBX_ENCRYPTED_PSK}")
-        self.add_host_encryption(context.get_host("Templar Host"), host_encryption)
+        self.add_host_encryption(self.context.get_host("Templar Host"), host_encryption)
 
 
 if __name__ == "__main__":

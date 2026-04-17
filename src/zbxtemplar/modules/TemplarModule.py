@@ -3,12 +3,11 @@ from typing import Self
 from zbxtemplar.modules.BaseModule import BaseModule
 from zbxtemplar.zabbix.Template import Template
 from zbxtemplar.zabbix.Host import Host
-from zbxtemplar.modules.Context import Context
 
 
 class TemplarModule(BaseModule):
-    def __init__(self, context: Context | None = None):
-        super().__init__(context)
+    def __init__(self):
+        super().__init__()
         self.templates: list[Template] = []
         self.hosts: list[Host] = []
 

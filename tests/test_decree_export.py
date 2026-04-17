@@ -9,17 +9,17 @@ from tests.paths import REFERENCE_DIR
 
 
 class SampleDecree(DecreeModule):
-    def __init__(self, context=None):
-        super().__init__(context=context)
+    def __init__(self):
+        super().__init__()
 
-        test_host_group = context.get_host_group("Templar Hosts")
-        test_template = context.get_template("Test Template")
+        test_host_group = self.context.get_host_group("Templar Hosts")
+        test_template = self.context.get_template("Test Template")
 
         ops_group = UserGroup("Templar Users", gui_access=GuiAccess.INTERNAL)
         ops_group.add_host_group("Linux servers", Permission.NONE)
         ops_group.add_host_group("Virtual machines", Permission.READ)
         ops_group.add_host_group(test_host_group, Permission.READ)
-        ops_group.add_template_group(context.get_template_group("Templar Templates"), Permission.READ_WRITE)
+        ops_group.add_template_group(self.context.get_template_group("Templar Templates"), Permission.READ_WRITE)
         self.add_user_group(ops_group)
 
         admin = User("zbx-admin", role=UserRole.SUPER_ADMIN)
@@ -64,9 +64,14 @@ def _load_context():
             .load(str(REFERENCE_DIR / "hosts.yml")))
 
 
+def _make_sample_decree(context):
+    SampleDecree.context = context
+    return SampleDecree()
+
+
 def test_decree_matches_reference():
     ctx = _load_context()
-    module = SampleDecree(context=ctx)
+    module = _make_sample_decree(ctx)
     export = module.to_export()
 
     with open(REFERENCE_DIR / "decree.yml") as f:
@@ -77,7 +82,7 @@ def test_decree_matches_reference():
 
 def test_actions_export_matches_reference():
     ctx = _load_context()
-    module = SampleDecree(context=ctx)
+    module = _make_sample_decree(ctx)
     export = module.export_actions()
 
     with open(REFERENCE_DIR / "actions.yml") as f:
