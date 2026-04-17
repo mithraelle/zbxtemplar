@@ -7,13 +7,12 @@ from datetime import datetime, timezone
 
 from zabbix_utils import ZabbixAPI
 
+from zbxtemplar.dicts.Decree import Decree
+from zbxtemplar.dicts.Schema import Schema
+from zbxtemplar.dicts.Scroll import Scroll
 from zbxtemplar.executor.DecreeExecutor import DecreeExecutor
 from zbxtemplar.executor.ScrollExecutor import ScrollExecutor
 from zbxtemplar.executor.log import log
-from zbxtemplar.executor.operations.ImportOperation import ImportOperation
-from zbxtemplar.executor.operations.MacroOperation import MacroOperation
-from zbxtemplar.executor.operations.SuperAdminOperation import SuperAdminOperation
-from zbxtemplar.executor.operations.UserOperation import UserOperation
 
 
 def _make_run_id():
@@ -35,13 +34,15 @@ def _make_api(args):
     return ZabbixAPI(url=url, user=user, password=password)
 
 
-def _run_op(name, op_class, data, api, base_dir=None):
-    op = op_class(api, base_dir)
-    op.from_data(data)
-    t0 = time.time()
-    log.action_start(name, **op.action_info())
-    op.execute()
-    log.action_end(name, result="ok", duration_ms=int((time.time() - t0) * 1000))
+def _set_schema_base(base_dir=None):
+    Schema._base_dir = base_dir
+    Schema._resolve_envs = True
+
+
+def _run_scroll_action(name, data, api, base_dir=None):
+    _set_schema_base(base_dir)
+    scroll = Scroll.from_data({name: data})
+    ScrollExecutor(scroll, api, base_dir).execute(only_action=name)
 
 
 def _set_super_admin(args, api):
@@ -53,56 +54,50 @@ def _set_super_admin(args, api):
     current = getattr(args, "current_password", None) or getattr(args, "password", None)
     if current:
         data["current_password"] = current
-    _run_op("set_super_admin", SuperAdminOperation, data, api)
+    _run_scroll_action("set_super_admin", data, api)
 
 
 def _set_macro(args, api):
     if args.value is not None:
         payload = {"name": args.name_or_file, "value": args.value, "type": args.type}
-        _run_op("set_macro", MacroOperation, payload, api)
+        _run_scroll_action("set_macro", payload, api)
     else:
         macro_path = os.path.abspath(args.name_or_file)
         base_dir = os.path.dirname(macro_path)
-        _run_op("set_macro", MacroOperation, macro_path, api, base_dir)
+        _run_scroll_action("set_macro", macro_path, api, base_dir)
 
 
 def _apply(args, api):
     yaml_path = os.path.abspath(args.yaml_file)
     base_dir = os.path.dirname(yaml_path)
-    _run_op("apply", ImportOperation, yaml_path, api, base_dir)
+    _run_scroll_action("apply", [yaml_path], api, base_dir)
 
 
 def _decree(args, api):
     decree_path = os.path.abspath(args.decree_file)
     base_dir = os.path.dirname(decree_path)
-    ex = DecreeExecutor(api, base_dir)
-    ex.from_file(decree_path)
-    t0 = time.time()
-    log.action_start("decree", **ex.action_info())
-    ex.execute()
-    log.action_end("decree", result="ok", duration_ms=int((time.time() - t0) * 1000))
+    _set_schema_base(base_dir)
+    decree = Decree.from_file(decree_path)
+    DecreeExecutor(decree, api, base_dir).execute()
 
 
 def _add_user(args, api):
     user_path = os.path.abspath(args.user_file)
     base_dir = os.path.dirname(user_path)
-    ex = UserOperation(api, base_dir)
-    data = ex._load_yaml(user_path)
-    if isinstance(data, dict) and "add_user" in data:
-        data = data["add_user"]
-    ex.from_data(data)
-    t0 = time.time()
-    log.action_start("add_user", **ex.action_info())
-    ex.execute()
-    log.action_end("add_user", result="ok", duration_ms=int((time.time() - t0) * 1000))
+    _set_schema_base(base_dir)
+    data = Decree._load_yaml(user_path)
+    if not (isinstance(data, dict) and "add_user" in data):
+        data = {"add_user": data}
+    decree = Decree.from_data(data)
+    DecreeExecutor(decree, api, base_dir).execute(only_action="add_user")
 
 
 def _scroll(args, api):
     scroll_path = os.path.abspath(args.scroll)
     base_dir = os.path.dirname(scroll_path)
-    ex = ScrollExecutor(api, base_dir)
-    ex.from_file(scroll_path)
-    ex.execute(from_action=args.from_action, only_action=args.only_action)
+    _set_schema_base(base_dir)
+    scroll = Scroll.from_file(scroll_path)
+    ScrollExecutor(scroll, api, base_dir).execute(from_action=args.from_action, only_action=args.only_action)
 
 
 def _build_parser():
