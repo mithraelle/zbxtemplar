@@ -1,8 +1,6 @@
-from typing import Self
-
 from zbxtemplar.modules.BaseModule import BaseModule
-from zbxtemplar.zabbix.Template import Template
-from zbxtemplar.zabbix.Host import Host
+from zbxtemplar.zabbix.Template import Template, TemplateGroup
+from zbxtemplar.zabbix.Host import Host, HostGroup
 
 
 class TemplarModule(BaseModule):
@@ -11,21 +9,23 @@ class TemplarModule(BaseModule):
         self.templates: list[Template] = []
         self.hosts: list[Host] = []
 
-    def add_template(self, template: Template) -> Self:
-        if any(t.name == template.name for t in self.templates):
+    def add_template(self, name: str, groups: list[TemplateGroup]) -> Template:
+        if any(t.name == name for t in self.templates):
             raise ValueError(
-                f"{type(self).__name__}: duplicate template '{template.name}'"
+                f"{type(self).__name__}: duplicate template '{name}'"
             )
+        template = Template(name=name, groups=groups)
         self.templates.append(template)
-        return self
+        return template
 
-    def add_host(self, host: Host) -> Self:
-        if any(h.name == host.name for h in self.hosts):
+    def add_host(self, name: str, groups: list[HostGroup]) -> Host:
+        if any(h.name == name for h in self.hosts):
             raise ValueError(
-                f"{type(self).__name__}: duplicate host '{host.name}'"
+                f"{type(self).__name__}: duplicate host '{name}'"
             )
+        host = Host(name=name, groups=groups)
         self.hosts.append(host)
-        return self
+        return host
 
     def _export_templates(self, zx: dict):
         if not self.templates:

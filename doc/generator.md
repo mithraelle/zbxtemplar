@@ -172,6 +172,8 @@ item.add_trigger("High CPU", "last", ">", threshold, ...)
 
 `export_templates()` and `export_hosts()` split the content when you want template and host lifecycles to remain separate.
 
+`add_template(name, groups)` and `add_host(name, groups)` construct, register, and return the new `Template` or `Host`.
+
 Template and host groups are deduplicated automatically during export.
 
 ### `DecreeModule`

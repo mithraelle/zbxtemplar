@@ -22,7 +22,7 @@ Create a Python file with a `TemplarModule` subclass:
 
 ```python
 from zbxtemplar.modules import TemplarModule
-from zbxtemplar.zabbix import Template, Item, Host, TriggerPriority
+from zbxtemplar.zabbix import Item, TriggerPriority
 from zbxtemplar.zabbix.Template import TemplateGroup
 from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 
@@ -31,7 +31,7 @@ class MyModule(TemplarModule):
     def __init__(self, alert_threshold: int = 90):
         super().__init__()
 
-        template = Template(
+        template = self.add_template(
             name="My Service",
             groups=[TemplateGroup("Custom Templates")],
         )
@@ -47,12 +47,9 @@ class MyModule(TemplarModule):
         )
         template.add_item(item)
 
-        host = Host("My Server", groups=[HostGroup("Linux Servers")])
+        host = self.add_host("My Server", groups=[HostGroup("Linux Servers")])
         host.add_template(template)
         host.add_interface(AgentInterface(ip="192.168.1.10"))
-
-        self.add_template(template)
-        self.add_host(host)
 ```
 
 Generate YAML:

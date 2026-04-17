@@ -1,7 +1,7 @@
 from zbxtemplar.modules import TemplarModule
 from zbxtemplar.zabbix.ZbxEntity import YesNo
-from zbxtemplar.zabbix import Template, Item, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
-    DashboardPage, Host, MacroType
+from zbxtemplar.zabbix import Item, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
+    DashboardPage, MacroType
 from zbxtemplar.zabbix.DashboardWidget import ClassicGraph
 from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph
 from zbxtemplar.zabbix.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
@@ -20,8 +20,8 @@ class SampleTemplate(TemplarModule):
         template_group = TemplateGroup("Templar Templates")
         host_group = HostGroup("Templar Hosts")
 
-        template = Template(name="Test Template", groups=[template_group]).add_tag("Service",
-                                                                                                       "Testing")
+        template = self.add_template("Test Template", groups=[template_group]).add_tag("Service",
+                                                                                       "Testing")
         template_macro = template.add_macro("MY_MACRO", 1, "Testing The Things")
 
         value_map = ValueMap("Test Map").add_mapping("1", "UP", ValueMapType.EQUAL).add_mapping("0", "DOWN",
@@ -54,8 +54,6 @@ class SampleTemplate(TemplarModule):
                              description="Trigger using two items")
 
         template.add_graph(graph)
-
-        self.add_template(template)
 
         first_page = DashboardPage(display_period=120)
 
@@ -91,13 +89,12 @@ class SampleTemplate(TemplarModule):
         dashboard.add_page(first_page).add_page(second_page)
         template.add_dashboard(dashboard)
 
-        host = Host("Templar Host", groups=[host_group])
+        host = self.add_host("Templar Host", groups=[host_group])
         host_macro = host.add_macro("MY_HOST_MACRO", 1, "Testing The Host Macro")
         host.add_macro("MY_SECRET_MACRO", "some secret", "Testing The Secrets", MacroType.SECRET)
         host.add_template(template)
         host_item = Item("Item Own", "item.test[own]", host.name).add_tag("Service", "Testing Host")
         host.add_item(host_item)
-        self.add_host(host)
         host_if1 = AgentInterface()
         host.add_interface(host_if1)
         host_item.set_interface(host_if1)
@@ -116,13 +113,11 @@ class SampleTemplate(TemplarModule):
                          priority=TriggerPriority.WARNING,
                          description="Host trigger using two items")
 
-        super_template = Template(name="Super Template", groups=[template_group])
-        self.add_template(super_template)
+        super_template = self.add_template("Super Template", groups=[template_group])
         super_template.add_template(template)
         super_template.add_macro("SUPER_TEMPLATE_MACRO", "SUPER TEMPLATE MACRO")
 
-        super_host = Host("Templar Super Host", groups=[host_group])
-        self.add_host(super_host)
+        super_host = self.add_host("Templar Super Host", groups=[host_group])
         super_host.add_template(super_template)
         super_host.add_interface(host_if1)
         super_host_item = Item("Super Host Item", "item.test[super]", host.name)

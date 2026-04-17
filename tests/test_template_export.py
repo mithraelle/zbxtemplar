@@ -1,9 +1,11 @@
 import yaml
 
+import pytest
+
 from zbxtemplar.modules import TemplarModule
 from zbxtemplar.zabbix.ZbxEntity import YesNo
-from zbxtemplar.zabbix import Template, Item, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
-    DashboardPage, Host, HostGroup
+from zbxtemplar.zabbix import Item, TriggerPriority, Graph, YAxisType, YAxisSide, Dashboard, \
+    DashboardPage, HostGroup
 from zbxtemplar.zabbix.Host import AgentInterface
 from zbxtemplar.zabbix.Template import TemplateGroup
 from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph
@@ -23,7 +25,7 @@ class SampleTemplate(TemplarModule):
     def __init__(self):
         super().__init__()
 
-        template = Template(name="Test Template", groups=[TemplateGroup("Templar Templates")]).add_tag("Service", "Testing")
+        template = self.add_template(name="Test Template", groups=[TemplateGroup("Templar Templates")]).add_tag("Service", "Testing")
         template.add_macro("MY_MACRO", 1, "Testing The Things")
 
         value_map = ValueMap("Test Map").add_mapping("1", "UP", ValueMapType.EQUAL).add_mapping("0", "DOWN",
@@ -54,8 +56,6 @@ class SampleTemplate(TemplarModule):
                              description="Trigger using two items")
 
         template.add_graph(graph)
-
-        self.templates = [template]
 
         graph_widget = ClassicGraph(template=template.name, graph=graph, x=0, y=0, width=36, height=5)
         first_page = DashboardPage(display_period=120)
@@ -90,12 +90,11 @@ class SampleTemplate(TemplarModule):
         dashboard.add_page(first_page).add_page(second_page)
         template.add_dashboard(dashboard)
 
-        host = Host("Templar Host", groups=[HostGroup("Templar Hosts")])
+        host = self.add_host("Templar Host", groups=[HostGroup("Templar Hosts")])
         host.add_macro("MY_HOST_MACRO", 1, "Testing The Host Macro")
         host.add_template(template)
         host_item = Item("Item Own", "item.test[own]", host.name).add_tag("Service", "Testing Host")
         host.add_item(host_item)
-        self.hosts = [host]
         host_if1 = AgentInterface()
         host.add_interface(host_if1)
         host_item.set_interface(host_if1)
@@ -114,12 +113,43 @@ class SampleTemplate(TemplarModule):
                          priority=TriggerPriority.WARNING,
                          description="Host trigger using two items")
 
-
-import pytest
-
 @pytest.fixture(scope="module")
 def module():
     return SampleTemplate()
+
+
+def test_add_template_constructs_and_returns_template():
+    module = TemplarModule()
+
+    template = module.add_template("Standalone Template", groups=[TemplateGroup("Templar Templates")])
+
+    assert template.name == "Standalone Template"
+    assert module.templates == [template]
+
+
+def test_add_host_constructs_and_returns_host():
+    module = TemplarModule()
+
+    host = module.add_host("Standalone Host", groups=[HostGroup("Templar Hosts")])
+
+    assert host.name == "Standalone Host"
+    assert module.hosts == [host]
+
+
+def test_add_template_rejects_duplicate_name():
+    module = TemplarModule()
+    module.add_template("Duplicate Template", groups=[TemplateGroup("Templar Templates")])
+
+    with pytest.raises(ValueError, match="duplicate template 'Duplicate Template'"):
+        module.add_template("Duplicate Template", groups=[TemplateGroup("Other Templates")])
+
+
+def test_add_host_rejects_duplicate_name():
+    module = TemplarModule()
+    module.add_host("Duplicate Host", groups=[HostGroup("Templar Hosts")])
+
+    with pytest.raises(ValueError, match="duplicate host 'Duplicate Host'"):
+        module.add_host("Duplicate Host", groups=[HostGroup("Other Hosts")])
 
 
 def test_combined_export_matches_reference(module):
