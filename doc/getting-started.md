@@ -72,7 +72,7 @@ Use `DecreeModule` when you need users, groups, or actions:
 
 ```python
 from zbxtemplar.modules import DecreeModule
-from zbxtemplar.decree import Token, UserGroup, User, UserMedia
+from zbxtemplar.decree import Token, UserMedia
 from zbxtemplar.decree import GuiAccess, Permission, Severity
 from zbxtemplar.decree import MediaType, UserRole
 
@@ -81,11 +81,10 @@ class MyDecree(DecreeModule):
     def __init__(self, alert_email: str = "alerts@example.com"):
         super().__init__()
 
-        group = UserGroup("Operations", gui_access=GuiAccess.INTERNAL)
+        group = self.add_user_group("Operations", gui_access=GuiAccess.INTERNAL)
         group.add_host_group("Linux Servers", Permission.READ)
-        self.add_user_group(group)
 
-        user = User("zbx-ops", role=UserRole.ADMIN)
+        user = self.add_user("zbx-ops", role=UserRole.ADMIN)
         user.add_group(group)
 
         email = UserMedia(MediaType.EMAIL, alert_email)
@@ -99,8 +98,6 @@ class MyDecree(DecreeModule):
                 expires_at=Token.NEVER,
             )
         )
-
-        self.add_user(user)
 ```
 
 Generate decree YAML:

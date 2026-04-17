@@ -1,6 +1,4 @@
-from typing import Self
-
-from zbxtemplar.decree.Action import Action
+from zbxtemplar.decree.Action import Action, AutoregistrationAction, TriggerAction
 from zbxtemplar.decree.Encryption import Encryption, HostEncryption
 from zbxtemplar.decree.User import User
 from zbxtemplar.decree.UserGroup import UserGroup
@@ -17,42 +15,72 @@ class DecreeModule(BaseModule):
         self.encryption_defaults: Encryption | None = None
         self.encryptions: list[HostEncryption] = []
 
-    def add_user_group(self, group: UserGroup) -> Self:
-        if any(g.name == group.name for g in self.user_groups):
+    def add_user_group(self, name: str, gui_access: str | None = None) -> UserGroup:
+        if any(g.name == name for g in self.user_groups):
             raise ValueError(
-                f"{type(self).__name__}: duplicate user group '{group.name}'"
+                f"{type(self).__name__}: duplicate user group '{name}'"
             )
+        group = UserGroup(name=name, gui_access=gui_access)
         self.user_groups.append(group)
-        return self
+        return group
 
-    def add_user(self, user: User) -> Self:
-        if any(u.username == user.username for u in self.users):
+    def add_user(self, username: str, role: str) -> User:
+        if any(u.username == username for u in self.users):
             raise ValueError(
-                f"{type(self).__name__}: duplicate user '{user.username}'"
+                f"{type(self).__name__}: duplicate user '{username}'"
             )
+        user = User(username=username, role=role)
         self.users.append(user)
-        return self
+        return user
 
-    def add_action(self, action: Action) -> Self:
+    def _add_action(self, action: Action) -> Action:
         if any(a.name == action.name for a in self.actions):
             raise ValueError(
                 f"{type(self).__name__}: duplicate action '{action.name}'"
             )
         self.actions.append(action)
-        return self
+        return action
 
-    def set_encryption_defaults(self, defaults: Encryption) -> Self:
+    def add_trigger_action(self, name: str) -> TriggerAction:
+        action = TriggerAction(name)
+        self._add_action(action)
+        return action
+
+    def add_autoregistration_action(self, name: str) -> AutoregistrationAction:
+        action = AutoregistrationAction(name)
+        self._add_action(action)
+        return action
+
+    def set_encryption_defaults(
+        self,
+        connect_unencrypted: bool = False,
+        accept_unencrypted: bool = False,
+    ) -> Encryption:
+        defaults = Encryption(
+            connect_unencrypted=connect_unencrypted,
+            accept_unencrypted=accept_unencrypted,
+        )
         self.encryption_defaults = defaults
-        return self
+        return defaults
 
-    def add_host_encryption(self, host: Host | str, encryption: Encryption) -> Self:
+    def add_host_encryption(
+        self,
+        host: Host | str,
+        connect_unencrypted: bool = False,
+        accept_unencrypted: bool = False,
+    ) -> HostEncryption:
         name = host.host if isinstance(host, Host) else str(host)
         if any(e.host == name for e in self.encryptions):
             raise ValueError(
                 f"{type(self).__name__}: duplicate host encryption for '{name}'"
             )
-        self.encryptions.append(HostEncryption.from_encryption(name, encryption))
-        return self
+        encryption = HostEncryption(
+            host=name,
+            connect_unencrypted=connect_unencrypted,
+            accept_unencrypted=accept_unencrypted,
+        )
+        self.encryptions.append(encryption)
+        return encryption
 
     def export_user_groups(self) -> dict:
         if not self.user_groups:

@@ -243,7 +243,7 @@ class MyDecree(DecreeModule):
         prod_group = self.context.get_host_group("Production")
         web_template = self.context.get_template("Web Server Template")
 
-        action = TriggerAction("Notify production incidents")
+        action = self.add_trigger_action("Notify production incidents")
         action.set_conditions(
             HostGroupCondition(prod_group) & HostTemplateCondition(web_template)
         )

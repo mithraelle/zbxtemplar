@@ -180,6 +180,17 @@ Template and host groups are deduplicated automatically during export.
 
 `to_export()` merges any defined sections into one decree mapping, including module-level macros if any are defined.
 
+Builder helpers construct, register, and return decree objects:
+
+- `add_user_group(name, gui_access=None)` returns a `UserGroup`
+- `add_user(username, role)` returns a `User`
+- `add_trigger_action(name)` returns a `TriggerAction`
+- `add_autoregistration_action(name)` returns an `AutoregistrationAction`
+- `set_encryption_defaults(connect_unencrypted=False, accept_unencrypted=False)` returns an `Encryption`
+- `add_host_encryption(host, connect_unencrypted=False, accept_unencrypted=False)` returns a `HostEncryption`
+
+Mutate the returned object to add permissions, groups, media, action operations, or encryption credentials. Duplicate user groups, users, actions, and host encryption entries raise `ValueError`.
+
 The split export helpers are:
 
 - `export_macros()`

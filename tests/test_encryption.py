@@ -1,7 +1,7 @@
 import pytest
 
 from zbxtemplar.modules.DecreeModule import DecreeModule
-from zbxtemplar.decree.Encryption import Encryption, EncryptionMode, HostEncryption
+from zbxtemplar.decree.Encryption import EncryptionMode, HostEncryption
 
 
 def test_check_requires_both_psk_fields():
@@ -90,15 +90,11 @@ def test_to_dict_roundtrip():
 
 
 def test_decree_module_export():
-    defaults = Encryption()
-    defaults.set_cert(connect=True, accept=True, issuer="CN=Root CA")
-
     module = DecreeModule()
-    module.set_encryption_defaults(defaults)
-    module.add_host_encryption(
-        "app-01",
-        Encryption().set_cert(connect=True, accept=True, subject="CN=app-01")
-    )
+    defaults = module.set_encryption_defaults()
+    defaults.set_cert(connect=True, accept=True, issuer="CN=Root CA")
+    host_encryption = module.add_host_encryption("app-01")
+    host_encryption.set_cert(connect=True, accept=True, subject="CN=app-01")
 
     export = module.to_export()
     assert "encryption" in export
@@ -107,5 +103,9 @@ def test_decree_module_export():
         "accept": "CERT",
         "issuer": "CN=Root CA",
     }
-    assert len(export["encryption"]["hosts"]) == 1
-    assert export["encryption"]["hosts"][0]["host"] == "app-01"
+    assert export["encryption"]["hosts"] == [{
+        "host": "app-01",
+        "connect": "CERT",
+        "accept": "CERT",
+        "subject": "CN=app-01",
+    }]
