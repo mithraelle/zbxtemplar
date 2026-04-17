@@ -50,7 +50,7 @@ def generate():
         label="Generate template + hosts")
     run("zbxtemplar", str(EXAMPLES / "make_decree.py"),
         "--param", "admin_slack=#ops-alerts",
-        "--context", str(EXAMPLES / "sample_global_macro.yml.yml"),
+        "--context", str(EXAMPLES / "sample_global_macro.yml"),
         "--context", str(EXAMPLES / "sample_templates.yml"),
         "--context", str(EXAMPLES / "sample_hosts.yml"),
         "-o", str(EXAMPLES / "sample_decree.yml"),
