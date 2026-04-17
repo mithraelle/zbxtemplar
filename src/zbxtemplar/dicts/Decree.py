@@ -3,10 +3,10 @@ from typing import Self
 from zbxtemplar.decree import UserGroup, User
 from zbxtemplar.decree.Action import Action
 from zbxtemplar.decree.Encryption import Encryption, HostEncryption
-from zbxtemplar.dicts.DictEntity import DictEntity, SchemaField
+from zbxtemplar.dicts.Schema import Schema, SchemaField
 
 
-class EncryptionDecree(DictEntity):
+class EncryptionDecree(Schema):
     _SCHEMA = [
         SchemaField("host_defaults", str_type="Encryption",
                     description="Default encryption settings merged into each host entry.",
@@ -16,7 +16,7 @@ class EncryptionDecree(DictEntity):
                     type=list[HostEncryption]),
     ]
 
-class Decree(DictEntity):
+class Decree(Schema):
     _SCHEMA = [
         SchemaField("user_group", str_type="list[UserGroup]",
                     description="User group definitions to create or update before users.",

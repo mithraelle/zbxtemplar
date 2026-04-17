@@ -4,22 +4,24 @@ from zbxtemplar.modules.DecreeModule import DecreeModule
 from zbxtemplar.decree.Encryption import Encryption, EncryptionMode, HostEncryption
 
 
-def test_validation_requires_both_psk_fields():
+def test_check_requires_both_psk_fields():
+    entry = HostEncryption.from_dict({
+        "host": "host1",
+        "connect": "PSK",
+        "accept": "UNENCRYPTED",
+        "psk": "mysecret"
+    })
     with pytest.raises(ValueError, match="are required when PSK mode is enabled"):
-        HostEncryption.from_dict({
-            "host": "host1",
-            "connect": "PSK",
-            "accept": "UNENCRYPTED",
-            "psk": "mysecret"
-        })
+        entry.check()
 
+    entry = HostEncryption.from_dict({
+        "host": "host1",
+        "connect": "UNENCRYPTED",
+        "accept": "PSK",
+        "psk_identity": "myid"
+    })
     with pytest.raises(ValueError, match="are required when PSK mode is enabled"):
-        HostEncryption.from_dict({
-            "host": "host1",
-            "connect": "UNENCRYPTED",
-            "accept": "PSK",
-            "psk_identity": "myid"
-        })
+        entry.check()
 
 
 def test_from_dict():

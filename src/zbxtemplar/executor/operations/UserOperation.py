@@ -8,11 +8,12 @@ from zabbix_utils import APIRequestError
 
 
 class UserOperation(Executor):
-    def from_data(self, data):
-        raw_users = data if isinstance(data, list) else [data]
-        self._users = [User.from_dict(raw) for raw in raw_users]
+    def __init__(self, spec: list[User], api, base_dir=None):
+        super().__init__(spec, api, base_dir)
+
+    def _validate(self):
         token_executor = TokenProvisioner(self._api, self._base_dir)
-        token_executor.validate(self._users)
+        token_executor.validate(self._spec)
 
     def execute(self):
         token_executor = TokenProvisioner(self._api, self._base_dir)
@@ -22,7 +23,7 @@ class UserOperation(Executor):
         existing = {u["username"]: u["userid"] for u in self._api.user.get(output=["userid", "username"])}
         log.lookup_end("users", count=len(existing))
 
-        for user in self._users:
+        for user in self._spec:
             if user.role not in roles:
                 raise ValueError(f"Role '{user.role}' not found in Zabbix")
             params = {"username": user.username, "roleid": roles[user.role]}

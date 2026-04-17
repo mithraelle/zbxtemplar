@@ -6,6 +6,9 @@ from zabbix_utils import APIRequestError
 
 
 class UserGroupOperation(Executor):
+    def __init__(self, spec: list[UserGroup], api, base_dir=None):
+        super().__init__(spec, api, base_dir)
+
     def _resolve_rights(self, groups, group_lookup, label):
         rights = []
         for g in groups:
@@ -16,8 +19,8 @@ class UserGroupOperation(Executor):
             rights.append({"id": group_lookup[name], "permission": Permission._API_VALUES[perm]})
         return rights
 
-    def from_data(self, data):
-        self._groups = [UserGroup.from_dict(raw) for raw in data]
+    def _validate(self):
+        pass
 
     def execute(self):
         host_groups = {g["name"]: g["groupid"] for g in self._api.hostgroup.get(output=["groupid", "name"])}
@@ -25,7 +28,7 @@ class UserGroupOperation(Executor):
         existing = {g["name"]: g["usrgrpid"] for g in self._api.usergroup.get(output=["usrgrpid", "name"])}
         log.lookup_end("user_groups", count=len(existing))
 
-        for ug in self._groups:
+        for ug in self._spec:
             gui = ug.gui_access or GuiAccess.DEFAULT
             params = {"name": ug.name, "gui_access": GuiAccess._API_VALUES[gui]}
 

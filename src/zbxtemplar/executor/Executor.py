@@ -1,73 +1,79 @@
 import hashlib
 import os
 import re
+import time
+from dataclasses import dataclass
+from typing import ClassVar, Mapping
 
 import yaml
 
 from zbxtemplar.executor.exceptions import ExecutorParseError
 from zbxtemplar.executor.log import log
 
-
 class Executor:
-    def __init__(self, api, base_dir=None):
+    def __init__(self, spec, api, base_dir=None):
         self._api = api
         self._base_dir = base_dir
+        self._spec = spec
+        self._validate()
+
+    def action_info(self):
+        if isinstance(self._spec, list):
+            return {"items": len(self._spec)}
+        return {}
+
+    def execute(self):
+        raise NotImplementedError()
+
+    def _validate(self):
+        raise NotImplementedError()
 
     def _resolve_path(self, path):
         if self._base_dir and not os.path.isabs(path):
             return os.path.join(self._base_dir, path)
         return path
 
-    def _load_yaml(self, path):
-        resolved_path = self._resolve_path(path)
-        try:
-            with open(resolved_path) as f:
-                raw = f.read()
-            data = yaml.safe_load(raw)
-        except yaml.YAMLError as e:
-            raise ExecutorParseError(f"Failed to parse '{resolved_path}': {e}", path=resolved_path) from e
-        sha256 = hashlib.sha256(raw.encode()).hexdigest()
-        log.input_loaded(path, sha256=sha256, bytes=os.path.getsize(resolved_path))
-        return self._resolve_env(data)
 
-    def from_file(self, path):
-        self.from_data(self._load_yaml(path))
+@dataclass
+class ExecutorStage:
+    action: str
+    executor: type[Executor]
 
-    def from_data(self, data: dict|list|str):
-        raise NotImplementedError()
 
-    def action_info(self):
-        return {}
+class StagedExecutor(Executor):
+    _ACTIONS: ClassVar[list[ExecutorStage]] = []
 
-    def execute(self):
-        raise NotImplementedError()
+    def __init__(self, spec, api, base_dir=None):
+        if not self._ACTIONS:
+            raise RuntimeError(f"{type(self).__name__} has no executor stages configured")
+        self._ops: list[tuple[str, Executor]] = []
+        super().__init__(spec, api, base_dir)
 
-    @staticmethod
-    def _resolve_env(obj):
-        missing = set()
+    def _stage_spec(self, action):
+        if isinstance(self._spec, Mapping):
+            return self._spec.get(action)
+        return getattr(self._spec, action, None)
 
-        def replace(match):
-            var = match.group(1)
-            env_val = os.environ.get(var)
-            if env_val is None:
-                missing.add(var)
-                return ""
-            return env_val
-
-        def walk(o):
-            if isinstance(o, str):
-                return re.sub(r'\$\{(\w+)\}', replace, o)
-            if isinstance(o, dict):
-                return {k: walk(v) for k, v in o.items()}
-            if isinstance(o, list):
-                return [walk(v) for v in o]
-            return o
-
-        result = walk(obj)
-        if missing:
-            lines = "\n".join(f"  {var}" for var in sorted(missing))
-            raise ValueError(
-                f"Pre-flight check failed. Missing environment variables:\n{lines}\n\n"
-                "Execution aborted. No changes were made."
+    def _validate(self):
+        for stage in self._ACTIONS:
+            spec = self._stage_spec(stage.action)
+            if spec is None:
+                continue
+            self._ops.append(
+                (stage.action, stage.executor(spec, self._api, self._base_dir))
             )
-        return result
+
+    def execute(self, from_action=None, only_action=None):
+        ops = self._ops
+        if only_action:
+            ops = [(k, o) for k, o in ops if k == only_action]
+        elif from_action:
+            start = next((i for i, (k, _) in enumerate(ops) if k == from_action), None)
+            if start is not None:
+                ops = ops[start:]
+
+        for key, op in ops:
+            t0 = time.time()
+            log.action_start(key, **op.action_info())
+            op.execute()
+            log.action_end(key, result="ok", duration_ms=int((time.time() - t0) * 1000))

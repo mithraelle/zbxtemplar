@@ -23,7 +23,7 @@ class SchemaField:
     property: str | None = None
 
 
-class DictEntity:
+class Schema:
     _SCHEMA: list[SchemaField] = []
 
     _base_dir: str = None
@@ -191,7 +191,6 @@ class DictEntity:
         if missing:
             lines = "\n".join(f"  {var}" for var in sorted(missing))
             raise ValueError(
-                f"Pre-flight check failed. Missing environment variables:\n{lines}\n\n"
-                "Execution aborted. No changes were made."
+                f"Missing environment variable(s):\n{lines}"
             )
         return result

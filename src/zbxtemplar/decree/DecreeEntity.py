@@ -1,6 +1,6 @@
 from enum import Enum
 
-from zbxtemplar.dicts.DictEntity import DictEntity
+from zbxtemplar.dicts.Schema import Schema
 
 
 class MediaType:
@@ -60,7 +60,7 @@ def _validate(value, allowed, label):
         raise ValueError(f"Invalid {label} '{value}', expected one of: {', '.join(allowed)}")
 
 
-class DecreeEntity(DictEntity):
+class DecreeEntity(Schema):
     _OMIT_FROM_SCHEMA_DOCS = True
 
     def to_dict(self) -> dict:

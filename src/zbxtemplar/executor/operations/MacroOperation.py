@@ -1,31 +1,18 @@
 from zabbix_utils import APIRequestError
 
-from zbxtemplar.zabbix.macro import Macro
 from zbxtemplar.zabbix import MacroType
+from zbxtemplar.zabbix.macro import Macro
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zbxtemplar.executor.log import log
 
 
 class MacroOperation(Executor):
-    def _load_macros_from_file(self, path):
-        data = self._load_yaml(path)
-        if isinstance(data, dict) and "set_macro" in data:
-            data = data["set_macro"]
-        return data if isinstance(data, list) else [data]
+    def __init__(self, spec: list[Macro], api, base_dir=None):
+        super().__init__(spec, api, base_dir)
 
-    def from_data(self, data):
-        raw = data if isinstance(data, list) else [data]
-        flat = []
-        for item in raw:
-            if isinstance(item, str):
-                flat.extend(self._load_macros_from_file(item))
-            else:
-                flat.append(item)
-        self._macros = [Macro.from_dict(m) for m in flat]
-
-    def action_info(self):
-        return {"items": len(self._macros)}
+    def _validate(self):
+        pass
 
     def execute(self):
         existing = {
@@ -34,7 +21,7 @@ class MacroOperation(Executor):
         }
         log.lookup_end("global_macros", count=len(existing))
 
-        for macro in self._macros:
+        for macro in self._spec:
             if macro.full_name in existing:
                 try:
                     self._api.usermacro.updateglobal(

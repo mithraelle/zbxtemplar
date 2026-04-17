@@ -1,4 +1,4 @@
-from zbxtemplar.dicts.DictEntity import DictEntity, SchemaField
+from zbxtemplar.dicts.Schema import Schema, SchemaField
 from zbxtemplar.decree.DecreeEntity import DecreeEntity, _validate
 from zbxtemplar.decree.Token import Token
 
@@ -26,7 +26,7 @@ class Severity:
 from zbxtemplar.decree.UserGroup import UserGroup
 
 
-class UserMedia(DictEntity):
+class UserMedia(Schema):
     """Notification media configuration for a managed user."""
 
     _SCHEMA = [
@@ -74,7 +74,7 @@ class UserMedia(DictEntity):
         return media
 
 
-class User(DecreeEntity, DictEntity):
+class User(DecreeEntity, Schema):
     """Zabbix user account managed by decree YAML."""
 
     _SCHEMA = [

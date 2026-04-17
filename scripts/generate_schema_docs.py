@@ -7,7 +7,7 @@ import pkgutil
 src_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
 sys.path.insert(0, src_dir)
 
-from zbxtemplar.dicts.DictEntity import DictEntity
+from zbxtemplar.dicts.Schema import Schema
 import zbxtemplar
 
 
@@ -71,7 +71,7 @@ def generate():
     ]
     
     # Keep reference docs in top-down usage order, then alphabetically for any new schemas.
-    subclasses = sorted(iter_subclasses(DictEntity), key=reference_sort_key)
+    subclasses = sorted(iter_subclasses(Schema), key=reference_sort_key)
     
     for cls in subclasses:
         if cls.__dict__.get("_OMIT_FROM_SCHEMA_DOCS", False):

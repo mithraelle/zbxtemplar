@@ -4,6 +4,7 @@ import pytest
 
 from zbxtemplar.executor.operations.UserGroupOperation import UserGroupOperation
 from zbxtemplar.executor.exceptions import ExecutorApiError
+from zbxtemplar.decree import UserGroup
 from zabbix_utils import APIRequestError
 
 
@@ -23,10 +24,13 @@ def _api(existing_ugroups=None):
     return api
 
 
+def _groups(*dicts):
+    return [UserGroup.from_dict(d) for d in dicts]
+
+
 def test_creates_user_group():
     api = _api()
-    op = UserGroupOperation(api)
-    op.from_data([{
+    op = UserGroupOperation(_groups({
         "name": "Templar Users",
         "gui_access": "INTERNAL",
         "host_groups": [
@@ -36,7 +40,7 @@ def test_creates_user_group():
         "template_groups": [
             {"name": "Test Template", "permission": "READ_WRITE"},
         ],
-    }])
+    }), api)
     op.execute()
     api.usergroup.create.assert_called_once_with(
         name="Templar Users",
@@ -53,11 +57,10 @@ def test_creates_user_group():
 
 def test_updates_existing_user_group():
     api = _api(existing_ugroups=[{"usrgrpid": "99", "name": "Templar Users"}])
-    op = UserGroupOperation(api)
-    op.from_data([{
+    op = UserGroupOperation(_groups({
         "name": "Templar Users",
         "gui_access": "DISABLED",
-    }])
+    }), api)
     op.execute()
     api.usergroup.update.assert_called_once_with(usrgrpid="99", gui_access=3)
     api.usergroup.create.assert_not_called()
@@ -65,21 +68,18 @@ def test_updates_existing_user_group():
 
 def test_unknown_host_group_raises():
     api = _api()
-    op = UserGroupOperation(api)
-    op.from_data([{
+    op = UserGroupOperation(_groups({
         "name": "Bad Group",
         "host_groups": [{"name": "Nonexistent", "permission": "READ"}],
-    }])
+    }), api)
     with pytest.raises(ValueError, match="Host group 'Nonexistent' not found"):
         op.execute()
-
 
 
 def test_api_error_on_create_is_wrapped():
     api = _api()
     api.usergroup.create.side_effect = APIRequestError("network drop")
-    op = UserGroupOperation(api)
-    op.from_data([{"name": "Ops Team", "gui_access": "DEFAULT"}])
+    op = UserGroupOperation(_groups({"name": "Ops Team", "gui_access": "DEFAULT"}), api)
     with pytest.raises(ExecutorApiError, match="Failed to create user group 'Ops Team'"):
         op.execute()
 
@@ -87,7 +87,6 @@ def test_api_error_on_create_is_wrapped():
 def test_api_error_on_update_is_wrapped():
     api = _api(existing_ugroups=[{"usrgrpid": "99", "name": "Ops Team"}])
     api.usergroup.update.side_effect = APIRequestError("network drop")
-    op = UserGroupOperation(api)
-    op.from_data([{"name": "Ops Team", "gui_access": "DEFAULT"}])
+    op = UserGroupOperation(_groups({"name": "Ops Team", "gui_access": "DEFAULT"}), api)
     with pytest.raises(ExecutorApiError, match="Failed to update user group 'Ops Team'"):
         op.execute()

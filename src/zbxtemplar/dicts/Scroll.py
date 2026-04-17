@@ -1,11 +1,11 @@
 from typing import Self
 
 from zbxtemplar.dicts.Decree import Decree
-from zbxtemplar.dicts.DictEntity import DictEntity, SchemaField
+from zbxtemplar.dicts.Schema import Schema, SchemaField
 from zbxtemplar.zabbix.macro import Macro
 
 
-class SuperAdmin(DictEntity):
+class SuperAdmin(Schema):
     _SCHEMA = [
         SchemaField("username", description="New login name for the super admin."),
         SchemaField("password", description="New password."),
@@ -13,7 +13,7 @@ class SuperAdmin(DictEntity):
     ]
 
 
-class Scroll(DictEntity):
+class Scroll(Schema):
     _SCHEMA = [
         SchemaField("set_super_admin", str_type="SuperAdmin", type=SuperAdmin,
                     description="Super admin update — password and/or username. Requires current_password when changing password."),

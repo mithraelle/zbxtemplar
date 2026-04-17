@@ -1,49 +1,62 @@
+import copy
+
 from zabbix_utils import APIRequestError
 
 from zbxtemplar.decree.Encryption import HostEncryption, EncryptionMode
+from zbxtemplar.dicts.Decree import EncryptionDecree
 from zbxtemplar.executor.Executor import Executor
-from zbxtemplar.executor.exceptions import ExecutorApiError, ExecutorParseError
+from zbxtemplar.executor.exceptions import ExecutorApiError
 from zbxtemplar.executor.log import log
 
 
 class EncryptionOperation(Executor):
+    def __init__(self, spec: list[EncryptionDecree], api, base_dir=None):
+        super().__init__(spec, api, base_dir)
+
     def _compute_bitmap(self, modes: list[EncryptionMode]) -> int:
         bitmap = 0
         for mode in modes:
             bitmap |= mode.value
         return bitmap
 
-    def _parse_entries(self, data) -> list[HostEncryption]:
-        if isinstance(data, dict):
-            nodes = [data]
-        elif isinstance(data, list):
-            nodes = data
-        else:
-            raise ExecutorParseError("Expected encryption node to be a dictionary")
+    @staticmethod
+    def _merge_defaults(defaults, host: HostEncryption) -> HostEncryption:
+        entry = copy.deepcopy(host)
+        if defaults is None:
+            entry.check()
+            return entry
 
-        entries = []
-        for node in nodes:
-            defaults = node.get("host_defaults", {})
-            raw_hosts = node.get("hosts", [])
+        if not entry.connect:
+            entry.connect = copy.deepcopy(defaults.connect)
+        if not entry.accept:
+            entry.accept = copy.deepcopy(defaults.accept)
 
-            for raw_host in raw_hosts:
-                merged = {**defaults, **raw_host}
-                entries.append(HostEncryption.from_dict(merged))
+        modes = set((entry.connect or []) + (entry.accept or []))
+        for mode, fields in entry._MODE_FIELDS.items():
+            if mode not in modes:
+                continue
+            for field in fields:
+                if getattr(entry, field) is None:
+                    setattr(entry, field, getattr(defaults, field))
 
-        return entries
+        entry.check()
+        return entry
 
-    def from_data(self, data):
-        self._entries = self._parse_entries(data)
+    def action_info(self):
+        return {"items": len(self._entries)}
+
+    def _validate(self):
+        self._entries = []
+        for node in self._spec:
+            for host in node.hosts or []:
+                self._entries.append(self._merge_defaults(node.host_defaults, host))
 
     def execute(self):
-        if self._entries:
-            self._apply(self._entries)
-
-    def _apply(self, entries: list[HostEncryption]):
-        if not entries:
+        if not self._entries:
             return
+
         # Pre-fetch all matching hosts by technical name
-        host_names = [entry.host for entry in entries]
+        host_names = [entry.host for entry in self._entries]
         existing_hosts = self._api.host.get(
             filter={"host": host_names},
             output=["hostid", "host", "tls_connect", "tls_accept", "tls_issuer", "tls_subject", "tls_psk_identity"]
@@ -51,7 +64,7 @@ class EncryptionOperation(Executor):
 
         host_map = {h["host"]: h for h in existing_hosts}
 
-        for entry in entries:
+        for entry in self._entries:
             if entry.host not in host_map:
                 raise ValueError(f"Host '{entry.host}' not found in Zabbix. Cannot configure encryption.")
 

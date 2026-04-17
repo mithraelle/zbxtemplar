@@ -1,6 +1,6 @@
 from enum import Enum
 
-from zbxtemplar.dicts.DictEntity import DictEntity, SchemaField
+from zbxtemplar.dicts.Schema import Schema, SchemaField
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 
 
@@ -14,7 +14,7 @@ class TokenExpiry(Enum):
     NEVER = "NEVER"
 
 
-class Token(DecreeEntity, DictEntity):
+class Token(DecreeEntity, Schema):
     """API token provisioning settings for a managed user."""
 
     STDOUT = TokenOutput.STDOUT

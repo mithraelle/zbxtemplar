@@ -17,6 +17,9 @@ class ActionOperation(Executor):
         20: ("proxy", "proxyid", "Proxy"),
     }
 
+    def __init__(self, spec: list[Action], api, base_dir=None):
+        super().__init__(spec, api, base_dir)
+
     def _resolve_conditions(self, conditions):
         lookups = {}
         for cond in conditions:
@@ -72,9 +75,8 @@ class ActionOperation(Executor):
                         raise ValueError(f"Template '{name}' not found in Zabbix")
                     entry["templateid"] = templates[name]
 
-    def from_data(self, data):
-        raw_actions = data if isinstance(data, list) else [data]
-        self._actions = [Action.from_dict(raw) for raw in raw_actions]
+    def _validate(self):
+        pass
 
     def execute(self):
         ugroups = {g["name"]: g["usrgrpid"] for g in self._api.usergroup.get(output=["usrgrpid", "name"])}
@@ -85,7 +87,7 @@ class ActionOperation(Executor):
         existing = {a["name"]: a["actionid"] for a in self._api.action.get(output=["actionid", "name"])}
         log.lookup_end("actions", count=len(existing))
 
-        for action_obj in self._actions:
+        for action_obj in self._spec:
             action = action_obj.to_dict()
             name = action["name"]
 

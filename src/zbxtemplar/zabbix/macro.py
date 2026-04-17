@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
-from zbxtemplar.dicts.DictEntity import DictEntity, SchemaField
+from zbxtemplar.dicts.Schema import Schema, SchemaField
 
 
 class MacroType(StrEnum):
@@ -24,7 +24,7 @@ class MacroType(StrEnum):
 
 
 @dataclass(frozen=True)
-class Macro(DictEntity):
+class Macro(Schema):
     _SCHEMA = [
         SchemaField("name", optional=False, description="Macro name without {$...} braces.", type=str),
         SchemaField("value", optional=False, description="Macro value.", type=str),

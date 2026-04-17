@@ -1,7 +1,7 @@
 import copy
 from enum import Enum
 
-from zbxtemplar.dicts.DictEntity import DictEntity, SchemaField
+from zbxtemplar.dicts.Schema import Schema, SchemaField
 
 
 class EncryptionMode(Enum):
@@ -29,7 +29,7 @@ class EncryptionMode(Enum):
         return [cls.from_string(t) for t in tokens if t]
 
 
-class Encryption(DictEntity):
+class Encryption(Schema):
     _SCHEMA = [
         SchemaField("connect", type=list[EncryptionMode],
                     description="Comma-separated encryption modes used for outbound connections: UNENCRYPTED, PSK, or CERT."),
@@ -121,8 +121,8 @@ class HostEncryption(Encryption):
 
     _SCHEMA = [
         SchemaField("host", optional=False, description="Zabbix host technical name to update."),
-        SchemaField("connect", optional=False, type=list[EncryptionMode], description="Comma-separated encryption modes used for outbound connections: UNENCRYPTED, PSK, or CERT."),
-        SchemaField("accept", optional=False, type=list[EncryptionMode], description="Comma-separated encryption modes accepted by the host: UNENCRYPTED, PSK, or CERT."),
+        SchemaField("connect", type=list[EncryptionMode], description="Comma-separated encryption modes used for outbound connections: UNENCRYPTED, PSK, or CERT."),
+        SchemaField("accept", type=list[EncryptionMode], description="Comma-separated encryption modes accepted by the host: UNENCRYPTED, PSK, or CERT."),
         SchemaField("psk_identity", description="PSK identity required when PSK mode is enabled."),
         SchemaField("psk", description="PSK secret required when PSK mode is enabled."),
         SchemaField("issuer", description="TLS certificate issuer required with subject when CERT mode is enabled."),
@@ -152,17 +152,18 @@ class HostEncryption(Encryption):
     @classmethod
     def from_dict(cls, data: dict) -> "HostEncryption":
         cls.validate(data)
-        host_name = data["host"]
+        entry = cls(data["host"])
 
-        entry = cls(host_name)
-        entry.connect = EncryptionMode.parse_modes(data["connect"])
-        entry.accept = EncryptionMode.parse_modes(data["accept"])
+        if "connect" in data:
+            entry.connect = EncryptionMode.parse_modes(data["connect"])
+        if "accept" in data:
+            entry.accept = EncryptionMode.parse_modes(data["accept"])
 
         all_modes = set(entry.connect + entry.accept)
         for mode, fields in cls._MODE_FIELDS.items():
             if mode in all_modes:
                 for field in fields:
-                    setattr(entry, field, data.get(field))
+                    if field in data:
+                        setattr(entry, field, data[field])
 
-        entry.check()
         return entry

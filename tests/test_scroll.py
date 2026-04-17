@@ -1,6 +1,7 @@
 import os
 from unittest.mock import MagicMock
 
+from zbxtemplar.dicts.Scroll import Scroll
 from zbxtemplar.executor.ScrollExecutor import ScrollExecutor
 from tests.paths import FIXTURES_DIR
 
@@ -37,9 +38,15 @@ def _full_api():
 
 def _load(api, path):
     path = str(path)
-    ex = ScrollExecutor(api, base_dir=os.path.dirname(os.path.abspath(path)))
-    ex.from_file(path)
-    return ex
+    base_dir = os.path.dirname(os.path.abspath(path))
+    Scroll._base_dir = base_dir
+    Scroll._resolve_envs = True
+    try:
+        scroll = Scroll.from_file(path)
+    finally:
+        Scroll._base_dir = None
+        Scroll._resolve_envs = False
+    return ScrollExecutor(scroll, api, base_dir)
 
 
 def test_scroll_runs_all_actions(monkeypatch):
@@ -121,7 +128,14 @@ def test_scroll_resolves_file_paths_relative_to_scroll_dir(tmp_path, monkeypatch
 
     # CWD is tmp_path, scroll is in tmp_path/deploy/
     # macros.yml should resolve to tmp_path/deploy/macros.yml
-    _load(api, scroll_file).execute()
+    base_dir = str(subdir)
+    Scroll._base_dir = base_dir
+    try:
+        scroll = Scroll.from_file(str(scroll_file))
+    finally:
+        Scroll._base_dir = None
+    ex = ScrollExecutor(scroll, api, base_dir)
+    ex.execute()
 
     api.usermacro.createglobal.assert_called_once_with(
         macro="{$FROM_FILE}", value="works", type=0

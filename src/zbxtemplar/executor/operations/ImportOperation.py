@@ -23,6 +23,9 @@ class ImportOperation(Executor):
         "templateLinkage": {"createMissing": True, "deleteMissing": True},
     }
 
+    def __init__(self, spec: list[str], api, base_dir=None):
+        super().__init__(spec, api, base_dir)
+
     def _apply_file(self, path):
         resolved_path = self._resolve_path(path)
         with open(resolved_path) as f:
@@ -60,12 +63,9 @@ class ImportOperation(Executor):
         for name in ctx._hosts:
             log.entity_end("host", action="import", name=name, id=h_ids.get(name))
 
-    def from_data(self, data):
-        self._files = data if isinstance(data, list) else [data]
-
-    def action_info(self):
-        return {"files": len(self._files)}
+    def _validate(self):
+        pass
 
     def execute(self):
-        for path in self._files:
+        for path in self._spec:
             self._apply_file(path)

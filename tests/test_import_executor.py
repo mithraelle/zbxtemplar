@@ -3,18 +3,13 @@ from unittest.mock import MagicMock
 from zbxtemplar.executor.operations.ImportOperation import ImportOperation
 
 
-def _executor(api):
-    return ImportOperation(api)
-
-
 def test_reads_file_and_imports(tmp_path):
     test_str = "zabbix_export:\n  version: '7.4'\n"
     yaml_file = tmp_path / "templates.yml"
     yaml_file.write_text(test_str)
 
     api = MagicMock()
-    op = _executor(api)
-    op.from_data(str(yaml_file))
+    op = ImportOperation([str(yaml_file)], api)
     op.execute()
     api.configuration.import_.assert_called_once()
     call_kwargs = api.configuration.import_.call_args[1]
@@ -30,7 +25,6 @@ def test_list_of_files(tmp_path):
     file2.write_text("zabbix_export:\n  version: '7.4'\n")
 
     api = MagicMock()
-    op = _executor(api)
-    op.from_data([str(file1), str(file2)])
+    op = ImportOperation([str(file1), str(file2)], api)
     op.execute()
     assert api.configuration.import_.call_count == 2
