@@ -30,6 +30,8 @@ class EncryptionMode(Enum):
 
 
 class Encryption(Schema):
+    """Zabbix host-communication encryption settings: modes plus PSK/CERT credentials."""
+
     _SCHEMA = [
         SchemaField("connect", type=list[EncryptionMode],
                     description="Comma-separated encryption modes used for outbound connections: UNENCRYPTED, PSK, or CERT."),

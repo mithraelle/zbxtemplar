@@ -24,6 +24,8 @@ class ZabbixExport(Schema):
                     description="Graph definitions (raw dicts; typed deserialization pending)."),
     ]
 
+    _OMIT_FROM_SCHEMA_DOCS = True
+
     @classmethod
     def from_data(cls, data: dict) -> Self:
         if set(data) == {"zabbix_export"}:

@@ -6,6 +6,8 @@ from zbxtemplar.zabbix.macro import Macro
 
 
 class SuperAdmin(Schema):
+    """Super admin credentials update for the authenticated user."""
+
     _SCHEMA = [
         SchemaField("username", description="New login name for the super admin."),
         SchemaField("password", description="New password."),
@@ -14,6 +16,8 @@ class SuperAdmin(Schema):
 
 
 class Scroll(Schema):
+    """Ordered deployment scroll: bootstrap, global macros, imports, and decree."""
+
     _SCHEMA = [
         SchemaField("set_super_admin", str_type="SuperAdmin", type=SuperAdmin,
                     description="Super admin update — password and/or username. Requires current_password when changing password."),

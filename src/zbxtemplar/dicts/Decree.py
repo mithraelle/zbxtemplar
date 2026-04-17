@@ -7,6 +7,8 @@ from zbxtemplar.dicts.Schema import Schema, SchemaField
 
 
 class EncryptionDecree(Schema):
+    """Host encryption block: shared host_defaults plus per-host entries."""
+
     _SCHEMA = [
         SchemaField("host_defaults", str_type="Encryption",
                     description="Default encryption settings merged into each host entry.",
@@ -17,6 +19,8 @@ class EncryptionDecree(Schema):
     ]
 
 class Decree(Schema):
+    """Decree YAML contents: user groups, users, actions, and host encryption."""
+
     _SCHEMA = [
         SchemaField("user_group", str_type="list[UserGroup]",
                     description="User group definitions to create or update before users.",

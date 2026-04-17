@@ -219,7 +219,7 @@ For scrolls, the pre-flight scan runs across all actions before the first action
 
 ## Schema Validation and Typo Assistance
 
-The executor enforces schema correctness through a "Fail Fast" mechanism. Before applying your yaml, the `DictEntity` validator checks the entire parsed dictionary against internal schemas.
+The executor enforces schema correctness through a "Fail Fast" mechanism. Before applying your yaml, the `Schema` validator checks the entire parsed dictionary against internal schemas.
 
 If an invalid key is detected (for example, `expire_at` instead of `expires_at`), execution halts immediately and the executor offers a typo suggestion using `difflib.get_close_matches`:
 

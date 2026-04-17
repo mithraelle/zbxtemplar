@@ -12,9 +12,9 @@ import zbxtemplar
 
 
 REFERENCE_ORDER = {
-    "ScrollExecutor": 10,
-    "DecreeExecutor": 20,
-    "SuperAdminOperation": 25,
+    "Scroll": 10,
+    "Decree": 20,
+    "SuperAdmin": 25,
     "UserMedia": 30,
     "UserGroup": 40,
     "User": 50,
@@ -63,7 +63,7 @@ def generate():
     lines = [
         "# Decree Configuration Reference",
         "",
-        "> This document is automatically generated from the Python source code (`DictEntity` schemas).",
+        "> This document is automatically generated from the Python source code.",
         "> Any edits or new parameters should be added directly to the `_SCHEMA` definitions in Python.",
         "",
         "---",
