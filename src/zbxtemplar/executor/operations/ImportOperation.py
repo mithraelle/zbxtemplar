@@ -24,7 +24,15 @@ class ImportOperation(Executor):
     }
 
     def __init__(self, spec: list[str], api, base_dir=None):
+        self._contexts: dict[str, Context] = {}
         super().__init__(spec, api, base_dir)
+
+    def _validate(self):
+        for path in self._spec:
+            resolved = self._resolve_path(path)
+            ctx = Context()
+            ctx.load(resolved)
+            self._contexts[resolved] = ctx
 
     def _apply_file(self, path):
         resolved_path = self._resolve_path(path)
@@ -40,8 +48,7 @@ class ImportOperation(Executor):
         except APIRequestError as e:
             raise ExecutorApiError(f"Failed to import '{path}': {e}") from e
         log.api_result("configuration.import", result="ok", path=path)
-        ctx = Context()
-        ctx.load(resolved_path)
+        ctx = self._contexts[resolved_path]
 
         def _ids(api_obj, names, id_field):
             if not names:
@@ -62,9 +69,6 @@ class ImportOperation(Executor):
             log.entity_end("template", action="import", name=name, id=t_ids.get(name))
         for name in ctx._hosts:
             log.entity_end("host", action="import", name=name, id=h_ids.get(name))
-
-    def _validate(self):
-        pass
 
     def execute(self):
         for path in self._spec:
