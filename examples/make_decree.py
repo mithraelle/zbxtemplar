@@ -4,9 +4,7 @@ from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplate
 
 
 class SampleDecree(DecreeModule):
-    def __init__(self, alert_email: str = "alerts@example.com", admin_slack: str = ""):
-        super().__init__()
-
+    def compose(self, alert_email: str = "alerts@example.com", admin_slack: str = ""):
         test_host_group = self.context.get_host_group("Templar Hosts")
         test_template = self.context.get_template("Test Template")
 

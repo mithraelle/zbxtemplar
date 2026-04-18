@@ -4,10 +4,10 @@ from zbxtemplar.zabbix.Host import Host, HostGroup
 
 
 class TemplarModule(BaseModule):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
         self.templates: list[Template] = []
         self.hosts: list[Host] = []
+        super().__init__(**kwargs)
 
     def add_template(self, name: str, groups: list[TemplateGroup]) -> Template:
         if any(t.name == name for t in self.templates):

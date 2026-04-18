@@ -237,8 +237,7 @@ When actions reference templates, groups, or other generated objects, use `--con
 
 ```python
 class MyDecree(DecreeModule):
-    def __init__(self):
-        super().__init__()
+    def compose(self):
 
         prod_group = self.context.get_host_group("Production")
         web_template = self.context.get_template("Web Server Template")

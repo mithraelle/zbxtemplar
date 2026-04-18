@@ -8,9 +8,7 @@ from tests.paths import REFERENCE_DIR
 
 
 class SampleDecree(DecreeModule):
-    def __init__(self):
-        super().__init__()
-
+    def compose(self):
         test_host_group = self.context.get_host_group("Templar Hosts")
         test_template = self.context.get_template("Test Template")
 
@@ -104,8 +102,13 @@ def test_token_init_requires_store_at():
         Token("api-reader-token", store_at=None, expires_at=Token.NEVER)
 
 
+class EmptyDecree(DecreeModule):
+    def compose(self):
+        pass
+
+
 def test_add_user_group_constructs_and_returns_user_group():
-    module = DecreeModule()
+    module = EmptyDecree()
 
     group = module.add_user_group("Standalone Group", gui_access=GuiAccess.INTERNAL)
 
@@ -115,7 +118,7 @@ def test_add_user_group_constructs_and_returns_user_group():
 
 
 def test_add_user_constructs_and_returns_user():
-    module = DecreeModule()
+    module = EmptyDecree()
 
     user = module.add_user("standalone-user", role=UserRole.USER)
 
@@ -125,7 +128,7 @@ def test_add_user_constructs_and_returns_user():
 
 
 def test_add_action_helpers_construct_and_return_actions():
-    module = DecreeModule()
+    module = EmptyDecree()
 
     trigger_action = module.add_trigger_action("Standalone Trigger Action")
     autoreg_action = module.add_autoregistration_action("Standalone Registration Action")
@@ -136,7 +139,7 @@ def test_add_action_helpers_construct_and_return_actions():
 
 
 def test_decree_module_add_helpers_reject_duplicates():
-    module = DecreeModule()
+    module = EmptyDecree()
 
     module.add_user_group("Duplicate Group")
     with pytest.raises(ValueError, match="duplicate user group 'Duplicate Group'"):

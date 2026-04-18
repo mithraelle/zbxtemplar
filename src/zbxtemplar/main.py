@@ -56,7 +56,7 @@ def load_module(filename: str, params: dict = None, context: Context = None) -> 
     for name, obj in inspect.getmembers(mod, inspect.isclass):
         for base in _BASE_CLASSES:
             if issubclass(obj, base) and obj is not base:
-                sig = inspect.signature(obj.__init__)
+                sig = inspect.signature(obj.compose)
                 kwargs = _build_kwargs(name, sig, params)
                 instance = obj(**kwargs)
                 result[name] = instance
@@ -154,7 +154,7 @@ def main():
                     _write_yaml(mod.export_encryption(), args.encryption_output, f"{name} [encryption]")
                 if args.macros_output:
                     _write_yaml(mod.export_macros(), args.macros_output, f"{name} [macros]")
-    except (ValueError, ImportError, KeyError) as e:
+    except (ValueError, ImportError, KeyError, NotImplementedError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
 

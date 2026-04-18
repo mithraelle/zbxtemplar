@@ -57,8 +57,7 @@ Example:
 
 ```python
 class MyModule(TemplarModule):
-    def __init__(self, env: str = "dev", threshold: int = 5):
-        super().__init__()
+    def compose(self, env: str = "dev", threshold: int = 5):
 ```
 
 Pass values from the CLI:
@@ -142,7 +141,7 @@ Multiple `--context` flags accumulate into one registry. Unknown formats are rej
 
 - The loader builds context once for the module run.
 - `DecreeModule` and `TemplarModule` expose it as `self.context`.
-- Module constructors do not need a `context` parameter.
+- The `compose()` method arguments define the module contract, not the constructor.
 
 ## Macro Resolution
 
@@ -150,7 +149,7 @@ Multiple `--context` flags accumulate into one registry. Unknown formats are rej
 
 1. **Entity macros** — macros defined directly on the template or host (`entity.add_macro(...)`)
 2. **Linked template macros** — macros on templates linked to the current entity
-3. **Module macros** — macros defined on the module itself (`self.add_macro(...)` inside `__init__`)
+3. **Module macros** — macros defined on the module itself (`self.add_macro(...)` inside `compose()`)
 4. **Context macros** — macros loaded from `--context` files in `set_macro` format
 
 A `KeyError` is raised if the name is not found at any level.
@@ -214,7 +213,7 @@ for name, module in modules.items():
 
 ## Practical Guidance
 
-- Keep module logic in `__init__`; that is the supported contract.
+- Keep module logic in `compose()`; that is the supported contract.
 - Use `--templates-output` and `--hosts-output` when inventory and reusable templates have different change flows.
 - Load exported YAML (generated artifacts or existing-instance exports) via `--context` when your module needs stable name-based references.
 - Prefer typed objects first; use raw dicts and raw strings only as escape hatches.

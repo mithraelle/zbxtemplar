@@ -22,9 +22,7 @@ REFERENCE_HOSTS = REFERENCE_DIR / "hosts.yml"
 
 
 class SampleTemplate(TemplarModule):
-    def __init__(self):
-        super().__init__()
-
+    def compose(self):
         template = self.add_template(name="Test Template", groups=[TemplateGroup("Templar Templates")]).add_tag("Service", "Testing")
         template.add_macro("MY_MACRO", 1, "Testing The Things")
 
@@ -113,13 +111,18 @@ class SampleTemplate(TemplarModule):
                          priority=TriggerPriority.WARNING,
                          description="Host trigger using two items")
 
+class EmptyTemplar(TemplarModule):
+    def compose(self):
+        pass
+
+
 @pytest.fixture(scope="module")
 def module():
     return SampleTemplate()
 
 
 def test_add_template_constructs_and_returns_template():
-    module = TemplarModule()
+    module = EmptyTemplar()
 
     template = module.add_template("Standalone Template", groups=[TemplateGroup("Templar Templates")])
 
@@ -128,7 +131,7 @@ def test_add_template_constructs_and_returns_template():
 
 
 def test_add_host_constructs_and_returns_host():
-    module = TemplarModule()
+    module = EmptyTemplar()
 
     host = module.add_host("Standalone Host", groups=[HostGroup("Templar Hosts")])
 
@@ -137,7 +140,7 @@ def test_add_host_constructs_and_returns_host():
 
 
 def test_add_template_rejects_duplicate_name():
-    module = TemplarModule()
+    module = EmptyTemplar()
     module.add_template("Duplicate Template", groups=[TemplateGroup("Templar Templates")])
 
     with pytest.raises(ValueError, match="duplicate template 'Duplicate Template'"):
@@ -145,7 +148,7 @@ def test_add_template_rejects_duplicate_name():
 
 
 def test_add_host_rejects_duplicate_name():
-    module = TemplarModule()
+    module = EmptyTemplar()
     module.add_host("Duplicate Host", groups=[HostGroup("Templar Hosts")])
 
     with pytest.raises(ValueError, match="duplicate host 'Duplicate Host'"):

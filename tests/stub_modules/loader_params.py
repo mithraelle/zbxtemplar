@@ -2,8 +2,7 @@ from zbxtemplar.modules import DecreeModule, TemplarModule
 
 
 class ParamTemplar(TemplarModule):
-    def __init__(self, label: str, n: int, x: float, active: bool):
-        super().__init__()
+    def compose(self, label: str, n: int, x: float, active: bool):
         self.label = label
         self.n = n
         self.x = x
@@ -11,8 +10,7 @@ class ParamTemplar(TemplarModule):
 
 
 class ParamDecree(DecreeModule):
-    def __init__(self, label: str, n: int, x: float, active: bool):
-        super().__init__()
+    def compose(self, label: str, n: int, x: float, active: bool):
         self.label = label
         self.n = n
         self.x = x

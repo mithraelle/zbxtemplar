@@ -7,13 +7,13 @@ from zbxtemplar.zabbix.Host import Host
 
 
 class DecreeModule(BaseModule):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
         self.user_groups: list[UserGroup] = []
         self.users: list[User] = []
         self.actions: list[Action] = []
         self.encryption_defaults: Encryption | None = None
         self.encryptions: list[HostEncryption] = []
+        super().__init__(**kwargs)
 
     def add_user_group(self, name: str, gui_access: str | None = None) -> UserGroup:
         if any(g.name == name for g in self.user_groups):

@@ -4,6 +4,11 @@ from zbxtemplar.modules.DecreeModule import DecreeModule
 from zbxtemplar.decree.Encryption import EncryptionMode, HostEncryption
 
 
+class EmptyDecree(DecreeModule):
+    def compose(self):
+        pass
+
+
 def test_check_requires_both_psk_fields():
     entry = HostEncryption.from_dict({
         "host": "host1",
@@ -90,7 +95,7 @@ def test_to_dict_roundtrip():
 
 
 def test_decree_module_export():
-    module = DecreeModule()
+    module = EmptyDecree()
     defaults = module.set_encryption_defaults()
     defaults.set_cert(connect=True, accept=True, issuer="CN=Root CA")
     host_encryption = module.add_host_encryption("app-01")

@@ -22,7 +22,7 @@ Once you are there, secrets need handling. `${ENV_VAR}` placeholders keep creden
 
 Actions are where the Zabbix API gets awkward and error-prone: numeric codes for everything, manual formula labels, invalid operator-condition combinations accepted without complaint. `zbxtemplar` replaces that with typed Python — `HostGroupCondition("Production") & SeverityCondition("HIGH")`. Names, not IDs. Wrong operator on the wrong condition type? Type error at write time, not a silent misfire during an incident ([`doc/actions.md`](./doc/actions.md)).
 
-Macros follow a layered resolution chain: entity macros → linked template macros → module-level macros → context macros. Module-level macros (`self.add_macro(...)` inside `__init__`) act as the global tier — shared across every template and host in the module and exported as `set_macro` YAML for the executor to apply.
+Macros follow a layered resolution chain: entity macros → linked template macros → module-level macros → context macros. Module-level macros (`self.add_macro(...)` inside `compose()`) act as the global tier — shared across every template and host in the module and exported as `set_macro` YAML for the executor to apply.
 
 On top of all this, `Context` validates references at generation time — against previously generated or exported YAML. Additionally, the executor applies **fail-fast typo checking** to your `decree` YAML configurations. A typo in a host group name, a missing template, or even misspelling a configuration key (like `expire_at` instead of `expires_at`) halts execution *before* any mutating API calls are made. Deterministic UUIDs prevent import duplicates. Mistakes break against your code, not against production ([`doc/generator.md`](./doc/generator.md)).
 
@@ -50,8 +50,7 @@ from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 
 
 class MyModule(TemplarModule):
-    def __init__(self, alert_threshold: int = 90):
-        super().__init__()
+    def compose(self, alert_threshold: int = 90):
 
         template = self.add_template(
             name="My Service",

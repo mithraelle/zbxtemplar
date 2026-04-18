@@ -12,9 +12,7 @@ from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 
 
 class SampleTemplate(TemplarModule):
-    def __init__(self):
-        super().__init__()
-
+    def compose(self):
         self.add_macro("TEMPLAR_GLOBAL_MACRO", 1, "Global macro")
 
         template_group = TemplateGroup("Templar Templates")

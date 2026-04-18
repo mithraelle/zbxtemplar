@@ -28,8 +28,7 @@ from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 
 
 class MyModule(TemplarModule):
-    def __init__(self, alert_threshold: int = 90):
-        super().__init__()
+    def compose(self, alert_threshold: int = 90):
 
         template = self.add_template(
             name="My Service",
@@ -78,8 +77,7 @@ from zbxtemplar.decree import MediaType, UserRole
 
 
 class MyDecree(DecreeModule):
-    def __init__(self, alert_email: str = "alerts@example.com"):
-        super().__init__()
+    def compose(self, alert_email: str = "alerts@example.com"):
 
         group = self.add_user_group("Operations", gui_access=GuiAccess.INTERNAL)
         group.add_host_group("Linux Servers", Permission.READ)
