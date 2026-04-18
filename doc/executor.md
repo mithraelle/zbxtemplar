@@ -47,13 +47,17 @@ zbxtemplar-exec apply templates.yml \
 
 ### `apply`
 
-Imports Zabbix-native YAML through `configuration.import`.
+Applies a configuration file to Zabbix. The type is auto-detected: Zabbix export, decree, or scroll.
 
 ```bash
-zbxtemplar-exec apply templates.yml --url ... --token ...
+zbxtemplar-exec apply config.yml --url ... --token ...
 ```
 
-### `decree`
+#### Apply: Zabbix Export
+
+Imports Zabbix-native YAML through `configuration.import`.
+
+#### Apply: Decree
 
 Applies decree YAML sections in dependency order:
 
@@ -61,10 +65,6 @@ Applies decree YAML sections in dependency order:
 2. `add_user`
 3. `actions`
 4. `encryption`
-
-```bash
-zbxtemplar-exec decree decree.yml --url ... --token ...
-```
 
 The `decree` sections such as `actions` natively support loading from external YAML files. Passing a file path string instead of a nested dictionary allows you to manage and reload large action/trigger configurations independently.
 
@@ -90,15 +90,9 @@ Per-host keys fully replace defaults (no merging of individual fields). A host e
 
 PSK secrets are write-only in Zabbix (the API never returns them), so PSK-mode hosts are always updated to prevent drift. Use `${ENV_VAR}` for PSK values to keep them out of committed files.
 
-### `add_user`
+#### Apply: Decree `add_user`
 
-Convenience wrapper for user-only YAML.
-
-```bash
-zbxtemplar-exec add_user service-account.yml --url ... --token ...
-```
-
-Token provisioning is configured inside each user:
+Token provisioning is configured inside each user in the `add_user` list:
 
 ```yaml
 add_user:
@@ -128,54 +122,7 @@ Safety rails on token output:
 - writing to an already existing output file is rejected (prevents silent overwrite of a previously provisioned token)
 - token ownership is validated (will not touch a token belonging to the wrong user)
 
-### `set_macro`
-
-Sets global macros inline or from a file. When setting an inline macro, you can optionally specify its storage type using the `--type` flag.
-
-```bash
-zbxtemplar-exec set_macro SNMP_COMMUNITY public --url ... --token ...
-zbxtemplar-exec set_macro DB_PASSWORD "$DB_PASS" --type secret --url ... --token ...
-zbxtemplar-exec set_macro macros.yml --url ... --token ...
-```
-
-Global macros support three storage types via the `type` field:
-
-| Type | Behavior |
-|------|----------|
-| `text` | Default. Value stored and visible in the Zabbix UI. |
-| `secret` | Value stored but masked in the UI. Cannot be read back via API. |
-| `vault` | Value is a Vault path. Zabbix fetches the actual secret from HashiCorp Vault at runtime. |
-
-Example macro file:
-
-```yaml
-- name: SNMP_COMMUNITY
-  value: public
-
-- name: DB_PASSWORD
-  value: ${DB_PASSWORD}
-  type: SECRET_TEXT
-
-- name: API_KEY
-  value: vault:secret/data/myapp:api_key
-  type: VAULT
-```
-
-Type values match the Zabbix native export format: `TEXT` (default), `SECRET_TEXT`, `VAULT`. Secret and vault macros keep credentials out of the Zabbix UI. Combined with `${ENV_VAR}` interpolation, the actual secret values never appear in committed YAML either.
-
-### `set_super_admin`
-
-Updates the currently authenticated super admin user — password, username, or both:
-
-```bash
-zbxtemplar-exec set_super_admin --new-password "$ZBX_NEW_PASSWORD" --current-password "$ZBX_CURRENT_PASSWORD" --url ... --password ...
-```
-
-When `--current-password` is omitted, the CLI falls back to the `--password` used for authentication. The `--username` flag optionally renames the admin account.
-
-After a password change with session auth (not token), the executor automatically re-logs in with the new credentials so subsequent scroll actions continue working.
-
-### `scroll`
+#### Apply: Scroll
 
 Runs an ordered deployment configuration file using the built-in action sequence:
 
@@ -196,10 +143,42 @@ decree: decree.yml
 ```
 
 ```bash
-zbxtemplar-exec scroll deploy.scroll.yml --url ... --token ...
-zbxtemplar-exec scroll deploy.scroll.yml --from-action apply --url ... --token ...
-zbxtemplar-exec scroll deploy.scroll.yml --only-action decree --url ... --token ...
+zbxtemplar-exec apply deploy.scroll.yml --url ... --token ...
+zbxtemplar-exec apply deploy.scroll.yml --from-action apply --url ... --token ...
+zbxtemplar-exec apply deploy.scroll.yml --only-action decree --url ... --token ...
 ```
+
+### `set_macro`
+
+Sets a global macro inline. When setting an inline macro, you can optionally specify its storage type using the `--type` flag.
+(Note: To set macros from a file, use the `apply` command with a scroll or decree containing a `set_macro` action).
+
+```bash
+zbxtemplar-exec set_macro SNMP_COMMUNITY public --url ... --token ...
+zbxtemplar-exec set_macro DB_PASSWORD "$DB_PASS" --type secret --url ... --token ...
+```
+
+Global macros support three storage types via the `type` field:
+
+| Type | Behavior |
+|------|----------|
+| `text` | Default. Value stored and visible in the Zabbix UI. |
+| `secret` | Value stored but masked in the UI. Cannot be read back via API. |
+| `vault` | Value is a Vault path. Zabbix fetches the actual secret from HashiCorp Vault at runtime. |
+
+Type values match the Zabbix native export format: `TEXT` (default), `SECRET_TEXT`, `VAULT`. Secret and vault macros keep credentials out of the Zabbix UI. Combined with `${ENV_VAR}` interpolation, the actual secret values never appear in committed YAML either.
+
+### `set_super_admin`
+
+Updates the currently authenticated super admin user — password, username, or both:
+
+```bash
+zbxtemplar-exec set_super_admin --new-password "$ZBX_NEW_PASSWORD" --current-password "$ZBX_CURRENT_PASSWORD" --url ... --password ...
+```
+
+When `--current-password` is omitted, the CLI falls back to the `--password` used for authentication. The `--username` flag optionally renames the admin account.
+
+After a password change with session auth (not token), the executor automatically re-logs in with the new credentials so subsequent scroll actions continue working.
 
 ## Environment Variable Interpolation
 
@@ -284,7 +263,7 @@ Sensitive values are never logged. Macro values appear as `value_redacted=true`,
 Pass `--json` to any command for newline-delimited JSON, suitable for log aggregation:
 
 ```bash
-zbxtemplar-exec --json scroll deploy.scroll.yml --url ... --token ...
+zbxtemplar-exec --json apply deploy.scroll.yml --url ... --token ...
 ```
 
 Each line is a self-contained JSON object with the same fields as the text format.

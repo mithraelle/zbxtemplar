@@ -64,6 +64,11 @@ class StagedExecutor(Executor):
             )
 
     def execute(self, from_action=None, only_action=None):
+        valid = [s.action for s in self._ACTIONS]
+        val = from_action or only_action
+        if val and val not in valid:
+            raise ValueError(f"Unknown action: {val}. Valid: {', '.join(valid)}")
+
         ops = self._ops
         if only_action:
             ops = [(k, o) for k, o in ops if k == only_action]

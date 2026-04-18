@@ -248,7 +248,7 @@ class MyDecree(DecreeModule):
         )
 ```
 
-`self.context.get_host_group("Prodction")` raises `ValueError: Host group 'Prodction' not found in context` during `zbxtemplar generate`. Not during `zbxtemplar-exec decree` against production.
+`self.context.get_host_group("Prodction")` raises `ValueError: Host group 'Prodction' not found in context` during `zbxtemplar generate`. Not during `zbxtemplar-exec apply` against production.
 
 This creates a two-stage safety net:
 

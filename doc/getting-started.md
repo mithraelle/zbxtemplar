@@ -119,7 +119,7 @@ zbxtemplar-exec apply templates.yml --url https://zabbix.example.com --token "$Z
 For decree YAML:
 
 ```bash
-zbxtemplar-exec decree decree.yml --url https://zabbix.example.com --token "$ZABBIX_TOKEN"
+zbxtemplar-exec apply decree.yml --url https://zabbix.example.com --token "$ZABBIX_TOKEN"
 ```
 
 ## Expected Workflow
