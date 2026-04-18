@@ -4,7 +4,7 @@ from zbxtemplar.executor.operations.ImportOperation import ImportOperation
 
 
 def test_reads_file_and_imports(tmp_path):
-    test_str = "zabbix_export:\n  version: '7.4'\n"
+    test_str = "zabbix_export:\n  version: '7.4'\n  templates: []\n"
     yaml_file = tmp_path / "templates.yml"
     yaml_file.write_text(test_str)
 
@@ -20,9 +20,9 @@ def test_reads_file_and_imports(tmp_path):
 
 def test_list_of_files(tmp_path):
     file1 = tmp_path / "templates.yml"
-    file1.write_text("zabbix_export:\n  version: '7.4'\n")
+    file1.write_text("zabbix_export:\n  version: '7.4'\n  templates: []\n")
     file2 = tmp_path / "hosts.yml"
-    file2.write_text("zabbix_export:\n  version: '7.4'\n")
+    file2.write_text("zabbix_export:\n  version: '7.4'\n  templates: []\n")
 
     api = MagicMock()
     op = ImportOperation([str(file1), str(file2)], api)

@@ -14,10 +14,11 @@ from zbxtemplar.dicts.Scroll import Scroll
 
 
 class Context:
-    _FORMATS = [
-        (Scroll, "_merge_scroll"),
-        (Decree, "_merge_decree"),
-    ]
+    _FORMATS = {
+        ZabbixExport: "_merge_zabbix_export",
+        Scroll: "_merge_scroll",
+        Decree: "_merge_decree",
+    }
 
     def __init__(self):
         self._macros: dict[str, Macro] = {}
@@ -70,24 +71,10 @@ class Context:
         prev_base = Schema._base_dir
         Schema._base_dir = os.path.dirname(path)
         try:
-            with open(path) as f:
-                data = yaml.safe_load(f)
-            if not isinstance(data, dict):
-                raise ValueError(f"{filename}: expected a YAML mapping, got {type(data).__name__}")
-
-            if "zabbix_export" in data:
-                self._merge_zabbix_export(ZabbixExport.from_data(data["zabbix_export"]))
-                return self
-
-            keys = set(data)
-            for entity_cls, merger in self._FORMATS:
-                if keys & {f.key for f in entity_cls._SCHEMA}:
-                    getattr(self, merger)(entity_cls.from_data(data))
-                    return self
-
-            raise ValueError(
-                f"{filename}: unknown format (top-level keys: {', '.join(sorted(keys))})"
-            )
+            entity_cls = Schema.detect_type(filename)
+            data = Schema._load_yaml(path)
+            getattr(self, self._FORMATS[entity_cls])(entity_cls.from_data(data))
+            return self
         finally:
             Schema._base_dir = prev_base
 

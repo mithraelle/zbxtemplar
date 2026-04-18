@@ -9,7 +9,6 @@ from typing import Self, TypeAlias, get_args, get_origin
 
 import yaml
 
-
 SchemaRuntimeType: TypeAlias = builtins.type | GenericAlias | UnionType
 
 
@@ -194,3 +193,28 @@ class Schema:
                 f"Missing environment variable(s):\n{lines}"
             )
         return result
+
+    @classmethod
+    def detect_type(cls, filename: str) -> type:
+        from zbxtemplar.dicts.ZabbixExport import ZabbixExport
+        from zbxtemplar.dicts.Scroll import Scroll
+        from zbxtemplar.dicts.Decree import Decree
+        path = os.path.abspath(filename)
+        with open(path) as f:
+            data = yaml.safe_load(f)
+        if not isinstance(data, dict):
+            raise ValueError(f"{filename}: expected a YAML mapping, got {type(data).__name__}")
+
+        if "zabbix_export" in data:
+            inner = data["zabbix_export"]
+            if isinstance(inner, dict) and {"hosts", "templates"} & set(inner):
+                return ZabbixExport
+
+        keys = set(data)
+        for entity_cls in [Scroll, Decree]:
+            if keys & {f.key for f in entity_cls._SCHEMA}:
+                return entity_cls
+
+        raise ValueError(
+            f"{filename}: unknown format (top-level keys: {', '.join(sorted(keys))})"
+        )
