@@ -122,6 +122,28 @@ Safety rails on token output:
 - writing to an already existing output file is rejected (prevents silent overwrite of a previously provisioned token)
 - token ownership is validated (will not touch a token belonging to the wrong user)
 
+#### Apply: Decree `saml`
+
+The `saml` section configures SAML Single Sign-On and JIT (Just-In-Time) user provisioning for Zabbix user directories.
+
+```yaml
+saml:
+  idp_entityid: https://idp.example.com/idp
+  sp_entityid: zabbix
+  sso_url: https://idp.example.com/idp/sso/saml
+  username_attribute: uid
+  provision_status: ENABLED
+  group_name: role
+  disabled_user_group: Disabled users
+  provision_groups:
+    - name: zabbix-admins
+      role: Super admin role
+      user_groups:
+        - Zabbix administrators
+```
+
+**Note on JIT Deprovisioning:** When SAML JIT provisioning is enabled, Zabbix requires you to specify a `disabled_user_group` where deprovisioned SAML users will be placed. You must ensure that this target Zabbix user group is actually configured with its GUI access explicitly disabled (`gui_access: DISABLED`) or its member users disabled (`users_status: DISABLED`) in order to effectively prevent logins.
+
 #### Apply: Scroll
 
 Runs an ordered deployment configuration file using the built-in action sequence:

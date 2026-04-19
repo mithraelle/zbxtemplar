@@ -2,13 +2,13 @@
 
 A Pythonic framework for programmatic Zabbix configuration generation — Monitoring as Code.
 
-Define templates, hosts, user groups, users, and actions as Python code. Generate Zabbix-native YAML (importable via UI or API) and decree YAML (applied by the executor). The goal is to cover the essential Zabbix configuration primitives — not every possible option. If you need a field that isn't exposed, raw dicts and string expressions give you an escape hatch.
+Define templates, hosts, user groups, users, SAML directories, and actions as Python code. Generate Zabbix-native YAML (importable via UI or API) and decree YAML (applied by the executor). The goal is to cover the essential Zabbix configuration primitives — not every possible option. If you need a field that isn't exposed, raw dicts and string expressions give you an escape hatch.
 
 Aimed at teams that want:
 
 - monitoring configuration in git, reviewable in PRs
 - readable, programmable definitions instead of large generated exports
-- a lightweight way to manage users, permissions, and alert-routing state
+- a lightweight way to manage users, permissions, SAML JIT provisioning, and alert-routing state
 - confidence that deploying monitoring configuration cannot accidentally leak credentials, partially apply state, or silently ignore misconfiguration
 - a structured, sequenced run trace that records every file loaded, every entity created or updated with its live ID, and every secret write — without ever logging a secret value
 
@@ -18,7 +18,7 @@ Zabbix is powerful, but its configuration is not pleasant to version, review, or
 
 The Zabbix UI handles one-off setup fine. The trouble starts when you need the same action across dev, staging, and prod. When someone edits an alert filter and nobody notices until production goes silent. When "for each team, create a scoped alert" means N manual repetitions with N chances to get it wrong. That does not scale — which forces you into code.
 
-Once you are there, secrets need handling. `${ENV_VAR}` placeholders keep credentials out of git; a missing variable is a hard abort, not an empty string applied to a live instance. Zabbix `secret` and `vault` macro types are first-class. Host encryption (PSK, TLS certificates) and token provisioning — things that are clunky or impossible to automate from the web interface — are managed declaratively with the same strict contract ([`doc/security.md`](./doc/security.md)).
+Once you are there, secrets need handling. `${ENV_VAR}` placeholders keep credentials out of git; a missing variable is a hard abort, not an empty string applied to a live instance. Zabbix `secret` and `vault` macro types are first-class. Host encryption (PSK, TLS certificates), API token provisioning, and **SAML Single Sign-On (SSO) with JIT user provisioning** — things that are clunky or impossible to automate from the web interface — are managed declaratively with the same strict contract ([`doc/security.md`](./doc/security.md)).
 
 Actions are where the Zabbix API gets awkward and error-prone: numeric codes for everything, manual formula labels, invalid operator-condition combinations accepted without complaint. `zbxtemplar` replaces that with typed Python — `HostGroupCondition("Production") & SeverityCondition("HIGH")`. Names, not IDs. Wrong operator on the wrong condition type? Type error at write time, not a silent misfire during an incident ([`doc/actions.md`](./doc/actions.md)).
 
@@ -31,7 +31,7 @@ On top of all this, `Context` validates references at generation time — agains
 `zbxtemplar` has three main pieces:
 
 - `TemplarModule` generates Zabbix-native YAML for templates and hosts
-- `DecreeModule` generates decree YAML for users, user groups, and actions
+- `DecreeModule` generates decree YAML for users, user groups, SAML directories, and actions
 - `zbxtemplar-exec` applies generated artifacts to a live Zabbix instance
 
 The split is intentional:

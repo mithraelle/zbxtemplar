@@ -13,13 +13,19 @@ import zbxtemplar
 
 REFERENCE_ORDER = {
     "Scroll": 10,
+    "SuperAdmin": 11,
+    "Macro": 12,
     "Decree": 20,
-    "SuperAdmin": 25,
-    "UserMedia": 30,
-    "UserGroup": 40,
+    "UserGroup": 30,
+    "SamlProvider": 40,
+    "SamlProvisionGroup": 41,
+    "SamlProvisionMedia": 42,
     "User": 50,
-    "Token": 60,
-    "HostEncryption": 70,
+    "UserMedia": 51,
+    "Token": 52,
+    "EncryptionDecree": 70,
+    "Encryption": 71,
+    "HostEncryption": 72,
 }
 
 
