@@ -58,6 +58,7 @@ def generate():
         "--users-output", str(EXAMPLES / "sample_set_user.yml"),
         "--actions-output", str(EXAMPLES / "sample_actions_decree.yml"),
         "--encryption-output", str(EXAMPLES / "sample_encryption_decree.yml"),
+        "--saml-output", str(EXAMPLES / "sample_saml_config.yml"),
         label="Generate decree")
 
 
@@ -103,7 +104,7 @@ def wait_zabbix(timeout=120):
 
 def apply():
     shutil.rmtree(EXAMPLES / ".secrets", ignore_errors=True)
-    run("zbxtemplar-exec", "scroll", str(SCROLL),
+    run("zbxtemplar-exec", "apply", str(SCROLL),
         "--url", ZBX_URL, "--user", "Admin", "--password", "zabbix",
         label="Apply scroll")
 
