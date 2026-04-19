@@ -14,6 +14,14 @@ class GuiAccess:
     _API_VALUES = {"DEFAULT": 0, "INTERNAL": 1, "LDAP": 2, "DISABLED": 3}
 
 
+class UsersStatus:
+    """User group users status (whether member users are enabled)."""
+    ENABLED = "ENABLED"
+    DISABLED = "DISABLED"
+
+    _API_VALUES = {"ENABLED": 0, "DISABLED": 1}
+
+
 class Permission:
     """Host/template group permission levels."""
     NONE = "NONE"
@@ -29,18 +37,24 @@ class UserGroup(DecreeEntity, Schema):
     _SCHEMA = [
         SchemaField("name", optional=False, description="Zabbix user group name."),
         SchemaField("gui_access", description="GUI access mode: DEFAULT, INTERNAL, LDAP, or DISABLED."),
+        SchemaField("users_status", description="Member users status: ENABLED or DISABLED."),
         SchemaField("host_groups", str_type="list[dict]", description="Host group permission entries with name and permission."),
         SchemaField("template_groups", str_type="list[dict]", description="Template group permission entries with name and permission."),
     ]
 
-    def __init__(self, name: str, gui_access: GuiAccess = None):
+    def __init__(self, name: str, gui_access: GuiAccess = None, users_status: UsersStatus = None):
         self.name = name
         self.gui_access = gui_access
+        self.users_status = users_status
         self.host_groups = []
         self.template_groups = []
 
     def set_gui_access(self, gui_access: GuiAccess):
         self.gui_access = gui_access
+        return self
+
+    def set_users_status(self, users_status: UsersStatus):
+        self.users_status = users_status
         return self
 
     def add_host_group(self, group, permission: Permission):
@@ -62,12 +76,21 @@ class UserGroup(DecreeEntity, Schema):
         return self
 
     @classmethod
+    def from_data(cls, data):
+        if isinstance(data, str):
+            return cls(data)
+        return super().from_data(data)
+
+    @classmethod
     def from_dict(cls, data: dict, host_groups=None, template_groups=None):
         cls.validate(data)
         gui = data.get("gui_access")
         if gui is not None:
             _validate(gui, GuiAccess._API_VALUES, "gui_access")
-        group = cls(data["name"], gui_access=gui)
+        users_status = data.get("users_status")
+        if users_status is not None:
+            _validate(users_status, UsersStatus._API_VALUES, "users_status")
+        group = cls(data["name"], gui_access=gui, users_status=users_status)
         for hg in data.get("host_groups", []):
             _validate(hg["permission"], Permission._API_VALUES, "permission")
             group.add_host_group(hg["name"], hg["permission"])

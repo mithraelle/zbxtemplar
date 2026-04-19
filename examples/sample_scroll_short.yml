@@ -10,3 +10,4 @@ decree:
   - sample_set_user.yml
   - sample_actions_decree.yml
   - sample_encryption_decree.yml
+  - sample_saml_config.yml

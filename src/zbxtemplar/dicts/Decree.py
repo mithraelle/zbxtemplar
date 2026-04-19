@@ -1,8 +1,9 @@
-from typing import Self
+from typing import Self, get_origin
 
 from zbxtemplar.decree import UserGroup, User
 from zbxtemplar.decree.Action import Action
 from zbxtemplar.decree.Encryption import Encryption, HostEncryption
+from zbxtemplar.decree.saml import SamlProvider
 from zbxtemplar.dicts.Schema import Schema, SchemaField
 
 
@@ -25,6 +26,9 @@ class Decree(Schema):
         SchemaField("user_group", str_type="list[UserGroup]",
                     description="User group definitions to create or update before users.",
                     type=list[UserGroup]),
+        SchemaField("saml", str_type="SamlProvider",
+                    description="SAML userdirectory definition to create or update after user groups.",
+                    type=SamlProvider),
         SchemaField("add_user", str_type="list[User]",
                     description="User definitions to create or update.",
                     type=list[User]),
@@ -38,14 +42,20 @@ class Decree(Schema):
 
     @classmethod
     def _merge_decree(cls, sources):
+        list_keys = {f.key for f in cls._SCHEMA if get_origin(f.type) is list}
         merged = {}
         for src in sources:
             if isinstance(src, str):
                 src = cls._load_yaml(src)
-            for key in src:
-                merged.setdefault(key, []).extend(
-                    src[key] if isinstance(src[key], list) else [src[key]]
-                )
+            for key, value in src.items():
+                if key in list_keys:
+                    merged.setdefault(key, []).extend(value if isinstance(value, list) else [value])
+                else:
+                    if key in merged:
+                        raise ValueError(
+                            f"Decree: multiple '{key}' entries across merged sources; only one allowed"
+                        )
+                    merged[key] = value
         return merged
 
     @classmethod

@@ -99,6 +99,7 @@ def main():
     parser.add_argument("--hosts-output", help="Output YAML for hosts only")
     parser.add_argument("--user-groups-output", help="Output YAML for user groups only")
     parser.add_argument("--users-output", help="Output YAML for users only")
+    parser.add_argument("--saml-output", help="Output YAML for SAML provider only")
     parser.add_argument("--actions-output", help="Output YAML for actions only")
     parser.add_argument("--encryption-output", help="Output YAML for encryption only")
     parser.add_argument("--macros-output", help="Output YAML for global macros (set_macro format, applied via executor)")
@@ -110,11 +111,12 @@ def main():
     args = parser.parse_args()
 
     has_output = (args.output or args.templates_output or args.hosts_output
-                  or args.user_groups_output or args.users_output or args.actions_output
-                  or args.encryption_output or args.macros_output)
+                  or args.user_groups_output or args.users_output or args.saml_output
+                  or args.actions_output or args.encryption_output or args.macros_output)
     if not has_output:
         parser.error("at least one output is required: -o, --templates-output, --hosts-output, "
-                      "--user-groups-output, --users-output, --actions-output, --encryption-output, or --macros-output")
+                      "--user-groups-output, --users-output, --saml-output, --actions-output, "
+                      "--encryption-output, or --macros-output")
 
     if args.namespace:
         set_uuid_namespace(args.namespace)
@@ -148,6 +150,8 @@ def main():
                     _write_yaml(mod.export_user_groups(), args.user_groups_output, f"{name} [user_groups]")
                 if args.users_output:
                     _write_yaml(mod.export_users(), args.users_output, f"{name} [users]")
+                if args.saml_output:
+                    _write_yaml(mod.export_saml(), args.saml_output, f"{name} [saml]")
                 if args.actions_output:
                     _write_yaml(mod.export_actions(), args.actions_output, f"{name} [actions]")
                 if args.encryption_output:

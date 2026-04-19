@@ -1,5 +1,6 @@
 from zbxtemplar.decree.Action import Action, AutoregistrationAction, TriggerAction
 from zbxtemplar.decree.Encryption import Encryption, HostEncryption
+from zbxtemplar.decree.saml import SamlProvider
 from zbxtemplar.decree.User import User
 from zbxtemplar.decree.UserGroup import UserGroup
 from zbxtemplar.modules.BaseModule import BaseModule
@@ -9,18 +10,24 @@ from zbxtemplar.zabbix.Host import Host
 class DecreeModule(BaseModule):
     def __init__(self, **kwargs):
         self.user_groups: list[UserGroup] = []
+        self.saml: SamlProvider | None = None
         self.users: list[User] = []
         self.actions: list[Action] = []
         self.encryption_defaults: Encryption | None = None
         self.encryptions: list[HostEncryption] = []
         super().__init__(**kwargs)
 
-    def add_user_group(self, name: str, gui_access: str | None = None) -> UserGroup:
+    def add_user_group(
+        self,
+        name: str,
+        gui_access: str | None = None,
+        users_status: str | None = None,
+    ) -> UserGroup:
         if any(g.name == name for g in self.user_groups):
             raise ValueError(
                 f"{type(self).__name__}: duplicate user group '{name}'"
             )
-        group = UserGroup(name=name, gui_access=gui_access)
+        group = UserGroup(name=name, gui_access=gui_access, users_status=users_status)
         self.user_groups.append(group)
         return group
 
@@ -32,6 +39,28 @@ class DecreeModule(BaseModule):
         user = User(username=username, role=role)
         self.users.append(user)
         return user
+
+    def set_saml(
+        self,
+        idp_entityid: str,
+        sp_entityid: str,
+        sso_url: str,
+        username_attribute: str,
+        slo_url: str | None = None,
+    ) -> SamlProvider:
+        if self.saml is not None:
+            raise ValueError(
+                f"{type(self).__name__}: SAML provider already configured"
+            )
+        provider = SamlProvider(
+            idp_entityid=idp_entityid,
+            sp_entityid=sp_entityid,
+            sso_url=sso_url,
+            username_attribute=username_attribute,
+            slo_url=slo_url,
+        )
+        self.saml = provider
+        return provider
 
     def _add_action(self, action: Action) -> Action:
         if any(a.name == action.name for a in self.actions):
@@ -92,6 +121,11 @@ class DecreeModule(BaseModule):
             return {}
         return {"add_user": [u.to_dict() for u in self.users]}
 
+    def export_saml(self) -> dict:
+        if not self.saml:
+            return {}
+        return {"saml": self.saml.to_dict()}
+
     def export_actions(self) -> dict:
         if not self.actions:
             return {}
@@ -111,6 +145,7 @@ class DecreeModule(BaseModule):
         result = {}
         result.update(self.export_macros())
         result.update(self.export_user_groups())
+        result.update(self.export_saml())
         result.update(self.export_users())
         result.update(self.export_actions())
         result.update(self.export_encryption())

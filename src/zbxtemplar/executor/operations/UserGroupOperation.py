@@ -1,4 +1,4 @@
-from zbxtemplar.decree import UserGroup, GuiAccess, Permission
+from zbxtemplar.decree import UserGroup, GuiAccess, Permission, UsersStatus
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zbxtemplar.executor.log import log
@@ -31,6 +31,9 @@ class UserGroupOperation(Executor):
         for ug in self._spec:
             gui = ug.gui_access or GuiAccess.DEFAULT
             params = {"name": ug.name, "gui_access": GuiAccess._API_VALUES[gui]}
+
+            if ug.users_status is not None:
+                params["users_status"] = UsersStatus._API_VALUES[ug.users_status]
 
             if ug.host_groups:
                 params["hostgroup_rights"] = self._resolve_rights(ug.host_groups, host_groups, "Host group")

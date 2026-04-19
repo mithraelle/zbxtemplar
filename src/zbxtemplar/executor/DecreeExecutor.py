@@ -1,6 +1,7 @@
 from zbxtemplar.dicts.Decree import Decree
 from zbxtemplar.executor.Executor import StagedExecutor, ExecutorStage
 from zbxtemplar.executor.operations.EncryptionOperation import EncryptionOperation
+from zbxtemplar.executor.operations.SamlOperation import SamlOperation
 from zbxtemplar.executor.operations.UserGroupOperation import UserGroupOperation
 from zbxtemplar.executor.operations.UserOperation import UserOperation
 from zbxtemplar.executor.operations.ActionOperation import ActionOperation
@@ -9,6 +10,7 @@ from zbxtemplar.executor.operations.ActionOperation import ActionOperation
 class DecreeExecutor(StagedExecutor):
     _ACTIONS = [
         ExecutorStage("user_group", UserGroupOperation),
+        ExecutorStage("saml", SamlOperation),
         ExecutorStage("add_user", UserOperation),
         ExecutorStage("actions", ActionOperation),
         ExecutorStage("encryption", EncryptionOperation),

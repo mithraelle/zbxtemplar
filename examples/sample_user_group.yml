@@ -11,3 +11,6 @@ user_group:
   template_groups:
   - name: Templar Templates
     permission: READ_WRITE
+- name: Templar Disabled
+  gui_access: DISABLED
+  users_status: DISABLED

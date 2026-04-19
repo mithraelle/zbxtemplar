@@ -1,5 +1,16 @@
 from zbxtemplar.modules import DecreeModule
-from zbxtemplar.decree import Token, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
+from zbxtemplar.decree import (
+    GuiAccess,
+    MediaType,
+    Permission,
+    SamlProvisionGroup,
+    SamlProvisionMedia,
+    Severity,
+    Token,
+    UserMedia,
+    UserRole,
+    UsersStatus,
+)
 from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition
 
 
@@ -44,6 +55,27 @@ class SampleDecree(DecreeModule):
         test_registration.operations.add_host()
         test_registration.operations.link_template(test_template)
         test_registration.set_conditions(HostMetadataCondition("test", HostMetadataCondition.Op.CONTAINS))
+
+        saml = self.set_saml(
+            idp_entityid="http://www.okta.com/example",
+            sp_entityid="zabbix",
+            sso_url="https://example.okta.com/sso/saml",
+            username_attribute="usrEmail",
+        )
+        saml.set_security(sign_assertions=True, encrypt_assertions=True)
+        disabled_group = self.add_user_group(
+            "Templar Disabled",
+            gui_access=GuiAccess.DISABLED,
+            users_status=UsersStatus.DISABLED,
+        )
+        saml.set_provisioning(
+            group_name="groups",
+            disabled_user_group=disabled_group,
+            user_username="firstName",
+            user_lastname="lastName",
+            groups=SamlProvisionGroup("zabbix-admins", UserRole.SUPER_ADMIN, [ops_group]),
+            media=SamlProvisionMedia("Email", MediaType.EMAIL, "email"),
+        )
 
         self.set_encryption_defaults(connect_unencrypted=True)
         host_encryption = self.add_host_encryption(

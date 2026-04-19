@@ -1,9 +1,12 @@
+from enum import StrEnum
+
 from zbxtemplar.dicts.Schema import Schema, SchemaField
-from zbxtemplar.decree.DecreeEntity import DecreeEntity, _validate
+from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.decree.Token import Token
+from zbxtemplar.decree.constants import ActiveStatus
 
 
-class Severity:
+class Severity(StrEnum):
     """Trigger severity levels."""
     NOT_CLASSIFIED = "NOT_CLASSIFIED"
     INFORMATION = "INFORMATION"
@@ -12,35 +15,38 @@ class Severity:
     HIGH = "HIGH"
     DISASTER = "DISASTER"
 
-    _API_VALUES = {
-        "NOT_CLASSIFIED": 1, "INFORMATION": 2, "WARNING": 4,
-        "AVERAGE": 8, "HIGH": 16, "DISASTER": 32,
-    }
-
     @staticmethod
     def mask(severities: list) -> int:
         mask = 0
         for s in severities:
             mask |= Severity._API_VALUES[s]
         return mask
+
+
+Severity._API_VALUES = {
+    "NOT_CLASSIFIED": 1, "INFORMATION": 2, "WARNING": 4,
+    "AVERAGE": 8, "HIGH": 16, "DISASTER": 32,
+}
+
 from zbxtemplar.decree.UserGroup import UserGroup
 
 
-class UserMedia(Schema):
+class UserMedia(DecreeEntity):
     """Notification media configuration for a managed user."""
 
     _SCHEMA = [
-        SchemaField("type", optional=False, description="Zabbix media type name."),
-        SchemaField("sendto", optional=False, description="Recipient address or target for the media type."),
-        SchemaField("severity", str_type="list[str] | str", description="Enabled trigger severities as a list or comma-separated string."),
-        SchemaField("period", description="Zabbix media active time period, for example 1-7,00:00-24:00."),
+        SchemaField("type", optional=False, type=str, description="Zabbix media type name."),
+        SchemaField("sendto", optional=False, type=str, description="Recipient address or target for the media type."),
+        SchemaField("active", str_type="ENABLED or DISABLED", type=ActiveStatus,
+                    description="Whether the media is enabled."),
+        SchemaField("severity", type=list[Severity], str_type="list[Severity]",
+                    description="Enabled trigger severities."),
+        SchemaField("period", type=str, description="Zabbix media active time period, for example 1-7,00:00-24:00."),
     ]
 
     def __init__(self, media_type: str, sendto: str):
         self.type = media_type
         self.sendto = sendto
-        self.severity = None
-        self.period = None
 
     def set_severity(self, severity: list):
         self.severity = severity
@@ -50,28 +56,8 @@ class UserMedia(Schema):
         self.period = period
         return self
 
-    def to_dict(self) -> dict:
-        result = {"type": self.type, "sendto": self.sendto}
-        if self.severity is not None:
-            result["severity"] = ",".join(self.severity)
-        if self.period is not None:
-            result["period"] = self.period
-        return result
-
-    @classmethod
-    def from_dict(cls, data: dict):
-        cls.validate(data)
-        media = cls(data["type"], data["sendto"])
-        severity = data.get("severity")
-        if severity is not None:
-            if isinstance(severity, str):
-                severity = severity.split(",")
-            for s in severity:
-                _validate(s, Severity._API_VALUES, "severity")
-            media.set_severity(severity)
-        if "period" in data:
-            media.set_period(data["period"])
-        return media
+    def severity_to_list(self):
+        return ",".join(self.severity)
 
 
 class User(DecreeEntity, Schema):

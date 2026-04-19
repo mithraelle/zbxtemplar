@@ -11,6 +11,37 @@ user_group:
   template_groups:
   - name: Templar Templates
     permission: READ_WRITE
+- name: Templar Disabled
+  gui_access: DISABLED
+  users_status: DISABLED
+saml:
+  idp_entityid: http://www.okta.com/example
+  sp_entityid: zabbix
+  sso_url: https://example.okta.com/sso/saml
+  username_attribute: usrEmail
+  sign_assertions: 'YES'
+  sign_authn_requests: 'NO'
+  sign_messages: 'NO'
+  sign_logout_requests: 'NO'
+  sign_logout_responses: 'NO'
+  encrypt_assertions: 'YES'
+  encrypt_nameid: 'NO'
+  provision_status: 1
+  scim_status: 0
+  group_name: groups
+  user_username: firstName
+  user_lastname: lastName
+  disabled_user_group: Templar Disabled
+  provision_groups:
+  - name: zabbix-admins
+    role: Super admin role
+    user_groups:
+    - Templar Users
+  provision_media:
+  - name: Email
+    type: Email
+    attribute: email
+  saml_case_sensitive: 'YES'
 add_user:
 - username: zbx-admin
   role: Super admin role

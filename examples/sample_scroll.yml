@@ -12,5 +12,6 @@ apply:
 decree:
   - sample_user_group.yml
   - sample_set_user.yml
+  - sample_saml_config.yml
   - sample_actions_decree.yml
   - sample_encryption_decree.yml
