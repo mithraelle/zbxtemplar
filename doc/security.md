@@ -75,6 +75,12 @@ PSK secrets are write-only in Zabbix (the API never returns them), so PSK-mode h
 
 Encryption settings are validated at parse time — invalid combinations fail before any API call.
 
+## SAML JIT Provisioning
+
+The `saml` decree section manages Zabbix SAML SSO and JIT provisioning declaratively. Required provider fields, provisioning dependencies, role names, user group names, and media type names are validated before the SAML directory is created or updated.
+
+When JIT provisioning is enabled, `group_name`, `disabled_user_group`, and at least one `provision_groups` entry are required. The `disabled_user_group` is where Zabbix places deprovisioned SAML users — it only acts as a real lockout if you also declare that group with `users_status: DISABLED` in your user group configuration, which disables the member users entirely. `gui_access: DISABLED` alone blocks frontend login but does not revoke API token access; the executor wires the group into Zabbix authentication, but the lockout semantics are part of your declared user group configuration.
+
 ## Token Provisioning Safety
 
 Token output has deliberate guardrails:
@@ -109,6 +115,7 @@ Errors are surfaced as early as possible, at the cheapest point in the pipeline:
 | Unknown context file format | Load time | Hard error, no generation |
 | Missing `${ENV_VAR}` references | Pre-flight | Hard abort before any mutation |
 | Invalid encryption settings | Parse time | Validation error |
+| Invalid SAML provisioning settings | Parse time / pre-flight | Validation error before SAML mutation |
 | Python `and`/`or` on action conditions | Write time | `TypeError` with clear message |
 | Macro not found on template/host | Generation time | `KeyError` |
 | Name not found in Context | Generation time | `ValueError` |

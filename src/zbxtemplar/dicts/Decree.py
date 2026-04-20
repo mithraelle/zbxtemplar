@@ -20,7 +20,7 @@ class EncryptionDecree(Schema):
     ]
 
 class Decree(Schema):
-    """Decree YAML contents: user groups, users, actions, and host encryption."""
+    """Decree YAML contents: user groups, SAML, users, actions, and host encryption."""
 
     _SCHEMA = [
         SchemaField("user_group", str_type="list[UserGroup]",

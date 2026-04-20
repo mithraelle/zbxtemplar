@@ -107,7 +107,7 @@ def main():
     parser.add_argument("--context", action="append", metavar="FILE",
                         help="Context YAML for module lookups: zabbix_export, set_macro, decree snippets (repeatable)")
     parser.add_argument("--param", action="append", metavar="KEY=VALUE",
-                        help="Parameter passed to the module constructor (repeatable)")
+                        help="Parameter passed to the module compose() method (repeatable)")
     args = parser.parse_args()
 
     has_output = (args.output or args.templates_output or args.hosts_output

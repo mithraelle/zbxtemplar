@@ -67,7 +67,7 @@ zbxtemplar my_module.py \
 
 ## First Decree Module
 
-Use `DecreeModule` when you need users, groups, or actions:
+Use `DecreeModule` when you need users, groups, SAML, host encryption, global macros, or actions:
 
 ```python
 from zbxtemplar.modules import DecreeModule
@@ -107,6 +107,8 @@ zbxtemplar decree_module.py -o decree.yml --context templates.yml
 `--context` lets a module reference known objects from YAML context files. Those files can come from previously generated artifacts or from existing exported configuration.
 
 Token provisioning uses a nested `token` object under the user. At minimum it needs a token name, an expiration for create-time provisioning, and an output sink `store_at` (which can be a file path or `STDOUT`).
+
+SAML and host encryption use the same decree output. The module helpers are `set_saml(...)`, `set_encryption_defaults(...)`, and `add_host_encryption(...)`; see the Executor Guide and Decree Reference for the fields applied to Zabbix.
 
 ## Apply The Output
 

@@ -7,10 +7,10 @@ This directory is the structured documentation for `zbxtemplar`.
 `zbxtemplar` is a Python-based "Monitoring as Code" toolkit for Zabbix:
 
 - `TemplarModule` generates Zabbix-native YAML for templates and hosts.
-- `DecreeModule` generates decree YAML for users, user groups, and actions.
+- `DecreeModule` generates decree YAML for users, user groups, SAML directories, actions, host encryption, and global macros.
 - `zbxtemplar-exec` applies those artifacts to a live Zabbix instance.
 
-The project is aimed at teams who want monitoring configuration, access control, and alert routing to live in code and git instead of being managed manually in the Zabbix UI.
+The project is aimed at teams who want monitoring configuration, access control, SSO provisioning, host security, and alert routing to live in code and git instead of being managed manually in the Zabbix UI.
 
 ## Documentation Map
 

@@ -28,6 +28,7 @@ For `DecreeModule`:
 - `-o, --output`
 - `--user-groups-output`
 - `--users-output`
+- `--saml-output`
 - `--actions-output`
 - `--encryption-output`
 - `--macros-output` — optional; module-level macros are already included in `-o` output
@@ -35,7 +36,7 @@ For `DecreeModule`:
 ### Other flags
 
 - `--namespace` sets the UUID namespace for deterministic IDs
-- `--param KEY=VALUE` passes constructor parameters
+- `--param KEY=VALUE` passes `compose()` parameters
 - `--context FILE` loads one or more context YAML files
 
 ## Module Discovery
@@ -49,9 +50,9 @@ Every discovered subclass is instantiated and exported.
 
 If a file defines multiple module classes, each one is processed.
 
-## Constructor Parameters
+## Compose Parameters
 
-The constructor is the module contract.
+The `compose()` method signature is the module contract.
 
 Example:
 
@@ -79,7 +80,7 @@ If a required parameter is missing or an unknown parameter is supplied, generati
 
 ## Context Files
 
-`--context` is accepted by the CLI for any generation run. During loading, the generator forwards the built `Context` into module constructors that accept a `context` parameter.
+`--context` is accepted by the CLI for any generation run. During loading, the generator builds one `Context` and exposes it as `self.context` on each loaded module.
 
 Context serves two practical roles:
 
@@ -183,17 +184,19 @@ Builder helpers construct, register, and return decree objects:
 
 - `add_user_group(name, gui_access=None)` returns a `UserGroup`
 - `add_user(username, role)` returns a `User`
+- `set_saml(idp_entityid, sp_entityid, sso_url, username_attribute, slo_url=None)` returns a `SamlProvider`
 - `add_trigger_action(name)` returns a `TriggerAction`
 - `add_autoregistration_action(name)` returns an `AutoregistrationAction`
 - `set_encryption_defaults(connect_unencrypted=False, accept_unencrypted=False)` returns an `Encryption`
 - `add_host_encryption(host, connect_unencrypted=False, accept_unencrypted=False)` returns a `HostEncryption`
 
-Mutate the returned object to add permissions, groups, media, action operations, or encryption credentials. Duplicate user groups, users, actions, and host encryption entries raise `ValueError`.
+Mutate the returned object to add permissions, groups, media, SAML provisioning rules, action operations, or encryption credentials. Duplicate user groups, users, SAML providers, actions, and host encryption entries raise `ValueError`.
 
 The split export helpers are:
 
 - `export_macros()`
 - `export_user_groups()`
+- `export_saml()`
 - `export_users()`
 - `export_actions()`
 - `export_encryption()`

@@ -121,7 +121,7 @@ class SamlProvider(DecreeEntity):
         SchemaField("user_username", description="SAML attribute to use as the user's first name."),
         SchemaField("user_lastname", description="SAML attribute to use as the user's last name."),
         SchemaField("disabled_user_group", str_type="UserGroup",
-                    description="Zabbix user group to place deprovisioned SAML users into. Note: This group must be configured with gui_access=DISABLED or users_status=DISABLED.",
+                    description="Zabbix user group to place deprovisioned SAML users into. For a real lockout, configure this group with users_status=DISABLED (gui_access=DISABLED alone blocks frontend login but not API token access).",
                     type=UserGroup),
         SchemaField("provision_groups", str_type="list[SamlProvisionGroup]",
                     description="SAML group to Zabbix role/user group mappings.",

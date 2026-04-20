@@ -62,11 +62,20 @@ Imports Zabbix-native YAML through `configuration.import`.
 Applies decree YAML sections in dependency order:
 
 1. `user_group`
-2. `add_user`
-3. `actions`
-4. `encryption`
+2. `saml`
+3. `add_user`
+4. `actions`
+5. `encryption`
 
-The `decree` sections such as `actions` natively support loading from external YAML files. Passing a file path string instead of a nested dictionary allows you to manage and reload large action/trigger configurations independently.
+The `decree` input can be one YAML file, inline decree data, or a list of full decree fragments. Fragment lists are useful when you keep users, SAML, actions, and encryption in separate files:
+
+```yaml
+decree:
+  - user_groups.yml
+  - saml.yml
+  - actions.yml
+  - encryption.yml
+```
 
 The `encryption` section manages host communication security — PSK, TLS certificate, or unencrypted. This means encryption settings live in version-controlled code rather than being configured ad-hoc in the UI. It supports `host_defaults` for shared settings and per-host overrides:
 
@@ -142,6 +151,8 @@ saml:
         - Zabbix administrators
 ```
 
+During apply, the executor resolves referenced roles, user groups, and media types by name. It creates the SAML user directory when missing, updates the existing SAML directory when present, and enables SAML authentication through `authentication.update`.
+
 **Note on JIT Deprovisioning:** When SAML JIT provisioning is enabled, Zabbix requires you to specify a `disabled_user_group` where deprovisioned SAML users will be placed. You must ensure that this target Zabbix user group is actually configured with its GUI access explicitly disabled (`gui_access: DISABLED`) or its member users disabled (`users_status: DISABLED`) in order to effectively prevent logins.
 
 #### Apply: Scroll
@@ -158,7 +169,7 @@ set_super_admin:
   password: ${ZBX_ADMIN_PASSWORD}
   current_password: zabbix
 set_macro: macros.yml
-apply: 
+apply:
   - templates.yml
   - hosts.yml
 decree: decree.yml
@@ -169,6 +180,8 @@ zbxtemplar-exec apply deploy.scroll.yml --url ... --token ...
 zbxtemplar-exec apply deploy.scroll.yml --from-action apply --url ... --token ...
 zbxtemplar-exec apply deploy.scroll.yml --only-action decree --url ... --token ...
 ```
+
+`--from-action` and `--only-action` are supported for scroll and decree files. Decree action names are `user_group`, `saml`, `add_user`, `actions`, and `encryption`; scroll action names are `set_super_admin`, `set_macro`, `apply`, and `decree`.
 
 ### `set_macro`
 
@@ -285,7 +298,7 @@ Sensitive values are never logged. Macro values appear as `value_redacted=true`,
 Pass `--json` to any command for newline-delimited JSON, suitable for log aggregation:
 
 ```bash
-zbxtemplar-exec --json apply deploy.scroll.yml --url ... --token ...
+zbxtemplar-exec apply deploy.scroll.yml --json --url ... --token ...
 ```
 
 Each line is a self-contained JSON object with the same fields as the text format.
@@ -302,4 +315,3 @@ That is the intended safety model for this project:
 4. re-run against production
 
 The executor is designed around idempotent re-apply more than around a separate dry-run engine.
-

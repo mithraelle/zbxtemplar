@@ -29,7 +29,7 @@ Macro(name: str, value: str, description: str | None = None, type: zbxtemplar.za
 * `type` (Optional, *MacroType*): Macro type: TEXT, SECRET_TEXT, SECRET, or VAULT.
 
 ## Decree
-Decree YAML contents: user groups, users, actions, and host encryption.
+Decree YAML contents: user groups, SAML, users, actions, and host encryption.
 
 * `user_group` (Optional, *list[UserGroup]*): User group definitions to create or update before users.
 * `saml` (Optional, *SamlProvider*): SAML userdirectory definition to create or update after user groups.
@@ -66,7 +66,7 @@ Zabbix SAML userdirectory entry managed by decree YAML.
 * `group_name` (Optional, *str*): SAML attribute carrying group membership.
 * `user_username` (Optional, *str*): SAML attribute to use as the user's first name.
 * `user_lastname` (Optional, *str*): SAML attribute to use as the user's last name.
-* `disabled_user_group` (Optional, *UserGroup*): Zabbix user group to place deprovisioned SAML users into. Note: This group must be configured with gui_access=DISABLED or users_status=DISABLED.
+* `disabled_user_group` (Optional, *UserGroup*): Zabbix user group to place deprovisioned SAML users into. For a real lockout, configure this group with users_status=DISABLED (gui_access=DISABLED alone blocks frontend login but not API token access).
 * `provision_groups` (Optional, *list[SamlProvisionGroup]*): SAML group to Zabbix role/user group mappings.
 * `provision_media` (Optional, *list[SamlProvisionMedia]*): SAML attribute to Zabbix media mappings.
 * `scim_status` (Optional, *ScimStatus*): SCIM provisioning status: DISABLED or ENABLED.

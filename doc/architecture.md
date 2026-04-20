@@ -19,11 +19,11 @@ Python module -> generated YAML -> review in git -> executor/import -> live Zabb
 
 ### Phase 1: Composition (Generator)
 
-Authors write Python definitions (`TemplarModule` for monitoring primitives, `DecreeModule` for live-state rules like user management or action routing).
+Authors write Python definitions (`TemplarModule` for monitoring primitives, `DecreeModule` for live-state rules like user management, SAML provisioning, global macros, host encryption, or action routing).
 
-The generator evaluates these definitions alongside a read-only **Context** — the generation-time registry that lets modules validate references against existing or previously generated YAML. Context accumulates across multiple `load()` calls.
+The generator evaluates these definitions alongside a read-only **Context** — the generation-time registry that lets modules validate references against existing or previously generated YAML. Context accumulates across multiple context files in one run.
 
-The framework emits raw, declarative YAML artifacts. For native Zabbix primitives (templates/hosts), it emits Zabbix-importable YAML. For live-state primitives (actions/users), it emits Decree YAML.
+The framework emits raw, declarative YAML artifacts. For native Zabbix primitives (templates/hosts), it emits Zabbix-importable YAML. For live-state primitives (users, SAML, actions, global macros, and host encryption), it emits Decree YAML.
 
 ### Phase 2: Orchestration (Scroll — Optional)
 

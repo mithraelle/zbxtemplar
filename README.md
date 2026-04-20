@@ -2,7 +2,7 @@
 
 A Pythonic framework for programmatic Zabbix configuration generation — Monitoring as Code.
 
-Define templates, hosts, user groups, users, SAML directories, and actions as Python code. Generate Zabbix-native YAML (importable via UI or API) and decree YAML (applied by the executor). The goal is to cover the essential Zabbix configuration primitives — not every possible option. If you need a field that isn't exposed, raw dicts and string expressions give you an escape hatch.
+Define templates, hosts, user groups, users, SAML directories, actions, and host encryption as Python code. Generate Zabbix-native YAML (importable via UI or API) and decree YAML (applied by the executor). The goal is to cover the essential Zabbix configuration primitives — not every possible option. If you need a field that isn't exposed, raw dicts and string expressions give you an escape hatch.
 
 Aimed at teams that want:
 
@@ -31,7 +31,7 @@ On top of all this, `Context` validates references at generation time — agains
 `zbxtemplar` has three main pieces:
 
 - `TemplarModule` generates Zabbix-native YAML for templates and hosts
-- `DecreeModule` generates decree YAML for users, user groups, SAML directories, and actions
+- `DecreeModule` generates decree YAML for users, user groups, SAML directories, actions, and host encryption
 - `zbxtemplar-exec` applies generated artifacts to a live Zabbix instance
 
 The split is intentional:
