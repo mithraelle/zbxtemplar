@@ -85,12 +85,19 @@ class Widget(ABC):
 
 
 class DashboardPage:
+    """A single page of a Zabbix template dashboard."""
+
     def __init__(self, name: str = "", display_period: int = 0):
+        """
+        Args:
+            display_period: Slide rotation interval in seconds; 0 disables auto-rotation.
+        """
         self.name = name
         self.display_period = display_period
         self.widgets: list[Widget] = []
 
     def add_widget(self, widget: Widget):
+        """Append a widget to this page."""
         self.widgets.append(widget)
 
     def to_dict(self):
@@ -105,13 +112,21 @@ class DashboardPage:
 
 
 class Dashboard(ZbxEntity):
+    """Zabbix dashboard attached to a template."""
+
     def __init__(self, name: str, display_period: int = 0,
                  auto_start: YesNo = YesNo.YES):
+        """
+        Args:
+            display_period: Default page slide interval in seconds.
+            auto_start: Start the slideshow automatically (YesNo.YES or YesNo.NO).
+        """
         super().__init__(name)
         self.display_period = str(display_period)
         self.auto_start = auto_start
         self.pages: list[DashboardPage] = []
 
     def add_page(self, page: DashboardPage) -> Self:
+        """Append a page to the dashboard. Returns self for chaining."""
         self.pages.append(page)
         return self

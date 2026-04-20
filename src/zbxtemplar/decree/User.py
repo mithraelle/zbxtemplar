@@ -49,10 +49,12 @@ class UserMedia(DecreeEntity):
         self.sendto = sendto
 
     def set_severity(self, severity: list):
+        """Set which trigger severities activate this media. Pass a list of Severity constants."""
         self.severity = severity
         return self
 
     def set_period(self, period: str):
+        """Set the active time window, e.g. ``"1-7,00:00-24:00"``."""
         self.period = period
         return self
 
@@ -83,10 +85,12 @@ class User(DecreeEntity, Schema):
         self.force_token = None
 
     def set_password(self, password: str):
+        """Set the login password. Supports env-var placeholder syntax, e.g. ``"${ZBX_PASSWORD}"``."""
         self.password = password
         return self
 
     def add_group(self, group):
+        """Assign to a user group. Accepts a UserGroup object or name string. Raises on duplicate."""
         name = group.name if isinstance(group, UserGroup) else group
         if name in self.groups:
             raise ValueError(
@@ -96,10 +100,17 @@ class User(DecreeEntity, Schema):
         return self
 
     def add_media(self, media: UserMedia):
+        """Attach a notification media entry."""
         self.medias.append(media)
         return self
 
     def set_token(self, token: Token, force: bool = False):
+        """Provision an API token for this user.
+
+        Args:
+            token: Token definition with name, store_at path, and optional expiry.
+            force: Regenerate and overwrite an existing token with the same name.
+        """
         if not isinstance(token, Token):
             raise ValueError("token must be a Token")
         self.token = token

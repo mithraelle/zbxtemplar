@@ -7,6 +7,8 @@ from zbxtemplar.zabbix.Dashboard import Widget, WidgetField, WidgetFieldType
 
 
 class AggregateFunc(IntEnum):
+    """Aggregation function applied to a dashboard graph data set."""
+
     NO = 0
     MIN = 1
     MAX = 2
@@ -18,26 +20,36 @@ class AggregateFunc(IntEnum):
 
 
 class AggregateBy(IntEnum):
+    """Whether aggregation is applied per item or across the whole data set."""
+
     EACH_ITEM = 0
     DATA_SET = 1
 
 class YAxis(IntEnum):
+    """Which Y axis a dashboard graph data set is plotted against."""
+
     LEFT = 0
     RIGHT = 1
 
 class Approximation(IntEnum):
+    """Which value (min/avg/max/all) is used as the approximation line in the graph."""
+
     MIN = 1
     AVG = 2
     MAX = 4
     ALL = 7
 
 class MissedData(IntEnum):
+    """How gaps in collected data are rendered in a line or staircase graph."""
+
     NONE = 0
     CONNECTED = 1
     TREAT_AS_0 = 2
     LAST_KNOWN = 3
 
 class DataSource(IntEnum):
+    """Data source preference for the dashboard graph: AUTO, HISTORY, or TRENDS."""
+
     AUTO = 0
     HISTORY = 1
     TRENDS = 2
@@ -80,6 +92,8 @@ class DrawStyle:
 
 
 class Line(DrawStyle):
+    """Line draw style for a dashboard graph data set."""
+
     width = _BoundedInt(1, 10)
     fill = _BoundedInt(0, 10)
 
@@ -93,6 +107,8 @@ class Line(DrawStyle):
 
 
 class Points(DrawStyle):
+    """Points draw style for a dashboard graph data set."""
+
     def __init__(self, point_size: int = 1, transparency: int = 5):
         super().__init__(transparency)
         self.pointsize = point_size
@@ -100,6 +116,8 @@ class Points(DrawStyle):
 
 
 class Staircase(DrawStyle):
+    """Staircase draw style for a dashboard graph data set."""
+
     width = _BoundedInt(1, 10)
     fill = _BoundedInt(0, 10)
 
@@ -113,6 +131,8 @@ class Staircase(DrawStyle):
 
 
 class Bar(DrawStyle):
+    """Bar draw style for a dashboard graph data set."""
+
     def __init__(self, stacked: bool = False, transparency: int = 5):
         super().__init__(transparency)
         self.stacked: int = 1 if stacked else 0
@@ -160,6 +180,8 @@ class DataSet(ABC):
 
 
 class ItemListSet(DataSet):
+    """Dashboard graph data set built from an explicit list of items."""
+
     def __init__(self, label: str = ""):
         super().__init__(label)
         self._items: list[tuple[Item, str]] = []
@@ -178,6 +200,8 @@ class ItemListSet(DataSet):
 
 
 class ItemPatternSet(DataSet):
+    """Dashboard graph data set built from item key patterns (wildcard matching)."""
+
     color_palette = _BoundedInt(0, 11)
 
     def __init__(self, *, color: str = None, palette: int = None, label: str = ""):

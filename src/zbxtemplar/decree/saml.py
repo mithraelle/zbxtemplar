@@ -175,6 +175,7 @@ class SamlProvider(DecreeEntity):
         self.saml_case_sensitive = YesNo.YES
 
     def set_nameid(self, format: str, encrypt: bool = False) -> Self:
+        """Set the SAML NameID format URI and optional encryption flag."""
         self.nameid_format = format
         self.encrypt_nameid = YesNo.YES if encrypt else YesNo.NO
         return self
@@ -188,6 +189,7 @@ class SamlProvider(DecreeEntity):
         sign_logout_responses: bool = False,
         encrypt_assertions: bool = False,
     ) -> Self:
+        """Configure SAML signature and assertion encryption settings."""
         self.sign_assertions = YesNo.YES if sign_assertions else YesNo.NO
         self.sign_authn_requests = YesNo.YES if sign_authn_requests else YesNo.NO
         self.sign_messages = YesNo.YES if sign_messages else YesNo.NO
@@ -205,6 +207,17 @@ class SamlProvider(DecreeEntity):
         groups: SamlProvisionGroup | list[SamlProvisionGroup] | None = None,
         media: SamlProvisionMedia | list[SamlProvisionMedia] | None = None,
     ) -> Self:
+        """Enable JIT provisioning.
+
+        Args:
+            group_name: SAML attribute carrying group membership values.
+            disabled_user_group: UserGroup to place deprovisioned users into.
+                For a real lockout set that group's users_status to DISABLED.
+            user_username: SAML attribute mapped to the user's first name.
+            user_lastname: SAML attribute mapped to the user's last name.
+            groups: SamlProvisionGroup or list defining SAML group → Zabbix role/group mappings.
+            media: SamlProvisionMedia or list defining SAML attribute → Zabbix media mappings.
+        """
         self.provision_status = ProvisionStatus.ENABLED
         self.group_name = group_name
         self.disabled_user_group = disabled_user_group
@@ -217,6 +230,7 @@ class SamlProvider(DecreeEntity):
         return self
 
     def set_case_sensitive(self, enabled: bool) -> Self:
+        """Enable or disable case-sensitive SAML login matching."""
         self.saml_case_sensitive = YesNo.YES if enabled else YesNo.NO
         return self
 
@@ -224,6 +238,7 @@ class SamlProvider(DecreeEntity):
         self,
         group: SamlProvisionGroup | list[SamlProvisionGroup],
     ) -> Self:
+        """Add a SAML group-to-role mapping. Accepts SamlProvisionGroup or list. Raises on duplicate."""
         items = group if isinstance(group, list) else [group]
         for item in items:
             if any(existing.name == item.name for existing in self.provision_groups):
@@ -237,6 +252,7 @@ class SamlProvider(DecreeEntity):
         self,
         media: SamlProvisionMedia | list[SamlProvisionMedia],
     ) -> Self:
+        """Add a SAML attribute-to-media mapping. Accepts SamlProvisionMedia or list."""
         items = media if isinstance(media, list) else [media]
         for item in items:
             if any(existing.name == item.name for existing in self.provision_media):

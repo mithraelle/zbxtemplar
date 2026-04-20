@@ -5,6 +5,8 @@ from zbxtemplar.zabbix import Item
 
 
 class GraphType(StrEnum):
+    """Classic graph display type."""
+
     NORMAL = "NORMAL"
     STACKED = "STACKED"
     PIE = "PIE"
@@ -12,12 +14,16 @@ class GraphType(StrEnum):
 
 
 class YAxisType(StrEnum):
+    """Y-axis bound mode: auto-calculated, fixed value, or item-driven."""
+
     CALCULATED = "CALCULATED"
     FIXED = "FIXED"
     ITEM = "ITEM"
 
 
 class DrawType(StrEnum):
+    """Line style for a classic graph item series."""
+
     SINGLE_LINE = "SINGLE_LINE"
     FILLED_REGION = "FILLED_REGION"
     BOLD_LINE = "BOLD_LINE"
@@ -27,6 +33,8 @@ class DrawType(StrEnum):
 
 
 class CalcFnc(StrEnum):
+    """Aggregation function shown for a classic graph item series."""
+
     MIN = "MIN"
     AVG = "AVG"
     MAX = "MAX"
@@ -35,11 +43,15 @@ class CalcFnc(StrEnum):
 
 
 class GraphItemType(StrEnum):
+    """Classic graph item type: SIMPLE (normal) or GRAPH_SUM (pie/exploded sum)."""
+
     SIMPLE = "SIMPLE"
     GRAPH_SUM = "GRAPH_SUM"
 
 
 class YAxisSide(StrEnum):
+    """Which Y axis a classic graph item series is plotted against."""
+
     LEFT = "LEFT"
     RIGHT = "RIGHT"
 
@@ -60,6 +72,8 @@ class GraphItem:
 
 
 class Graph(ZbxEntity):
+    """Classic Zabbix graph for templates and hosts (not a dashboard widget; see DashboardWidget.Graph)."""
+
     def __init__(self, name: str, type: GraphType = GraphType.NORMAL,
                  show_triggers: YesNo = YesNo.YES,
                  show_legend: YesNo = YesNo.YES,
@@ -67,6 +81,13 @@ class Graph(ZbxEntity):
                  y_max_type: YAxisType = YAxisType.CALCULATED,
                  y_min: int | float | Item | str | None = None,
                  y_max: int | float | Item | str | None = None):
+        """
+        Args:
+            y_min_type: Y-axis minimum mode; use YAxisType.ITEM when passing an Item as y_min.
+            y_max_type: Y-axis maximum mode; use YAxisType.ITEM when passing an Item as y_max.
+            y_min: Fixed lower bound (number or string) or an Item when y_min_type is ITEM.
+            y_max: Fixed upper bound (number or string) or an Item when y_max_type is ITEM.
+        """
         super().__init__(name)
         self.type = type
         self.show_triggers = show_triggers
@@ -92,6 +113,13 @@ class Graph(ZbxEntity):
                  calc_fnc: CalcFnc = CalcFnc.AVG,
                  type: GraphItemType = GraphItemType.SIMPLE,
                  yaxisside: YAxisSide = YAxisSide.LEFT) -> Self:
+        """Add an item series to the graph. Returns self for chaining.
+
+        Args:
+            color: 6-digit hex color string, e.g. ``"1A7C11"``.
+            order: Display order; auto-increments when -1.
+            yaxisside: Bind series to left or right Y axis.
+        """
         if order == -1:
             order = len(self.graph_items)
         self.graph_items.append(GraphItem(item, color, order, drawtype, calc_fnc, type, yaxisside))

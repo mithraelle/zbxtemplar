@@ -10,6 +10,8 @@ def _name(value):
 
 
 class SendMessageOperation:
+    """A single send-message step within an action."""
+
     operationtype = 0
 
     def __init__(self, users: list | None = None,
@@ -20,6 +22,17 @@ class SendMessageOperation:
                  step_from: int | None = None,
                  step_to: int | None = None,
                  step_duration: int | None = None):
+        """
+        Args:
+            users: User objects or username strings to notify.
+            groups: UserGroup objects or group name strings to notify.
+            media_type: MediaType constant or name string; None sends via all enabled media.
+            subject: Override default message subject template.
+            message: Override default message body template.
+            step_from: Escalation step range start (TriggerOperations only).
+            step_to: Escalation step range end (TriggerOperations only).
+            step_duration: Step duration in seconds (TriggerOperations only).
+        """
         self.users = [_name(u) for u in (users or [])]
         self.groups = [_name(g) for g in (groups or [])]
         self.media_type = _name(media_type) if media_type is not None else None
@@ -73,6 +86,8 @@ class SendMessageOperation:
 
 
 class TriggerOperations:
+    """Problem escalation notification steps for TriggerAction.operations."""
+
     def __init__(self):
         self._ops: list[SendMessageOperation] = []
 
@@ -83,6 +98,7 @@ class TriggerOperations:
                      message: str | None = None,
                      step_from: int = 1, step_to: int = 1,
                      step_duration: int = 0) -> Self:
+        """Append a send-message escalation step. Returns self for chaining."""
         self._ops.append(SendMessageOperation(
             users=users, groups=groups,
             media_type=media_type, subject=subject,
@@ -195,6 +211,8 @@ class SetInventoryModeOperation:
 
 
 class AutoregistrationOperations:
+    """Host provisioning and notification steps for AutoregistrationAction.operations."""
+
     def __init__(self):
         self._ops: list = []
 
@@ -203,6 +221,7 @@ class AutoregistrationOperations:
                      media_type=None,
                      subject: str | None = None,
                      message: str | None = None) -> Self:
+        """Append a send-message step. Returns self for chaining."""
         self._ops.append(SendMessageOperation(
             users=users, groups=groups,
             media_type=media_type, subject=subject,
@@ -211,26 +230,32 @@ class AutoregistrationOperations:
         return self
 
     def add_host(self) -> Self:
+        """Register the newly discovered host in Zabbix."""
         self._ops.append(AddHostOperation())
         return self
 
     def add_to_group(self, group) -> Self:
+        """Add host to a host group. Accepts HostGroup object or name string."""
         self._ops.append(AddToGroupOperation(group))
         return self
 
     def link_template(self, template) -> Self:
+        """Link a template to the host. Accepts Template object or name string."""
         self._ops.append(LinkTemplateOperation(template))
         return self
 
     def enable_host(self) -> Self:
+        """Set the host status to enabled."""
         self._ops.append(EnableHostOperation())
         return self
 
     def disable_host(self) -> Self:
+        """Set the host status to disabled."""
         self._ops.append(DisableHostOperation())
         return self
 
     def set_inventory_mode(self, mode: int = SetInventoryModeOperation.MANUAL) -> Self:
+        """Set host inventory collection mode: MANUAL (0) or AUTOMATIC (1)."""
         self._ops.append(SetInventoryModeOperation(mode))
         return self
 
@@ -257,6 +282,8 @@ class AutoregistrationOperations:
 
 
 class TriggerAckOperations:
+    """Notification steps for recovery and acknowledgment events in TriggerAction."""
+
     def __init__(self):
         self._ops: list[SendMessageOperation] = []
 
@@ -265,6 +292,7 @@ class TriggerAckOperations:
                      media_type=None,
                      subject: str | None = None,
                      message: str | None = None) -> Self:
+        """Append a send-message step. Returns self for chaining."""
         self._ops.append(SendMessageOperation(
             users=users, groups=groups,
             media_type=media_type, subject=subject,

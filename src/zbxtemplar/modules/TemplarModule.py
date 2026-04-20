@@ -4,12 +4,26 @@ from zbxtemplar.zabbix.Host import Host, HostGroup
 
 
 class TemplarModule(BaseModule):
+    """Module for building Zabbix template and host definitions.
+
+    Subclass and implement ``compose()`` to create templates and hosts.
+    Use ``add_macro()`` for module-level macros accessible to all entities via ``get_macro()``.
+
+    Usage: subclass, implement ``compose()``, instantiate to run it.
+    """
+
     def __init__(self, **kwargs):
         self.templates: list[Template] = []
         self.hosts: list[Host] = []
         super().__init__(**kwargs)
 
     def add_template(self, name: str, groups: list[TemplateGroup]) -> Template:
+        """Create and register a template. Raises ValueError on duplicate name.
+
+        Args:
+            name: Template display name.
+            groups: Template groups this template belongs to.
+        """
         if any(t.name == name for t in self.templates):
             raise ValueError(
                 f"{type(self).__name__}: duplicate template '{name}'"
@@ -19,6 +33,12 @@ class TemplarModule(BaseModule):
         return template
 
     def add_host(self, name: str, groups: list[HostGroup]) -> Host:
+        """Create and register a host. Raises ValueError on duplicate name.
+
+        Args:
+            name: Host technical name.
+            groups: Host groups this host belongs to.
+        """
         if any(h.name == name for h in self.hosts):
             raise ValueError(
                 f"{type(self).__name__}: duplicate host '{name}'"

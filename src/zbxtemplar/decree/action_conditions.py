@@ -4,6 +4,8 @@ from enum import IntEnum
 # --- Eval types ---
 
 class EvalType(IntEnum):
+    """Evaluation mode for a ConditionList: AND_OR (0), AND (1), or OR (2)."""
+
     AND_OR = 0
     AND = 1
     OR = 2
@@ -73,6 +75,16 @@ class _SuppressedOp(IntEnum):
 # --- Expression tree ---
 
 class ConditionExpr:
+    """Base for composable condition trees.
+
+    Use ``&`` (and), ``|`` (or), ``~`` (not) operators — Python keywords ``and``/``or``/``not``
+    raise TypeError. Pass the resulting tree to ``Action.set_conditions()``.
+
+    Example::
+
+        action.set_conditions(HostGroupCondition(group) | HostTemplateCondition(template))
+    """
+
     def __and__(self, other):
         return AndExpr(self, other)
 
@@ -438,13 +450,17 @@ class ServiceNameCondition(Condition):
 # --- Filters ---
 
 class ConditionList:
-    """Flat condition list with evaltype 0 (AND/OR), 1 (AND), or 2 (OR)."""
+    """Flat list of conditions with a shared eval mode: AND_OR (0), AND (1), or OR (2).
+
+    Use ConditionExpression (or the ``&``/``|`` operator shorthand) for nested boolean logic.
+    """
 
     def __init__(self, eval_type=EvalType.AND_OR):
         self.eval_type = eval_type
         self.conditions = []
 
     def add(self, condition):
+        """Append a condition to the list. Returns self for chaining."""
         self.conditions.append(condition)
         return self
 
@@ -464,7 +480,12 @@ class ConditionList:
 
 
 class ConditionExpression:
-    """Custom expression filter — evaltype 3 with formula string."""
+    """Arbitrary boolean expression filter built from a ConditionExpr tree.
+
+    Assigns labels (A, B, C...) and emits a Zabbix formula string automatically.
+    Normally you don't construct this directly — pass a ConditionExpr tree to
+    ``Action.set_conditions()`` and it wraps it automatically.
+    """
 
     def __init__(self, expr):
         self.expr = expr

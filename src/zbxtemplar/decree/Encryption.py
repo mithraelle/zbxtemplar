@@ -5,6 +5,8 @@ from zbxtemplar.dicts.Schema import Schema, SchemaField
 
 
 class EncryptionMode(Enum):
+    """Zabbix host communication encryption mode: UNENCRYPTED, PSK, or CERT."""
+
     UNENCRYPTED = 1
     PSK = 2
     CERT = 4
@@ -66,6 +68,14 @@ class Encryption(Schema):
 
     def set_psk(self, connect: bool = True, accept: bool = True,
                 identity: str = None, psk: str = None):
+        """Enable PSK encryption mode. Both identity and psk are required.
+
+        Args:
+            connect: Use PSK for outbound connections.
+            accept: Accept PSK for inbound connections.
+            identity: PSK identity string.
+            psk: PSK secret value.
+        """
         if self._enable_mode(EncryptionMode.PSK, connect, accept):
             if not identity or not psk:
                 raise ValueError("set_psk requires both 'identity' and 'psk'.")
@@ -75,6 +85,14 @@ class Encryption(Schema):
 
     def set_cert(self, connect: bool = True, accept: bool = True,
                  issuer: str = None, subject: str = None):
+        """Enable certificate encryption mode. At least one of issuer or subject is required.
+
+        Args:
+            connect: Use cert for outbound connections.
+            accept: Accept cert for inbound connections.
+            issuer: TLS certificate issuer (optional).
+            subject: TLS certificate subject (optional).
+        """
         if self._enable_mode(EncryptionMode.CERT, connect, accept):
             if not issuer and not subject:
                 raise ValueError("set_cert requires at least 'issuer' or 'subject'.")

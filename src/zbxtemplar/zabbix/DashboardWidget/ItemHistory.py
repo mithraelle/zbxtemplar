@@ -4,11 +4,14 @@ from zbxtemplar.zabbix import Item
 from zbxtemplar.zabbix.Dashboard import Widget, WidgetField, WidgetFieldType
 
 class ItemHistoryHeader(IntEnum):
+    """Column header orientation for an ItemHistory widget."""
+
     NO = 0
     HORIZONTAL = 1
     VERTICAL = 2
 
 class ItemHistory(Widget):
+    """Dashboard widget showing a scrollable table of recent item values."""
     def __init__(self, x: int = 0, y: int = 0, width: int = 12, height: int = 5,
                  name: str = ""):
         super().__init__(x, y, width, height, name)
@@ -33,13 +36,16 @@ class ItemHistory(Widget):
         return fields
 
     def add_item(self, item: Item, name: str = ""):
+        """Add an item column. name overrides the display column header."""
         self._items.append((item, name))
         return self
 
     def show_timestamp(self, show: bool = True):
+        """Show or hide the timestamp column."""
         self._show_timestamp = show
         return self
 
     def show_column_header(self, header: ItemHistoryHeader = ItemHistoryHeader.NO):
+        """Set column header orientation."""
         self._show_column_header = header
         return self

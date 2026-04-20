@@ -9,6 +9,8 @@ from zbxtemplar.zabbix.Template import Template, ValueMap, WithTemplates
 
 
 class HostGroup(ZbxEntity):
+    """Zabbix host group. Created automatically by the executor if missing."""
+
     def __init__(self, name: str):
         super().__init__(name)
 
@@ -40,6 +42,8 @@ class HostInterface(ABC):
 
 
 class AgentInterface(HostInterface):
+    """Zabbix agent (passive or active) monitoring interface."""
+
     def to_dict(self) -> dict:
         return {
             "type": "ZABBIX",
@@ -52,6 +56,8 @@ class AgentInterface(HostInterface):
 
 
 class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates):
+    """Zabbix host definition. Exported without UUID — Zabbix rejects UUIDs on hosts."""
+
     def __init__(self, name: str, groups: list[HostGroup]):
         super().__init__(name)
         self.host = name
@@ -62,6 +68,12 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
         self._default_interface: HostInterface | None = None
 
     def add_interface(self, interface: HostInterface, default: bool = False):
+        """Register a monitoring interface. The first added becomes the default unless overridden.
+
+        Args:
+            interface: AgentInterface or other HostInterface subclass.
+            default: Force this interface to be the default.
+        """
         if any(i.interface_ref == interface.interface_ref for i in self.interfaces):
             raise ValueError(
                 f"Duplicate interface ref '{interface.interface_ref}' on host '{self.name}'"
@@ -78,6 +90,7 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
         ]
 
     def add_item(self, item: Item):
+        """Register an item on this host. Sets item host to this host's name. Raises on duplicate key."""
         if any(i.key == item.key for i in self.items):
             raise ValueError(
                 f"Duplicate item key '{item.key}' on host '{self.name}'"

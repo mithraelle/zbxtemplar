@@ -14,6 +14,13 @@ from zbxtemplar.dicts.Scroll import Scroll
 
 
 class Context:
+    """Read-only registry of Zabbix entities loaded from YAML files via ``--context``.
+
+    Populated by the CLI before ``compose()`` is called. Use ``get_*()`` methods to
+    resolve named entities for use in decree conditions, permissions, and SAML provisioning.
+    All ``get_*()`` methods raise ValueError if the requested name is not found.
+    """
+
     _FORMATS = {
         ZabbixExport: "_merge_zabbix_export",
         Scroll: "_merge_scroll",
@@ -29,32 +36,38 @@ class Context:
         self._user_groups = {}
 
     def get_macro(self, name: str) -> Macro:
+        """Look up a global macro by name. Name may include or omit ``{$...}`` braces."""
         clean = name.replace("{$", "").replace("}", "")
         if clean not in self._macros:
             raise ValueError(f"Macro '{name}' not found in context")
         return self._macros[clean]
 
     def get_template_group(self, name: str) -> TemplateGroup:
+        """Look up a template group by name."""
         if name not in self._template_groups:
             raise ValueError(f"Template group '{name}' not found in context")
         return self._template_groups[name]
 
     def get_host_group(self, name: str) -> HostGroup:
+        """Look up a host group by name."""
         if name not in self._host_groups:
             raise ValueError(f"Host group '{name}' not found in context")
         return self._host_groups[name]
 
     def get_template(self, name: str) -> Template:
+        """Look up a template by name."""
         if name not in self._templates:
             raise ValueError(f"Template '{name}' not found in context")
         return self._templates[name]
 
     def get_host(self, name: str) -> Host:
+        """Look up a host by name."""
         if name not in self._hosts:
             raise ValueError(f"Host '{name}' not found in context")
         return self._hosts[name]
 
     def get_user_group(self, name: str) -> UserGroup:
+        """Look up a user group by name."""
         if name not in self._user_groups:
             raise ValueError(f"User group '{name}' not found in context")
         return self._user_groups[name]

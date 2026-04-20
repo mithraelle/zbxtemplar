@@ -80,6 +80,7 @@ class WithMacros():
         self.macros: dict[str, Macro] = {}
 
     def add_macro(self, name: str, value: str | int, description: str | None = None, type: MacroType = MacroType.TEXT) -> Macro:
+        """Define a macro. Name may include or omit ``{$...}`` braces. Returns the Macro object."""
         clean_name = name.replace("{$", "").replace("}", "")
         self.macros[clean_name] = Macro(name=clean_name, value=str(value), description=description, type=type)
         return self.macros[clean_name]
@@ -119,6 +120,9 @@ class WithMacros():
         return [m.to_dict() for m in self.macros.values()]
 
     def get_macro(self, name: str):
+        """Look up a macro by name. Searches own macros, linked templates, then module-level.
+        Raises KeyError if not found.
+        """
         clean_name = name.replace("{$", "").replace("}", "")
         macro = self.macros.get(clean_name)
         if macro is not None:

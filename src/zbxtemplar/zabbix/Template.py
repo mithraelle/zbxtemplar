@@ -9,6 +9,8 @@ from zbxtemplar.zabbix.Item import Item
 
 
 class TemplateGroup(ZbxEntity):
+    """Zabbix template group. Created automatically by the executor if missing."""
+
     def __init__(self, name: str):
         super().__init__(name)
 
@@ -18,6 +20,8 @@ class TemplateGroup(ZbxEntity):
 
 
 class ValueMapType(StrEnum):
+    """Match type for a value map entry."""
+
     EQUAL = "EQUAL"
     GREATER_OR_EQUAL = "GREATER_OR_EQUAL"
     LESS_OR_EQUAL = "LESS_OR_EQUAL"
@@ -27,11 +31,20 @@ class ValueMapType(StrEnum):
 
 
 class ValueMap(ZbxEntity):
+    """Named mapping from raw collected values to human-readable display strings."""
+
     def __init__(self, name: str):
         super().__init__(name)
         self.mappings: list[dict[str, str]] = []
 
     def add_mapping(self, value: str, newvalue: str, type: ValueMapType = ValueMapType.EQUAL):
+        """Add a mapping entry. Returns self for chaining.
+
+        Args:
+            value: Raw incoming value to match.
+            newvalue: Display string shown in Zabbix.
+            type: Match type; defaults to EQUAL.
+        """
         self.mappings.append({"value": value, "newvalue": newvalue, "type": type.value})
         return self
 
@@ -53,6 +66,8 @@ class WithTemplates:
 
 
 class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates):
+    """Zabbix template: container for items, triggers, graphs, dashboards, macros, and value maps."""
+
     def __init__(self, name: str, groups: list[TemplateGroup]):
         super().__init__(name)
         self.template = name
@@ -62,6 +77,7 @@ class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGr
         self.groups = groups
 
     def add_item(self, item: Item):
+        """Register an item on this template. Sets item host to this template's name. Raises on duplicate key."""
         if any(i.key == item.key for i in self.items):
             raise ValueError(
                 f"Duplicate item key '{item.key}' on template '{self.name}'"
@@ -71,6 +87,7 @@ class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGr
         return self
 
     def add_dashboard(self, dashboard: Dashboard):
+        """Attach a dashboard. Raises on duplicate name."""
         if any(d.name == dashboard.name for d in self.dashboards):
             raise ValueError(
                 f"Duplicate dashboard '{dashboard.name}' on template '{self.name}'"
@@ -79,6 +96,7 @@ class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGr
         return self
 
     def add_value_map(self, value_map: ValueMap):
+        """Attach a value map. Raises on duplicate name."""
         if any(v.name == value_map.name for v in self.valuemaps):
             raise ValueError(
                 f"Duplicate value map '{value_map.name}' on template '{self.name}'"

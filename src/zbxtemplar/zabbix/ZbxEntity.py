@@ -16,6 +16,11 @@ ZBX_TEMPLAR_NAMESPACE = "Zbx Templar"
 _NAMESPACE_UUID = uuid.uuid5(uuid.NAMESPACE_DNS, ZBX_TEMPLAR_NAMESPACE)
 
 def set_uuid_namespace(namespace: str):
+    """Set the namespace string used for deterministic UUID generation.
+
+    Call once before creating any entities if you need a custom namespace.
+    Defaults to "Zbx Templar".
+    """
     global ZBX_TEMPLAR_NAMESPACE, _NAMESPACE_UUID
     ZBX_TEMPLAR_NAMESPACE = namespace
     _NAMESPACE_UUID = uuid.uuid5(uuid.NAMESPACE_DNS, namespace)

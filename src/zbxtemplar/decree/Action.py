@@ -6,6 +6,8 @@ from zbxtemplar.decree.action_operations import TriggerOperations, TriggerAckOpe
 
 
 class Action(DecreeEntity, ABC):
+    """Abstract base for Zabbix actions. Use TriggerAction or AutoregistrationAction."""
+
     _OMIT_FROM_SCHEMA_DOCS = True
     eventsource = None
 
@@ -14,6 +16,12 @@ class Action(DecreeEntity, ABC):
         self._filter = None
 
     def set_conditions(self, conditions: ConditionList | ConditionExpression | ConditionExpr):
+        """Set the action filter condition.
+
+        Accepts a ConditionList, ConditionExpression, or a bare ConditionExpr tree
+        built with ``&`` (and), ``|`` (or), ``~`` (not) operators. Bare trees are
+        auto-wrapped into a ConditionExpression.
+        """
         if isinstance(conditions, ConditionExpr):
             conditions = ConditionExpression(conditions)
         self._filter = conditions
@@ -37,7 +45,15 @@ class Action(DecreeEntity, ABC):
 
 
 class TriggerAction(Action):
-    """Zabbix action for trigger events."""
+    """Zabbix action for trigger events.
+
+    Configure notifications via:
+
+    - ``.operations`` (TriggerOperations) — problem escalation steps
+    - ``.recovery_operations`` (TriggerAckOperations) — recovery notifications
+    - ``.update_operations`` (TriggerAckOperations) — acknowledgment notifications
+    """
+
     _OMIT_FROM_SCHEMA_DOCS = True
     eventsource = 0
 
@@ -48,18 +64,22 @@ class TriggerAction(Action):
         self.update_operations = TriggerAckOperations()
 
     def set_operation_step(self, duration: int):
+        """Set the escalation step duration in seconds."""
         self.esc_period = duration
         return self
 
     def pause_symptoms(self):
+        """Suppress notifications for symptom (non-root-cause) problems."""
         self.pause_symptoms = 0
         return self
 
     def pause_suppressed(self):
+        """Suppress notifications while the problem is in a maintenance window."""
         self.pause_suppressed = 0
         return self
 
     def notify_if_canceled(self):
+        """Send a notification when the action is canceled."""
         self.notify_if_canceled = 0
         return self
 
@@ -101,7 +121,11 @@ class TriggerAction(Action):
 
 
 class AutoregistrationAction(Action):
-    """Zabbix action for active agent autoregistration events."""
+    """Zabbix action for active agent autoregistration events.
+
+    Configure host provisioning steps via ``.operations`` (AutoregistrationOperations).
+    """
+
     _OMIT_FROM_SCHEMA_DOCS = True
     eventsource = 2
 

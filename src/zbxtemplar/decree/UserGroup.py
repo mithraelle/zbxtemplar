@@ -50,14 +50,17 @@ class UserGroup(DecreeEntity, Schema):
         self.template_groups = []
 
     def set_gui_access(self, gui_access: GuiAccess):
+        """Set GUI access mode. Use GuiAccess constants: DEFAULT, INTERNAL, LDAP, DISABLED."""
         self.gui_access = gui_access
         return self
 
     def set_users_status(self, users_status: UsersStatus):
+        """Set whether member users are active. Use UsersStatus constants: ENABLED, DISABLED."""
         self.users_status = users_status
         return self
 
     def add_host_group(self, group, permission: Permission):
+        """Grant permission to a host group. Accepts HostGroup object or name string. Raises on duplicate."""
         name = group.name if isinstance(group, HostGroup) else group
         if any(hg["name"] == name for hg in self.host_groups):
             raise ValueError(
@@ -67,6 +70,7 @@ class UserGroup(DecreeEntity, Schema):
         return self
 
     def add_template_group(self, group, permission: Permission):
+        """Grant permission to a template group. Accepts TemplateGroup object or name string. Raises on duplicate."""
         name = group.name if isinstance(group, TemplateGroup) else group
         if any(tg["name"] == name for tg in self.template_groups):
             raise ValueError(

@@ -6,6 +6,8 @@ from zbxtemplar.zabbix.Trigger import Trigger, TriggerPriority
 
 
 class ItemType(StrEnum):
+    """Item collection method (how Zabbix gathers the value)."""
+
     ZABBIX_PASSIVE = "ZABBIX_PASSIVE"
     TRAP = "TRAP"
     SIMPLE = "SIMPLE"
@@ -27,6 +29,8 @@ class ItemType(StrEnum):
 
 
 class ValueType(StrEnum):
+    """Data type of the collected item value."""
+
     FLOAT = "FLOAT"
     CHAR = "CHAR"
     LOG = "LOG"
@@ -36,10 +40,27 @@ class ValueType(StrEnum):
 
 
 class Item(ZbxEntity, WithTags):
+    """Zabbix monitoring item. UUID is derived from key, not name.
+
+    Pass ``host=template.name`` or ``host=host.name`` when constructing items.
+    The host is set automatically when the item is registered via
+    ``Template.add_item()`` or ``Host.add_item()``.
+    """
+
     def __init__(self, name: str, key: str, host: str,
                  type: ItemType = ItemType.ZABBIX_PASSIVE,
                  value_type: ValueType = ValueType.UNSIGNED,
                  history: str = "90d", trends: str = "365d"):
+        """
+        Args:
+            name: Display name.
+            key: Zabbix item key, e.g. ``system.cpu.util[,,avg1]``. Used as UUID seed.
+            host: Owner template or host technical name.
+            type: Collection method; defaults to ZABBIX_PASSIVE.
+            value_type: Data type of collected value; defaults to UNSIGNED.
+            history: History retention period, e.g. ``"90d"``.
+            trends: Trend retention period, e.g. ``"365d"``.
+        """
         super().__init__(name, uuid_seed=key)
         self.key = key
         self._host = host
@@ -53,19 +74,38 @@ class Item(ZbxEntity, WithTags):
                     fn_args: tuple = (),
                     priority: TriggerPriority = TriggerPriority.NOT_CLASSIFIED,
                     description: str = None) -> Self:
+        """Attach a trigger using a Zabbix function shorthand. Returns self for chaining.
+
+        Builds expression ``fn(/host/key,fn_args...)op threshold``.
+
+        Args:
+            fn: Zabbix function name, e.g. ``"last"``, ``"min"``, ``"avg"``.
+            op: Comparison operator string, e.g. ``">"``, ``"<"``, ``"="``.
+            threshold: Comparison value; may be a Macro (rendered as ``{$NAME}``).
+            fn_args: Extra function arguments, e.g. ``(10,)`` for ``min(/host/key,10)``.
+            priority: TriggerPriority constant; defaults to NOT_CLASSIFIED.
+            description: Optional trigger description.
+        """
         expression = f"{self.expr(fn, *fn_args)}{op}{threshold}"
         self.triggers.append(Trigger(name, expression, priority, description))
         return self
 
     def set_interface(self, interface) -> Self:
+        """Bind item to a specific host interface. Required for SNMP/IPMI items."""
         self.interface_ref = interface.interface_ref
         return self
 
     def set_value_map(self, value_map) -> Self:
+        """Attach a value map to this item for display value translation."""
         self.valuemap = {"name": value_map.name}
         return self
 
     def expr(self, fn: str, *args) -> str:
+        """Build a Zabbix expression string for this item.
+
+        Returns a string like ``last(/host/key)`` or ``min(/host/key,10)``
+        that can be concatenated to form trigger expressions.
+        """
         base = f"{fn}(/{self._host}/{self.key})"
         if args:
             params = ",".join(str(a) for a in args)
