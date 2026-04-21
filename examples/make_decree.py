@@ -7,7 +7,6 @@ from zbxtemplar.decree import (
     SamlProvisionMedia,
     Severity,
     Token,
-    UserMedia,
     UserRole,
     UsersStatus,
 )
@@ -20,28 +19,29 @@ class SampleDecree(DecreeModule):
         test_template = self.context.get_template("Test Template")
 
         ops_group = self.add_user_group("Templar Users", gui_access=GuiAccess.INTERNAL)
-        ops_group.add_host_group("Linux servers", Permission.NONE)
-        ops_group.add_host_group("Virtual machines", Permission.READ)
-        ops_group.add_template_group(self.context.get_template_group("Templar Templates"), Permission.READ_WRITE)
-        ops_group.add_host_group(test_host_group, Permission.READ)
+        ops_group.link_host_group("Linux servers", Permission.NONE)
+        ops_group.link_host_group("Virtual machines", Permission.READ)
+        ops_group.link_template_group(self.context.get_template_group("Templar Templates"), Permission.READ_WRITE)
+        ops_group.link_host_group(test_host_group, Permission.READ)
 
         admin = self.add_user("zbx-admin", role=UserRole.SUPER_ADMIN)
         admin.set_password("${ZBX_ADMIN_PASSWORD}")
-        admin.add_group(ops_group)
-        email_media = UserMedia(MediaType.EMAIL, alert_email)
-        email_media.set_severity([Severity.AVERAGE, Severity.HIGH, Severity.DISASTER])
-        admin.add_media(email_media)
-        admin.add_media(UserMedia(MediaType.SLACK, admin_slack))
+        admin.link_group(ops_group)
+        admin.add_media(MediaType.EMAIL, alert_email).set_severity(
+            [Severity.AVERAGE, Severity.HIGH, Severity.DISASTER]
+        )
+        admin.add_media(MediaType.SLACK, admin_slack)
 
         service = self.add_user("zbx-service", role=UserRole.USER)
         service.set_password("${ZBX_SERVICE_PASSWORD}")
-        service.add_group(ops_group)
+        service.link_group(ops_group)
         service.set_token(
-            Token("monitoring-ro", store_at=".secrets/monitoring-ro.token", expires_at=Token.NEVER),
-            force=True
+            "monitoring-ro",
+            store_at=".secrets/monitoring-ro.token",
+            expires_at=Token.NEVER,
+            force=True,
         )
-        service_slack = UserMedia(MediaType.SLACK, self.get_macro("TEMPLAR_GLOBAL_MACRO").value)
-        service.add_media(service_slack)
+        service.add_media(MediaType.SLACK, self.get_macro("TEMPLAR_GLOBAL_MACRO").value)
 
         test_action = self.add_trigger_action("Test Action")
         test_action.operations.send_message(groups=[ops_group], message="Test message")

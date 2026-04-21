@@ -89,7 +89,7 @@ class User(DecreeEntity, Schema):
         self.password = password
         return self
 
-    def add_group(self, group):
+    def link_group(self, group):
         """Assign to a user group. Accepts a UserGroup object or name string. Raises on duplicate."""
         name = group.name if isinstance(group, UserGroup) else group
         if name in self.groups:
@@ -99,24 +99,22 @@ class User(DecreeEntity, Schema):
         self.groups.append(name)
         return self
 
-    def add_media(self, media: UserMedia):
-        """Attach a notification media entry."""
+    def add_media(self, media_type: str, sendto: str, severity: list | None = None, period: str | None = None) -> "UserMedia":
+        """Create and attach a notification media entry. Returns the created UserMedia."""
+        media = UserMedia(media_type, sendto)
+        if severity is not None:
+            media.set_severity(severity)
+        if period is not None:
+            media.set_period(period)
         self.medias.append(media)
-        return self
+        return media
 
-    def set_token(self, token: Token, force: bool = False):
-        """Provision an API token for this user.
-
-        Args:
-            token: Token definition with name, store_at path, and optional expiry.
-            force: Regenerate and overwrite an existing token with the same name.
-        """
-        if not isinstance(token, Token):
-            raise ValueError("token must be a Token")
-        self.token = token
+    def set_token(self, name: str, store_at, expires_at=None, force: bool = False) -> Token:
+        """Create and provision an API token for this user. Returns the created Token."""
+        self.token = Token(name, store_at=store_at, expires_at=expires_at)
         if force:
             self.force_token = True
-        return self
+        return self.token
 
     def medias_to_list(self):
         return [m.to_dict() for m in self.medias]
@@ -128,11 +126,13 @@ class User(DecreeEntity, Schema):
         if "password" in data:
             user.set_password(data["password"])
         for g in data.get("groups", []):
-            user.add_group(g)
+            user.link_group(g)
             if user_groups is not None and g not in user_groups:
                 user_groups[g] = UserGroup(g)
         for m in data.get("medias", []):
-            user.add_media(UserMedia.from_dict(m))
+            user.medias.append(UserMedia.from_dict(m))
         if "token" in data:
-            user.set_token(Token.from_dict(data["token"]), force=data.get("force_token", False))
+            user.token = Token.from_dict(data["token"])
+            if data.get("force_token"):
+                user.force_token = True
         return user

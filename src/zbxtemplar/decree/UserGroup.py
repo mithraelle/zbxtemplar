@@ -59,7 +59,7 @@ class UserGroup(DecreeEntity, Schema):
         self.users_status = users_status
         return self
 
-    def add_host_group(self, group, permission: Permission):
+    def link_host_group(self, group, permission: Permission):
         """Grant permission to a host group. Accepts HostGroup object or name string. Raises on duplicate."""
         name = group.name if isinstance(group, HostGroup) else group
         if any(hg["name"] == name for hg in self.host_groups):
@@ -69,7 +69,7 @@ class UserGroup(DecreeEntity, Schema):
         self.host_groups.append({"name": name, "permission": permission})
         return self
 
-    def add_template_group(self, group, permission: Permission):
+    def link_template_group(self, group, permission: Permission):
         """Grant permission to a template group. Accepts TemplateGroup object or name string. Raises on duplicate."""
         name = group.name if isinstance(group, TemplateGroup) else group
         if any(tg["name"] == name for tg in self.template_groups):
@@ -97,12 +97,12 @@ class UserGroup(DecreeEntity, Schema):
         group = cls(data["name"], gui_access=gui, users_status=users_status)
         for hg in data.get("host_groups", []):
             _validate(hg["permission"], Permission._API_VALUES, "permission")
-            group.add_host_group(hg["name"], hg["permission"])
+            group.link_host_group(hg["name"], hg["permission"])
             if host_groups is not None and hg["name"] not in host_groups:
                 host_groups[hg["name"]] = HostGroup(hg["name"])
         for tg in data.get("template_groups", []):
             _validate(tg["permission"], Permission._API_VALUES, "permission")
-            group.add_template_group(tg["name"], tg["permission"])
+            group.link_template_group(tg["name"], tg["permission"])
             if template_groups is not None and tg["name"] not in template_groups:
                 template_groups[tg["name"]] = TemplateGroup(tg["name"])
         return group

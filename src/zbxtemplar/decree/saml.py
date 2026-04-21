@@ -28,9 +28,9 @@ class SamlProvisionGroup(DecreeEntity):
         self.role = role
         self.user_groups = []
         for group in user_groups or []:
-            self.add_user_group(group)
+            self.link_user_group(group)
 
-    def add_user_group(self, group: UserGroup | str):
+    def link_user_group(self, group: UserGroup | str):
         user_group = group if isinstance(group, UserGroup) else UserGroup(group)
         if any(existing.name == user_group.name for existing in self.user_groups):
             raise ValueError(

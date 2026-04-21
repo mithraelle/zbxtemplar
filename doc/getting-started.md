@@ -70,7 +70,7 @@ Use `DecreeModule` when you need users, groups, SAML, host encryption, global ma
 
 ```python
 from zbxtemplar.modules import DecreeModule
-from zbxtemplar.decree import Token, UserMedia
+from zbxtemplar.decree import Token
 from zbxtemplar.decree import GuiAccess, Permission, Severity
 from zbxtemplar.decree import MediaType, UserRole
 
@@ -79,21 +79,19 @@ class MyDecree(DecreeModule):
     def compose(self, alert_email: str = "alerts@example.com"):
 
         group = self.add_user_group("Operations", gui_access=GuiAccess.INTERNAL)
-        group.add_host_group("Linux Servers", Permission.READ)
+        group.link_host_group("Linux Servers", Permission.READ)
 
         user = self.add_user("zbx-ops", role=UserRole.ADMIN)
-        user.add_group(group)
+        user.link_group(group)
 
-        email = UserMedia(MediaType.EMAIL, alert_email)
-        email.set_severity([Severity.HIGH, Severity.DISASTER])
-        user.add_media(email)
+        user.add_media(MediaType.EMAIL, alert_email).set_severity(
+            [Severity.HIGH, Severity.DISASTER]
+        )
 
         user.set_token(
-            Token(
-                name="zbx-ops-api",
-                store_at=".secrets/zbx-ops-api.token",
-                expires_at=Token.NEVER,
-            )
+            "zbx-ops-api",
+            store_at=".secrets/zbx-ops-api.token",
+            expires_at=Token.NEVER,
         )
 ```
 

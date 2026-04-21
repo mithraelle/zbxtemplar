@@ -2,7 +2,7 @@ import pytest
 import yaml
 
 from zbxtemplar.modules import DecreeModule, Context
-from zbxtemplar.decree import Token, UserGroup, UserMedia, MediaType, UserRole, GuiAccess, Permission, Severity
+from zbxtemplar.decree import Token, UserGroup, MediaType, UserRole, GuiAccess, Permission, Severity
 from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition
 from tests.paths import REFERENCE_DIR
 
@@ -13,28 +13,26 @@ class SampleDecree(DecreeModule):
         test_template = self.context.get_template("Test Template")
 
         ops_group = self.add_user_group("Templar Users", gui_access=GuiAccess.INTERNAL)
-        ops_group.add_host_group("Linux servers", Permission.NONE)
-        ops_group.add_host_group("Virtual machines", Permission.READ)
-        ops_group.add_host_group(test_host_group, Permission.READ)
-        ops_group.add_template_group(self.context.get_template_group("Templar Templates"), Permission.READ_WRITE)
+        ops_group.link_host_group("Linux servers", Permission.NONE)
+        ops_group.link_host_group("Virtual machines", Permission.READ)
+        ops_group.link_host_group(test_host_group, Permission.READ)
+        ops_group.link_template_group(self.context.get_template_group("Templar Templates"), Permission.READ_WRITE)
 
         admin = self.add_user("zbx-admin", role=UserRole.SUPER_ADMIN)
         admin.set_password("${ZBX_ADMIN_PASSWORD}")
-        admin.add_group(ops_group)
-        email_media = UserMedia(MediaType.EMAIL, "alerts@example.com")
-        email_media.set_severity([Severity.AVERAGE, Severity.HIGH, Severity.DISASTER])
-        admin.add_media(email_media)
-        admin.add_media(UserMedia(MediaType.SLACK, "#ops-alerts"))
+        admin.link_group(ops_group)
+        admin.add_media(MediaType.EMAIL, "alerts@example.com").set_severity(
+            [Severity.AVERAGE, Severity.HIGH, Severity.DISASTER]
+        )
+        admin.add_media(MediaType.SLACK, "#ops-alerts")
 
         service = self.add_user("zbx-service", role=UserRole.USER)
         service.set_password("${ZBX_SERVICE_PASSWORD}")
-        service.add_group(ops_group)
+        service.link_group(ops_group)
         service.set_token(
-            Token(
-                "monitoring-ro",
-                expires_at=Token.NEVER,
-                store_at=".secrets/monitoring-ro.token",
-            ),
+            "monitoring-ro",
+            expires_at=Token.NEVER,
+            store_at=".secrets/monitoring-ro.token",
             force=True,
         )
 
@@ -87,14 +85,14 @@ def test_context_rejects_missing_template_group():
     ctx = _load_context()
     with pytest.raises(ValueError, match="not found in context"):
         group = UserGroup("Bad")
-        group.add_template_group(ctx.get_template_group("Nonexistent"), Permission.READ)
+        group.link_template_group(ctx.get_template_group("Nonexistent"), Permission.READ)
 
 
 def test_context_rejects_missing_host_group():
     ctx = _load_context()
     with pytest.raises(ValueError, match="not found in context"):
         group = UserGroup("Bad")
-        group.add_host_group(ctx.get_host_group("Nonexistent"), Permission.READ)
+        group.link_host_group(ctx.get_host_group("Nonexistent"), Permission.READ)
 
 
 def test_token_init_requires_store_at():
