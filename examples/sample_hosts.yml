@@ -4,7 +4,23 @@ zabbix_export:
   - name: Templar Hosts
     uuid: 06fa0ec20ab54eb4843996f8589df4ea
   hosts:
-  - templates:
+  - items:
+    - tags:
+      - tag: Service
+        value: Testing Host
+      name: Item Own
+      key: item.test[own]
+      type: ZABBIX_PASSIVE
+      value_type: UNSIGNED
+      history: 90d
+      trends: 365d
+      triggers:
+      - name: Host Simple trigger
+        expression: min(/Templar Host/item.test[own],10)>{$MY_HOST_MACRO}
+        priority: HIGH
+        description: A single host item trigger
+      interface_ref: if1
+    templates:
     - name: Test Template
     groups:
     - name: Templar Hosts
@@ -27,37 +43,7 @@ zabbix_export:
       port: '10050'
       interface_ref: if1
       default: 'YES'
-    items:
-    - tags:
-      - tag: Service
-        value: Testing Host
-      name: Item Own
-      key: item.test[own]
-      type: ZABBIX_PASSIVE
-      value_type: UNSIGNED
-      history: 90d
-      trends: 365d
-      triggers:
-      - name: Host Simple trigger
-        expression: min(/Templar Host/item.test[own],10)>{$MY_HOST_MACRO}
-        priority: HIGH
-        description: A single host item trigger
-      interface_ref: if1
-  - templates:
-    - name: Super Template
-    groups:
-    - name: Templar Hosts
-    name: Templar Super Host
-    host: Templar Super Host
-    interfaces:
-    - type: ZABBIX
-      useip: 'YES'
-      ip: 127.0.0.1
-      dns: ''
-      port: '10050'
-      interface_ref: if1
-      default: 'YES'
-    items:
+  - items:
     - name: Super Host Item
       key: item.test[super]
       type: ZABBIX_PASSIVE
@@ -72,6 +58,20 @@ zabbix_export:
         expression: min(/Templar Super Host/item.test[super],10)>{$MY_MACRO}
         priority: NOT_CLASSIFIED
       interface_ref: if1
+    templates:
+    - name: Super Template
+    groups:
+    - name: Templar Hosts
+    name: Templar Super Host
+    host: Templar Super Host
+    interfaces:
+    - type: ZABBIX
+      useip: 'YES'
+      ip: 127.0.0.1
+      dns: ''
+      port: '10050'
+      interface_ref: if1
+      default: 'YES'
   triggers:
   - name: Host Complex trigger
     uuid: 3963e32bd2ed483b85f9da9b12a88d8e

@@ -187,7 +187,7 @@ class ItemListSet(DataSet):
         self._items: list[tuple[Item, str]] = []
         self.dataset_type = 0
 
-    def add_item(self, item: Item, color: str) -> Self:
+    def link_item(self, item: Item, color: str) -> Self:
         self._items.append((item, color))
         return self
 
@@ -235,7 +235,7 @@ class Graph(Widget):
         super().__init__(x, y, width, height, name)
         self._data_sets: list[DataSet] = []
 
-    def add_data_set(self, ds: DataSet) -> Self:
+    def link_data_set(self, ds: DataSet) -> Self:
         self._data_sets.append(ds)
         return self
 

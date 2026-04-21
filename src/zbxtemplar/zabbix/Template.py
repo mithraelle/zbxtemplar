@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags, WithGroups
+from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags, WithGroups, YesNo
 from zbxtemplar.zabbix.macro import Macro, WithMacros
 from zbxtemplar.zabbix.Trigger import WithTriggers
 from zbxtemplar.zabbix.Graph import WithGraphs
@@ -53,14 +53,15 @@ class WithValueMaps:
         super().__init__()
         self.valuemaps: list[ValueMap] = []
 
-    def add_value_map(self, value_map: ValueMap):
-        """Attach a value map. Raises on duplicate name."""
-        if any(v.name == value_map.name for v in self.valuemaps):
+    def add_value_map(self, name: str) -> ValueMap:
+        """Create, register and return a new ValueMap. Raises on duplicate name."""
+        if any(v.name == name for v in self.valuemaps):
             raise ValueError(
-                f"Duplicate value map '{value_map.name}' on '{self.name}'"
+                f"Duplicate value map '{name}' on '{self.name}'"
             )
+        value_map = ValueMap(name)
         self.valuemaps.append(value_map)
-        return self
+        return value_map
 
 
 class WithTemplates:
@@ -68,7 +69,7 @@ class WithTemplates:
         super().__init__()
         self.templates: list["Template"] = []
 
-    def add_template(self, template: "Template"):
+    def link_template(self, template: "Template"):
         if any(t.name == template.name for t in self.templates):
             raise ValueError(
                 f"Duplicate template '{template.name}' on host '{self.name}'"
@@ -89,14 +90,16 @@ class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGr
         self.dashboards: list[Dashboard] = []
         self.groups = groups
 
-    def add_dashboard(self, dashboard: Dashboard):
-        """Attach a dashboard. Raises on duplicate name."""
+    def add_dashboard(self, name: str, display_period: int = 0,
+                      auto_start: YesNo = YesNo.YES) -> Dashboard:
+        """Create, register and return a new Dashboard. Raises on duplicate name."""
+        dashboard = Dashboard(name=name, display_period=display_period, auto_start=auto_start)
         if any(d.name == dashboard.name for d in self.dashboards):
             raise ValueError(
                 f"Duplicate dashboard '{dashboard.name}' on template '{self.name}'"
             )
         self.dashboards.append(dashboard)
-        return self
+        return dashboard
 
     @classmethod
     def from_dict(cls, data: dict):

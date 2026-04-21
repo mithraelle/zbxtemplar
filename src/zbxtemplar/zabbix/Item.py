@@ -1,8 +1,14 @@
+from __future__ import annotations
+
 from enum import StrEnum
-from typing import Self
+from typing import Self, TYPE_CHECKING
 
 from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags
 from zbxtemplar.zabbix.Trigger import Trigger, TriggerPriority
+
+if TYPE_CHECKING:
+    from zbxtemplar.zabbix.Template import ValueMap
+    from zbxtemplar.zabbix.Host import HostInterface
 
 
 class ItemType(StrEnum):
@@ -42,12 +48,11 @@ class ValueType(StrEnum):
 class Item(ZbxEntity, WithTags):
     """Zabbix monitoring item. UUID is derived from key, not name.
 
-    Pass ``host=template.name`` or ``host=host.name`` when constructing items.
     The host is set automatically when the item is registered via
     ``Template.add_item()`` or ``Host.add_item()``.
     """
 
-    def __init__(self, name: str, key: str, host: str,
+    def __init__(self, name: str, key: str, host: str = "",
                  type: ItemType = ItemType.ZABBIX_PASSIVE,
                  value_type: ValueType = ValueType.UNSIGNED,
                  history: str = "90d", trends: str = "365d"):
@@ -55,7 +60,7 @@ class Item(ZbxEntity, WithTags):
         Args:
             name: Display name.
             key: Zabbix item key, e.g. ``system.cpu.util[,,avg1]``. Used as UUID seed.
-            host: Owner template or host technical name.
+            host: Owner template or host technical name. Set automatically by add_item().
             type: Collection method; defaults to ZABBIX_PASSIVE.
             value_type: Data type of collected value; defaults to UNSIGNED.
             history: History retention period, e.g. ``"90d"``.
@@ -90,12 +95,12 @@ class Item(ZbxEntity, WithTags):
         self.triggers.append(Trigger(name, expression, priority, description))
         return self
 
-    def set_interface(self, interface) -> Self:
+    def link_interface(self, interface: HostInterface) -> Self:
         """Bind item to a specific host interface. Required for SNMP/IPMI items."""
         self.interface_ref = interface.interface_ref
         return self
 
-    def set_value_map(self, value_map) -> Self:
+    def link_value_map(self, value_map: ValueMap) -> Self:
         """Attach a value map to this item for display value translation."""
         self.valuemap = {"name": value_map.name}
         return self
@@ -135,12 +140,16 @@ class WithItems:
         super().__init__()
         self.items: list[Item] = []
 
-    def add_item(self, item: Item):
-        """Register an item. Sets item host to this entity's name. Raises on duplicate key."""
-        if any(i.key == item.key for i in self.items):
+    def add_item(self, name: str, key: str,
+                 type: ItemType = ItemType.ZABBIX_PASSIVE,
+                 value_type: ValueType = ValueType.UNSIGNED,
+                 history: str = "90d", trends: str = "365d") -> Item:
+        """Create, register and return an Item owned by this entity. Raises on duplicate key."""
+        if any(i.key == key for i in self.items):
             raise ValueError(
-                f"Duplicate item key '{item.key}' on '{self.name}'"
+                f"Duplicate item key '{key}' on '{self.name}'"
             )
-        item._host = self.name
+        item = Item(name, key, host=self.name, type=type,
+                    value_type=value_type, history=history, trends=trends)
         self.items.append(item)
-        return self
+        return item

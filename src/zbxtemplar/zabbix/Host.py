@@ -65,8 +65,8 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
         self.groups = groups
         self._default_interface: HostInterface | None = None
 
-    def add_interface(self, interface: HostInterface, default: bool = False):
-        """Register a monitoring interface. The first added becomes the default unless overridden.
+    def link_interface(self, interface: HostInterface, default: bool = False):
+        """Link a monitoring interface to this host. The first linked becomes the default unless overridden.
 
         Args:
             interface: AgentInterface or other HostInterface subclass.

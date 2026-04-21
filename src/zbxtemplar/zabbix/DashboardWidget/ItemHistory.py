@@ -35,8 +35,8 @@ class ItemHistory(Widget):
             fields.append(WidgetField(WidgetFieldType.INTEGER, "show_column_header", str(self._show_column_header.value)))
         return fields
 
-    def add_item(self, item: Item, name: str = ""):
-        """Add an item column. name overrides the display column header."""
+    def link_item(self, item: Item, name: str = ""):
+        """Link an existing item as a column. name overrides the display column header."""
         self._items.append((item, name))
         return self
 

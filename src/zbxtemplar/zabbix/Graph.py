@@ -108,12 +108,12 @@ class Graph(ZbxEntity):
                 raise ValueError(f"y_{axis}: Item value requires y_{axis}_type=ITEM")
             setattr(self, f"yaxis{axis}", str(value))
 
-    def add_item(self, item: Item, color: str, order: int = -1,
-                 drawtype: DrawType = DrawType.SINGLE_LINE,
-                 calc_fnc: CalcFnc = CalcFnc.AVG,
-                 type: GraphItemType = GraphItemType.SIMPLE,
-                 yaxisside: YAxisSide = YAxisSide.LEFT) -> Self:
-        """Add an item series to the graph. Returns self for chaining.
+    def link_item(self, item: Item, color: str, order: int = -1,
+                  drawtype: DrawType = DrawType.SINGLE_LINE,
+                  calc_fnc: CalcFnc = CalcFnc.AVG,
+                  type: GraphItemType = GraphItemType.SIMPLE,
+                  yaxisside: YAxisSide = YAxisSide.LEFT) -> Self:
+        """Link an existing item as a series on this graph. Returns self for chaining.
 
         Args:
             color: 6-digit hex color string, e.g. ``"1A7C11"``.
@@ -131,13 +131,22 @@ class WithGraphs:
         super().__init__()
         self._graphs: list[Graph] = []
 
-    def add_graph(self, graph: Graph):
-        if any(g.name == graph.name for g in self._graphs):
+    def add_graph(self, name: str, type: GraphType = GraphType.NORMAL,
+                  show_triggers: YesNo = YesNo.YES,
+                  show_legend: YesNo = YesNo.YES,
+                  y_min_type: YAxisType = YAxisType.CALCULATED,
+                  y_max_type: YAxisType = YAxisType.CALCULATED,
+                  y_min: int | float | Item | str | None = None,
+                  y_max: int | float | Item | str | None = None) -> Graph:
+        """Create, register and return a new Graph. Raises on duplicate name."""
+        if any(g.name == name for g in self._graphs):
             raise ValueError(
-                f"Duplicate graph '{graph.name}' on '{getattr(self, 'name', type(self).__name__)}'"
+                f"Duplicate graph '{name}' on '{getattr(self, 'name', self.__class__.__name__)}'"
             )
+        graph = Graph(name, type=type, show_triggers=show_triggers, show_legend=show_legend,
+                      y_min_type=y_min_type, y_max_type=y_max_type, y_min=y_min, y_max=y_max)
         self._graphs.append(graph)
-        return self
+        return graph
 
     @property
     def graphs(self):

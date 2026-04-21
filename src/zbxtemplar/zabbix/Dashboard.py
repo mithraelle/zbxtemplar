@@ -96,8 +96,8 @@ class DashboardPage:
         self.display_period = display_period
         self.widgets: list[Widget] = []
 
-    def add_widget(self, widget: Widget):
-        """Append a widget to this page."""
+    def link_widget(self, widget: Widget):
+        """Link an existing widget to this page."""
         self.widgets.append(widget)
 
     def to_dict(self):
@@ -126,7 +126,8 @@ class Dashboard(ZbxEntity):
         self.auto_start = auto_start
         self.pages: list[DashboardPage] = []
 
-    def add_page(self, page: DashboardPage) -> Self:
-        """Append a page to the dashboard. Returns self for chaining."""
+    def add_page(self, name: str = "", display_period: int = 0) -> DashboardPage:
+        """Create, register and return a new DashboardPage."""
+        page = DashboardPage(name=name, display_period=display_period)
         self.pages.append(page)
-        return self
+        return page

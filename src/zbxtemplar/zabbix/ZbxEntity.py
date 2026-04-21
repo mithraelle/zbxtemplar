@@ -106,10 +106,10 @@ class WithGroups():
         super().__init__()
         self.groups: list[ZbxEntity] = []
 
-    def add_group(self, group: ZbxEntity):
+    def link_group(self, group: ZbxEntity):
         if any(g.name == group.name for g in self.groups):
             raise ValueError(
-                f"Duplicate group '{group.name}' on '{getattr(self, 'name', type(self).__name__)}'"
+                f"Duplicate group '{group.name}' on '{getattr(self, 'name', self.__class__.__name__)}'"
             )
         self.groups.append(group)
         return self
