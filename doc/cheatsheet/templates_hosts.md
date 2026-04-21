@@ -6,7 +6,7 @@
 
 ```python
 from zbxtemplar.modules import TemplarModule
-from zbxtemplar.zabbix.Template import TemplateGroup, ValueMap, ValueMapType
+from zbxtemplar.zabbix.Template import TemplateGroup, ValueMapType
 from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 from zbxtemplar.zabbix import MacroType
 ```
@@ -46,11 +46,10 @@ val.value                              # the macro value as string
 ### Value maps
 
 ```python
-vm = ValueMap("Status Map")
+vm = template.add_value_map("Status Map")
 vm.add_mapping("1", "UP", ValueMapType.EQUAL)
 vm.add_mapping("0", "DOWN", ValueMapType.EQUAL)
 # ValueMapType: EQUAL, GREATER_OR_EQUAL, LESS_OR_EQUAL, IN_RANGE, REGEXP, DEFAULT
-template.add_value_map(vm)
 ```
 
 ### Value maps
@@ -60,7 +59,7 @@ Same API as templates — `host.add_value_map(vm)` works identically.
 ### Linked templates
 
 ```python
-template.add_template(other_template)
+template.link_template(other_template)
 ```
 
 ## Host
@@ -68,7 +67,7 @@ template.add_template(other_template)
 ```python
 host = self.add_host("my-host", groups=[hg])
 host.add_tag("env", "prod")               # value is optional, defaults to ""
-host.add_template(template)
+host.link_template(template)
 ```
 
 Raises `ValueError` on duplicate name within the module.
@@ -77,7 +76,7 @@ Raises `ValueError` on duplicate name within the module.
 
 ```python
 iface = AgentInterface(ip="192.168.1.10", port="10050")  # defaults: 127.0.0.1:10050
-host.add_interface(iface)   # first added becomes the default interface
+host.link_interface(iface)   # first added becomes the default interface
 ```
 
 ### Macros on hosts

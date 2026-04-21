@@ -5,23 +5,22 @@ Items and triggers are built inside `compose()` and added to a `Template` or `Ho
 ## Imports
 
 ```python
-from zbxtemplar.zabbix.Item import Item, ItemType, ValueType
+from zbxtemplar.zabbix.Item import ItemType, ValueType
 from zbxtemplar.zabbix.Trigger import TriggerPriority
 ```
 
 ## Item
 
 ```python
-item = Item(
+item = template.add_item(
     name="CPU load",
     key="system.cpu.load[,avg1]",
-    host=template.name,            # set automatically by template.add_item() / host.add_item()
     type=ItemType.ZABBIX_PASSIVE,  # default
     value_type=ValueType.FLOAT,
     history="90d",
     trends="365d",
 )
-template.add_item(item)   # or host.add_item(item); raises on duplicate key
+# also: host.add_item(...)
 item.add_tag("Service", "monitoring")   # value optional, defaults to ""
 ```
 
@@ -34,13 +33,13 @@ ITEM_TYPE_SCRIPT, ITEM_TYPE_BROWSER
 ### Value map
 
 ```python
-item.set_value_map(value_map)   # ValueMap object defined on the same template
+item.link_value_map(value_map)   # ValueMap object defined on the same template
 ```
 
 ### Interface (hosts only)
 
 ```python
-item.set_interface(iface)   # AgentInterface assigned to the host
+item.link_interface(iface)   # AgentInterface assigned to the host
 ```
 
 ## Trigger expression helper

@@ -3,7 +3,6 @@
 ## Imports
 
 ```python
-from zbxtemplar.zabbix.Dashboard import Dashboard, DashboardPage
 from zbxtemplar.zabbix.ZbxEntity import YesNo
 from zbxtemplar.zabbix.DashboardWidget.ClassicGraph import ClassicGraph
 from zbxtemplar.zabbix.DashboardWidget.SimpleGraph import SimpleGraph
@@ -14,14 +13,12 @@ from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph
 ## Dashboard & pages
 
 ```python
-dashboard = Dashboard(name="My Dashboard", display_period=30, auto_start=YesNo.YES)
+dashboard = template.add_dashboard(name="My Dashboard", display_period=30, auto_start=YesNo.YES)
 # auto_start / display_period apply to the whole dashboard
 # YesNo: YES, NO
 
-page = DashboardPage(name="Overview", display_period=120)
+page = dashboard.add_page(name="Overview", display_period=120)
 # name is optional for the first page; display_period overrides dashboard default for this page
-dashboard.add_page(page)
-template.add_dashboard(dashboard)
 ```
 
 ## Widget layout
@@ -34,7 +31,7 @@ Displays a template/host `Graph` object (from `graphs.md`).
 
 ```python
 w = ClassicGraph(template=template.name, graph=graph, x=0, y=0, width=36, height=5)
-page.add_widget(w)
+page.link_widget(w)
 ```
 
 ## SimpleGraph
@@ -43,7 +40,7 @@ Single-item graph — no separate `Graph` object needed.
 
 ```python
 w = SimpleGraph(item=item, x=0, y=0, width=36, height=5, name="CPU load")
-page.add_widget(w)
+page.link_widget(w)
 ```
 
 ## ItemHistory
@@ -52,11 +49,11 @@ Scrollable table of recent item values.
 
 ```python
 w = ItemHistory(x=0, y=0, width=18, height=5)
-w.add_item(item1, "Column header")  # empty string uses item name
-w.add_item(item2, "")
+w.link_item(item1, "Column header")  # empty string uses item name
+w.link_item(item2, "")
 w.show_timestamp(True)
 w.show_column_header(ItemHistoryHeader.HORIZONTAL)  # NO, HORIZONTAL, VERTICAL
-page.add_widget(w)
+page.link_widget(w)
 ```
 
 ## SVG Graph widget (dashGraph.Graph)
@@ -73,8 +70,8 @@ g = dashGraph.Graph(name="Trends", x=0, y=0, width=36, height=8)
 
 ```python
 ds = dashGraph.ItemListSet(label="My Items")
-ds.add_item(item1, "1A7C11")   # hex color, no #
-ds.add_item(item2, "274482")
+ds.link_item(item1, "1A7C11")   # hex color, no #
+ds.link_item(item2, "274482")
 ```
 
 **ItemPatternSet** — wildcard key matching; specify either `color` or `palette` (not both):
@@ -113,7 +110,7 @@ ds.set_aggregate(
 ### Graph options
 
 ```python
-g.add_data_set(ds)
+g.link_data_set(ds)
 
 g.set_display_options(
     source=dashGraph.DataSource.AUTO,     # AUTO, HISTORY, TRENDS
@@ -131,5 +128,5 @@ g.set_legend(
     legend_columns=2,       # 1–4
 )
 
-page.add_widget(g)
+page.link_widget(g)
 ```

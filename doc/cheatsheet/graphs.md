@@ -6,14 +6,14 @@ Not to be confused with dashboard SVG graph widgets (see `dashboards.md`).
 ## Imports
 
 ```python
-from zbxtemplar.zabbix.Graph import Graph, GraphType, YAxisType, DrawType, CalcFnc, GraphItemType, YAxisSide
+from zbxtemplar.zabbix.Graph import GraphType, YAxisType, DrawType, CalcFnc, GraphItemType, YAxisSide
 from zbxtemplar.zabbix.ZbxEntity import YesNo
 ```
 
 ## Graph
 
 ```python
-graph = Graph(
+graph = template.add_graph(
     name="CPU load",
     type=GraphType.NORMAL,             # NORMAL, STACKED, PIE, EXPLODED
     show_triggers=YesNo.YES,           # overlay trigger threshold lines; YesNo.YES or NO
@@ -23,16 +23,16 @@ graph = Graph(
     y_min=None,                        # number/string when FIXED; Item when ITEM
     y_max=100,
 )
-template.add_graph(graph)   # or host.add_graph(graph)
+# or host.add_graph(...)
 ```
 
 When `y_min_type` or `y_max_type` is `ITEM`, pass the corresponding `Item` object
 as `y_min_item` / `y_max_item`. The item must already be added to the same template or host.
 
-## Adding items to a graph
+## Linking items to a graph
 
 ```python
-graph.add_item(
+graph.link_item(
     item,
     color="1A7C11",                       # hex color, no #
     order=0,                              # display order (lower = drawn first)
