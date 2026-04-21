@@ -4,8 +4,8 @@ from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, YesNo, WithTags, WithGroups
 from zbxtemplar.zabbix.macro import Macro, WithMacros
 from zbxtemplar.zabbix.Trigger import WithTriggers
 from zbxtemplar.zabbix.Graph import WithGraphs
-from zbxtemplar.zabbix.Item import Item
-from zbxtemplar.zabbix.Template import Template, ValueMap, WithTemplates
+from zbxtemplar.zabbix.Item import Item, WithItems
+from zbxtemplar.zabbix.Template import Template, ValueMap, WithTemplates, WithValueMaps
 
 
 class HostGroup(ZbxEntity):
@@ -55,15 +55,13 @@ class AgentInterface(HostInterface):
         }
 
 
-class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates):
+class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates, WithItems, WithValueMaps):
     """Zabbix host definition. Exported without UUID — Zabbix rejects UUIDs on hosts."""
 
     def __init__(self, name: str, groups: list[HostGroup]):
         super().__init__(name)
         self.host = name
         self.interfaces: list[HostInterface] = []
-        self.items: list[Item] = []
-        self.valuemaps: list[ValueMap] = []
         self.groups = groups
         self._default_interface: HostInterface | None = None
 
@@ -88,24 +86,6 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
             {**iface.to_dict(), "default": YesNo.YES.value if iface is self._default_interface else YesNo.NO.value}
             for iface in self.interfaces
         ]
-
-    def add_item(self, item: Item):
-        """Register an item on this host. Sets item host to this host's name. Raises on duplicate key."""
-        if any(i.key == item.key for i in self.items):
-            raise ValueError(
-                f"Duplicate item key '{item.key}' on host '{self.name}'"
-            )
-        item._host = self.name
-        self.items.append(item)
-        return self
-
-    def add_value_map(self, value_map: ValueMap):
-        if any(v.name == value_map.name for v in self.valuemaps):
-            raise ValueError(
-                f"Duplicate value map '{value_map.name}' on host '{self.name}'"
-            )
-        self.valuemaps.append(value_map)
-        return self
 
     def to_dict(self, **kwargs):
         return super().to_dict(skip_uuid=True)

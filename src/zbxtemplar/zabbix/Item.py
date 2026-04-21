@@ -128,3 +128,19 @@ class Item(ZbxEntity, WithTags):
         for tr in data.get("triggers", []):
             item.triggers.append(Trigger.from_dict(tr))
         return item
+
+
+class WithItems:
+    def __init__(self):
+        super().__init__()
+        self.items: list[Item] = []
+
+    def add_item(self, item: Item):
+        """Register an item. Sets item host to this entity's name. Raises on duplicate key."""
+        if any(i.key == item.key for i in self.items):
+            raise ValueError(
+                f"Duplicate item key '{item.key}' on '{self.name}'"
+            )
+        item._host = self.name
+        self.items.append(item)
+        return self

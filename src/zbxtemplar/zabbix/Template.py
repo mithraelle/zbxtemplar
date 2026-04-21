@@ -5,7 +5,7 @@ from zbxtemplar.zabbix.macro import Macro, WithMacros
 from zbxtemplar.zabbix.Trigger import WithTriggers
 from zbxtemplar.zabbix.Graph import WithGraphs
 from zbxtemplar.zabbix.Dashboard import Dashboard
-from zbxtemplar.zabbix.Item import Item
+from zbxtemplar.zabbix.Item import Item, WithItems
 
 
 class TemplateGroup(ZbxEntity):
@@ -48,6 +48,21 @@ class ValueMap(ZbxEntity):
         self.mappings.append({"value": value, "newvalue": newvalue, "type": type.value})
         return self
 
+class WithValueMaps:
+    def __init__(self):
+        super().__init__()
+        self.valuemaps: list[ValueMap] = []
+
+    def add_value_map(self, value_map: ValueMap):
+        """Attach a value map. Raises on duplicate name."""
+        if any(v.name == value_map.name for v in self.valuemaps):
+            raise ValueError(
+                f"Duplicate value map '{value_map.name}' on '{self.name}'"
+            )
+        self.valuemaps.append(value_map)
+        return self
+
+
 class WithTemplates:
     def __init__(self):
         super().__init__()
@@ -65,26 +80,14 @@ class WithTemplates:
         return [{"name": t.name} for t in self.templates]
 
 
-class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates):
+class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates, WithItems, WithValueMaps):
     """Zabbix template: container for items, triggers, graphs, dashboards, macros, and value maps."""
 
     def __init__(self, name: str, groups: list[TemplateGroup]):
         super().__init__(name)
         self.template = name
-        self.items: list[Item] = []
         self.dashboards: list[Dashboard] = []
-        self.valuemaps: list[ValueMap] = []
         self.groups = groups
-
-    def add_item(self, item: Item):
-        """Register an item on this template. Sets item host to this template's name. Raises on duplicate key."""
-        if any(i.key == item.key for i in self.items):
-            raise ValueError(
-                f"Duplicate item key '{item.key}' on template '{self.name}'"
-            )
-        item._host = self.name
-        self.items.append(item)
-        return self
 
     def add_dashboard(self, dashboard: Dashboard):
         """Attach a dashboard. Raises on duplicate name."""
@@ -93,15 +96,6 @@ class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGr
                 f"Duplicate dashboard '{dashboard.name}' on template '{self.name}'"
             )
         self.dashboards.append(dashboard)
-        return self
-
-    def add_value_map(self, value_map: ValueMap):
-        """Attach a value map. Raises on duplicate name."""
-        if any(v.name == value_map.name for v in self.valuemaps):
-            raise ValueError(
-                f"Duplicate value map '{value_map.name}' on template '{self.name}'"
-            )
-        self.valuemaps.append(value_map)
         return self
 
     @classmethod
