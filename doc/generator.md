@@ -160,8 +160,10 @@ Module-level macros are the "global" tier — shared across every template and h
 `add_macro()` returns the `Macro` object, so you can capture it and use it directly without a separate `get_macro()` call:
 
 ```python
+from zbxtemplar.zabbix import functions
+
 threshold = self.add_macro("THRESHOLD", 90, "Alert threshold")
-item.add_trigger("High CPU", "last", ">", threshold, ...)
+template.add_trigger("High CPU", functions.history.Last(item) > threshold)
 ```
 
 ## Output Behavior

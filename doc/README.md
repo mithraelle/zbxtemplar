@@ -35,6 +35,9 @@ The project is aimed at teams who want monitoring configuration, access control,
 - [Decree Reference](./decree_reference.md)  
   Automatically generated reference for all valid configuration fields.
 
+- [Cheatsheets](./cheatsheet/README.md)  
+  Compact authoring references for configuration entities, action rules, and expression builders.
+
 ## Recommended Reading Order
 
 1. Start with [Getting Started](./getting-started.md).

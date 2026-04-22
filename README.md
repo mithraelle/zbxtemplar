@@ -2,7 +2,7 @@
 
 A Pythonic framework for programmatic Zabbix configuration generation — Monitoring as Code.
 
-Define templates, hosts, user groups, users, SAML directories, actions, and host encryption as Python code. Generate Zabbix-native YAML (importable via UI or API) and decree YAML (applied by the executor). The goal is to cover the essential Zabbix configuration primitives — not every possible option. If you need a field that isn't exposed, raw dicts and string expressions give you an escape hatch.
+Define templates, hosts, user groups, users, SAML directories, actions, and host encryption as Python code. Generate Zabbix-native YAML (importable via UI or API) and decree YAML (applied by the executor). The goal is to cover the essential Zabbix configuration primitives — not every possible option. If you need a field that isn't exposed, raw dicts provide an escape hatch.
 
 Aimed at teams that want:
 
@@ -21,6 +21,8 @@ The Zabbix UI handles one-off setup fine. The trouble starts when you need the s
 Once you are there, secrets need handling. `${ENV_VAR}` placeholders keep credentials out of git; a missing variable is a hard abort, not an empty string applied to a live instance. Zabbix `secret` and `vault` macro types are first-class. Host encryption (PSK, TLS certificates), API token provisioning, and **SAML Single Sign-On (SSO) with JIT user provisioning** — things that are clunky or impossible to automate from the web interface — are managed declaratively with the same strict contract ([`doc/security.md`](./doc/security.md)).
 
 Actions are where the Zabbix API gets awkward and error-prone: numeric codes for everything, manual formula labels, invalid operator-condition combinations accepted without complaint. `zbxtemplar` replaces that with typed Python — `HostGroupCondition("Production") & SeverityCondition("HIGH")`. Names, not IDs. Wrong operator on the wrong condition type? Type error at write time, not a silent misfire during an incident ([`doc/actions.md`](./doc/actions.md)).
+
+Trigger expressions are equally frustrating to write by hand: string concatenation, escaping issues, and manual resolution of item paths. `zbxtemplar` provides a **Trigger Expression Builder** using native Python syntax. You wrap items in typed function wrappers (e.g., `functions.history.Last(item)`) and combine them with normal arithmetic and bitwise operators (`>`, `&`, `~`). The builder handles rendering the complex Zabbix expression string format for you, with type-hinted support for all Zabbix 7.4 trigger functions ([`doc/cheatsheet/items_triggers.md`](./doc/cheatsheet/items_triggers.md)).
 
 Macros follow a layered resolution chain: entity macros → linked template macros → module-level macros → context macros. Module-level macros (`self.add_macro(...)` inside `compose()`) act as the global tier — shared across every template and host in the module and exported as `set_macro` YAML for the executor to apply.
 
@@ -44,7 +46,7 @@ The split is intentional:
 
 ```python
 from zbxtemplar.modules import TemplarModule
-from zbxtemplar.zabbix import TriggerPriority
+from zbxtemplar.zabbix import TriggerPriority, functions
 from zbxtemplar.zabbix.Template import TemplateGroup
 from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 
@@ -56,14 +58,12 @@ class MyModule(TemplarModule):
             name="My Service",
             groups=[TemplateGroup("Custom Templates")],
         )
-        template.add_macro("THRESHOLD", alert_threshold, "Alert threshold")
+        threshold_macro = template.add_macro("THRESHOLD", alert_threshold, "Alert threshold")
 
         item = template.add_item("CPU Usage", "system.cpu.util")
-        item.add_trigger(
-            "High CPU",
-            "last",
-            ">",
-            template.get_macro("THRESHOLD"),
+        template.add_trigger(
+            name="High CPU",
+            expression=functions.history.Last(item) > threshold_macro,
             priority=TriggerPriority.HIGH,
         )
 
@@ -125,6 +125,7 @@ The structured docs live in [`doc/`](./doc/README.md):
 - [`doc/actions.md`](./doc/actions.md) for action conditions and operations
 - [`doc/security.md`](./doc/security.md) for the operational safety model
 - [`doc/decree_reference.md`](./doc/decree_reference.md) for the generated YAML schema reference
+- [`doc/cheatsheet/`](./doc/cheatsheet/README.md) for compact authoring references, including the trigger function glossary
 
 ## Current Scope
 

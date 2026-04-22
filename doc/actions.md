@@ -263,18 +263,27 @@ The cheapest failures happen first.
 
 ## Trigger Expressions
 
-`Item.expr()` generates correct Zabbix trigger expression paths from the item's owning entity:
+Trigger expressions are built from typed function wrappers and Python operators:
 
 ```python
-item.add_trigger("CPU High", fn="last", op=">", threshold=90, priority=TriggerPriority.HIGH)
-# generates: last(/Template Name/item.key)>90
+from zbxtemplar.zabbix import TriggerPriority, functions
 
-# Or compose manually for multi-item expressions:
-full_expr = f"{cpu_item.expr('avg', '5m')}>{threshold}"
-template.add_trigger("CPU Average High", full_expr, TriggerPriority.WARNING)
+template.add_trigger(
+    "CPU High",
+    expression=functions.history.Last(cpu_item) > 90,
+    priority=TriggerPriority.HIGH,
+)
+
+threshold = 90
+expr = ((functions.aggregate.Avg(cpu_item, "5m") > threshold)
+        & (functions.history.Last(memory_item) < 80))
+template.add_trigger("CPU Average High", expr, TriggerPriority.WARNING)
 ```
 
-The `/{host}/{key}` path is generated automatically — no manual string construction needed.
+The `/{host}/{key}` path is generated automatically from the item owner. Use
+`&`, `|`, and `~` for Zabbix `and`, `or`, and `not`. See the
+[trigger function glossary](./cheatsheet/trigger_functions_glossary.md) for the
+available wrappers.
 
 ---
 

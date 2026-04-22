@@ -22,7 +22,7 @@ Create a Python file with a `TemplarModule` subclass:
 
 ```python
 from zbxtemplar.modules import TemplarModule
-from zbxtemplar.zabbix import TriggerPriority
+from zbxtemplar.zabbix import TriggerPriority, functions
 from zbxtemplar.zabbix.Template import TemplateGroup
 from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 
@@ -34,14 +34,12 @@ class MyModule(TemplarModule):
             name="My Service",
             groups=[TemplateGroup("Custom Templates")],
         )
-        template.add_macro("THRESHOLD", alert_threshold, "Alert threshold")
+        threshold_macro = template.add_macro("THRESHOLD", alert_threshold, "Alert threshold")
 
         item = template.add_item("CPU Usage", "system.cpu.util")
-        item.add_trigger(
-            "High CPU",
-            "last",
-            ">",
-            template.get_macro("THRESHOLD"),
+        template.add_trigger(
+            name="High CPU",
+            expression=functions.history.Last(item) > threshold_macro,
             priority=TriggerPriority.HIGH,
         )
 
@@ -49,6 +47,7 @@ class MyModule(TemplarModule):
         host.link_template(template)
         host.link_interface(AgentInterface(ip="192.168.1.10"))
 ```
+
 
 Generate YAML:
 

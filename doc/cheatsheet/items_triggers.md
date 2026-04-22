@@ -7,6 +7,7 @@ Items and triggers are built inside `compose()` and added to a `Template` or `Ho
 ```python
 from zbxtemplar.zabbix.Item import ItemType, ValueType
 from zbxtemplar.zabbix.Trigger import TriggerPriority
+from zbxtemplar.zabbix import functions
 ```
 
 ## Item
@@ -42,36 +43,42 @@ item.link_value_map(value_map)   # ValueMap object defined on the same template
 item.link_interface(iface)   # AgentInterface assigned to the host
 ```
 
-## Trigger expression helper
+## Trigger expression builder
 
-`item.expr(fn, *args)` returns a string fragment for building expressions manually.
+Trigger expressions are Python expression trees. Wrap items with trigger function
+classes from `zbxtemplar.zabbix.functions`, then combine them with Python
+operators.
 
 ```python
-item.expr("last")          # →  "last(/Template/key)"
-item.expr("min", 5)        # →  "min(/Template/key,5)"
-item.expr("avg", "5m")     # →  "avg(/Template/key,5m)"
+functions.history.Last(item)             # last(/Template/key)
+functions.aggregate.Min(item, "5m")      # min(/Template/key,5m)
+functions.aggregate.Avg(item, "10m")     # avg(/Template/key,10m)
 ```
 
-Concatenate with strings to build full expressions:
+Use normal comparison and arithmetic operators. Use `&`, `|`, and `~` for
+Zabbix `and`, `or`, and `not`.
 
 ```python
-expr = item1.expr("avg", "5m") + ">" + "90"
-expr = item1.expr("last") + ">" + str(macro)   # str(macro) → "{$MY_MACRO}"
-expr = (item1.expr("last") + ">" + str(macro)
-        + " and " + item2.expr("last") + "<" + "10")
+expr = functions.aggregate.Avg(item1, "5m") > 90
+expr = functions.history.Last(item1) > macro   # macro renders as {$MY_MACRO}
+expr = ((functions.history.Last(item1) > macro)
+        & (functions.history.Last(item2) < 10))
+expr = ~(functions.history.Last(item1) == 0)    # renders as not (last(...) = 0)
+expr = functions.history.Last(item1) != 0       # renders as last(...) <> 0
 ```
 
-## Single-item trigger (shortcut)
+See [trigger_functions_glossary.md](trigger_functions_glossary.md) for the
+available trigger function wrappers.
 
-Builds the expression automatically from the item.
+## Single-item trigger
+
+Pass an expression tree to `add_trigger()`. Expressions referencing one item are
+emitted under that item in the Zabbix export.
 
 ```python
-item.add_trigger(
+template.add_trigger(
     name="High CPU",
-    fn="avg",              # Zabbix function name
-    op=">",                # operator string: >, <, >=, <=, =, <>
-    threshold=90,          # int, float, str, or Macro object (renders as {$NAME} automatically)
-    fn_args=("5m",),       # additional args passed to fn: avg(/key,5m)
+    expression=functions.aggregate.Avg(item, "5m") > 90,
     priority=TriggerPriority.HIGH,
     description="optional description",
 )
@@ -81,10 +88,11 @@ item.add_trigger(
 
 ## Multi-item trigger
 
-Pass a pre-built expression string to `add_trigger()` on the template or host.
+Expressions referencing multiple items stay on the owning template or host.
 
 ```python
-expr = item1.expr("last") + ">" + "100 and " + item2.expr("last") + "<" + "0"
+expr = ((functions.history.Last(item1) > 100)
+        & (functions.history.Last(item2) < 0))
 trigger = template.add_trigger(
     name="Complex condition",
     expression=expr,
