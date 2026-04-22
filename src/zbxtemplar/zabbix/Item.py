@@ -75,26 +75,6 @@ class Item(ZbxEntity, WithTags):
         self.trends = trends
         self.triggers: list[Trigger] = []
 
-    def add_trigger(self, name: str, fn: str, op: str, threshold,
-                    fn_args: tuple = (),
-                    priority: TriggerPriority = TriggerPriority.NOT_CLASSIFIED,
-                    description: str = None) -> Self:
-        """Attach a trigger using a Zabbix function shorthand. Returns self for chaining.
-
-        Builds expression ``fn(/host/key,fn_args...)op threshold``.
-
-        Args:
-            fn: Zabbix function name, e.g. ``"last"``, ``"min"``, ``"avg"``.
-            op: Comparison operator string, e.g. ``">"``, ``"<"``, ``"="``.
-            threshold: Comparison value; may be a Macro (rendered as ``{$NAME}``).
-            fn_args: Extra function arguments, e.g. ``(10,)`` for ``min(/host/key,10)``.
-            priority: TriggerPriority constant; defaults to NOT_CLASSIFIED.
-            description: Optional trigger description.
-        """
-        expression = f"{self.expr(fn, *fn_args)}{op}{threshold}"
-        self.triggers.append(Trigger(name, expression, priority, description))
-        return self
-
     def link_interface(self, interface: HostInterface) -> Self:
         """Bind item to a specific host interface. Required for SNMP/IPMI items."""
         self.interface_ref = interface.interface_ref
@@ -104,18 +84,6 @@ class Item(ZbxEntity, WithTags):
         """Attach a value map to this item for display value translation."""
         self.valuemap = {"name": value_map.name}
         return self
-
-    def expr(self, fn: str, *args) -> str:
-        """Build a Zabbix expression string for this item.
-
-        Returns a string like ``last(/host/key)`` or ``min(/host/key,10)``
-        that can be concatenated to form trigger expressions.
-        """
-        base = f"{fn}(/{self._host}/{self.key})"
-        if args:
-            params = ",".join(str(a) for a in args)
-            base = f"{fn}(/{self._host}/{self.key},{params})"
-        return base
 
     @classmethod
     def from_dict(cls, data: dict, host: str = ""):

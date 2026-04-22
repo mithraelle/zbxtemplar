@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from zbxtemplar.dicts.Schema import Schema, SchemaField
+from zbxtemplar.zabbix.trigger_expression import TriggerExpr
 
 
 class MacroType(StrEnum):
@@ -23,8 +24,8 @@ class MacroType(StrEnum):
         return super()._missing_(value)
 
 
-@dataclass(frozen=True)
-class Macro(Schema):
+@dataclass(frozen=True, eq=False)
+class Macro(Schema, TriggerExpr):
     _SCHEMA = [
         SchemaField("name", optional=False, description="Macro name without {$...} braces.", type=str),
         SchemaField("value", optional=False, description="Macro value.", type=str),
@@ -43,12 +44,6 @@ class Macro(Schema):
 
     def __str__(self):
         return self.full_name
-
-    def __add__(self, other):
-        return str(self) + other
-
-    def __radd__(self, other):
-        return other + str(self)
 
     def to_dict(self):
         result = {"macro": self.full_name, "type": self.type.value, "value": self.value}

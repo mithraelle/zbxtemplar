@@ -28,7 +28,7 @@ zabbix_export:
       triggers:
       - name: Simple trigger
         uuid: 2968b019ed11459087759353780c7a15
-        expression: min(/Test Template/item.test[1],10)>{$MY_MACRO}
+        expression: min(/Test Template/item.test[1],10) > {$MY_MACRO}
         priority: HIGH
         description: A single item trigger
     - tags:
@@ -243,8 +243,8 @@ zabbix_export:
   triggers:
   - name: Complex trigger
     uuid: bc81a964ebf94fb0926600eb7222a1a7
-    expression: last(/Test Template/item.test[1])>{$MY_MACRO} and last(/Test Template/item.test[2])
-      < {$MY_MACRO}
+    expression: (last(/Test Template/item.test[1]) > {$MY_MACRO}) and (last(/Test
+      Template/item.test[2]) < {$MY_MACRO})
     priority: WARNING
     description: Trigger using two items
   graphs:

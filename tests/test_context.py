@@ -61,14 +61,15 @@ class TestZabbixExport:
         assert len(host.items) == 1
         host_item = host.items[0]
         assert host_item.key == "item.test[own]"
-        assert len(host_item.triggers) == 1
-        assert host_item.triggers[0].name == "Host Simple trigger"
+        assert len(host_item.triggers) == 2
+        host_trigger_names_inline = [t.name for t in host_item.triggers]
+        assert "Host Simple trigger" in host_trigger_names_inline
+        assert "Host Complex trigger" in host_trigger_names_inline
 
         # root-level triggers attached to their owners
         tmpl_trigger_names = [t.name for t in tmpl.triggers]
         assert "Complex trigger" in tmpl_trigger_names
-        host_trigger_names = [t.name for t in host.triggers]
-        assert "Host Complex trigger" in host_trigger_names
+        assert host.triggers == []
 
 
 class TestDecree:

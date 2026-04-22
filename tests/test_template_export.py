@@ -4,8 +4,7 @@ import pytest
 
 from zbxtemplar.modules import TemplarModule
 from zbxtemplar.zabbix.ZbxEntity import YesNo
-from zbxtemplar.zabbix import Item, TriggerPriority, Graph, YAxisType, YAxisSide, \
-    HostGroup
+from zbxtemplar.zabbix import TriggerPriority, Graph, YAxisType, YAxisSide, HostGroup, functions
 from zbxtemplar.zabbix.Host import AgentInterface
 from zbxtemplar.zabbix.Template import TemplateGroup
 from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph
@@ -24,24 +23,23 @@ REFERENCE_HOSTS = REFERENCE_DIR / "hosts.yml"
 class SampleTemplate(TemplarModule):
     def compose(self):
         template = self.add_template(name="Test Template", groups=[TemplateGroup("Templar Templates")]).add_tag("Service", "Testing")
-        template.add_macro("MY_MACRO", 1, "Testing The Things")
+        template_macro = template.add_macro("MY_MACRO", 1, "Testing The Things")
 
         value_map = template.add_value_map("Test Map").add_mapping("1", "UP", ValueMapType.EQUAL).add_mapping("0", "DOWN",
                                                                                                                ValueMapType.EQUAL)
 
         item1 = template.add_item("Item 1", "item.test[1]").add_tag("Service", "Testing 1")
-        item1.add_trigger(name="Simple trigger", fn="min", op=">",
-                          threshold=template.get_macro("MY_MACRO"),
-                          priority=TriggerPriority.HIGH, description="A single item trigger",
-                          fn_args=(10,))
+        template.add_trigger(name="Simple trigger",
+                             expression=functions.aggregate.Min(item1, "10") > template_macro,
+                             priority=TriggerPriority.HIGH, description="A single item trigger")
 
         item2 = template.add_item("Item 2", "item.test[2]", type=ItemType.ZABBIX_ACTIVE).add_tag("Service", "Testing 2")
         item2.link_value_map(value_map)
 
         item3 = template.add_item("Item 3", "item.test[3]", type=ItemType.TRAP).add_tag("Service", "Testing 3")
 
-        trigger_expr = (item1.expr("last") + ">" + template.get_macro("MY_MACRO")
-                        + " and " + item2.expr("last") + " < " + template.get_macro("MY_MACRO"))
+        trigger_expr = ((functions.history.Last(item1) > template.get_macro("MY_MACRO"))
+                        & (functions.history.Last(item2) < template.get_macro("MY_MACRO")))
 
         graph = template.add_graph("Test Graph", y_min=1, y_max_type=YAxisType.ITEM, y_max=item3)
         graph.link_item(item1, "1A7C11").link_item(item2, "274482", yaxisside=YAxisSide.RIGHT)
@@ -82,22 +80,21 @@ class SampleTemplate(TemplarModule):
         second_page.link_widget(SimpleGraph(item=item2, x=36, y=0, width=36, height=5))
 
         host = self.add_host("Templar Host", groups=[HostGroup("Templar Hosts")])
-        host.add_macro("MY_HOST_MACRO", 1, "Testing The Host Macro")
+        host_macro = host.add_macro("MY_HOST_MACRO", 1, "Testing The Host Macro")
         host.link_template(template)
         host_item = host.add_item("Item Own", "item.test[own]").add_tag("Service", "Testing Host")
         host_if1 = AgentInterface()
         host.link_interface(host_if1)
         host_item.link_interface(host_if1)
-        host_item.add_trigger(name="Host Simple trigger", fn="min", op=">",
-                              threshold=host.get_macro("MY_HOST_MACRO"),
-                              priority=TriggerPriority.HIGH, description="A single host item trigger",
-                              fn_args=(10,))
+        host.add_trigger(name="Host Simple trigger",
+                         expression=functions.aggregate.Min(host_item, 10) > host_macro,
+                         priority=TriggerPriority.HIGH, description="A single host item trigger")
 
         host_graph = host.add_graph("Host Graph")
         host_graph.link_item(host_item, "1A7C11")
 
-        host_trigger_expr = (host_item.expr("last") + ">" + host.get_macro("MY_HOST_MACRO")
-                             + " and " + host_item.expr("last") + " < " + host.get_macro("MY_MACRO"))
+        host_trigger_expr = ((functions.history.Last(host_item) > host_macro)
+                             & (functions.history.Last(host_item) < host.get_macro("MY_MACRO")))
         host.add_trigger(name="Host Complex trigger", expression=host_trigger_expr,
                          priority=TriggerPriority.WARNING,
                          description="Host trigger using two items")
