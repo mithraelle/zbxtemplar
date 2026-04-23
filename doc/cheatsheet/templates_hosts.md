@@ -8,7 +8,7 @@
 from zbxtemplar.modules import TemplarModule
 from zbxtemplar.zabbix.Template import TemplateGroup, ValueMapType
 from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
-from zbxtemplar.zabbix import MacroType
+from zbxtemplar.zabbix import MacroType, InventoryMode, InventoryField
 ```
 
 ## Groups
@@ -87,3 +87,38 @@ Same API as templates. `get_macro()` searches own → linked templates → modul
 m = host.add_macro("MY_HOST_MACRO", "value", "desc")
 host.get_macro("MY_HOST_MACRO").value
 ```
+
+### Inventory
+
+Zabbix host inventory is a fixed set of ~70 asset-tracking fields (os, hardware, contact,
+location, ...). Fields are populated manually via the host config, or automatically from
+item values in `AUTOMATIC` mode (see `Item.set_inventory_link()` in
+[`items_triggers.md`](items_triggers.md)).
+
+```python
+host.set_inventory_mode(InventoryMode.MANUAL)
+host.set_inventory(InventoryField.OS, "Linux")
+host.set_inventory(InventoryField.LOCATION, "DC1 Rack 12")
+host.set_inventory(InventoryField.CONTACT, "ops@example.com")
+```
+
+**InventoryMode:** DISABLED, MANUAL, AUTOMATIC
+
+**InventoryField** covers the full Zabbix 7.4 field list: ALIAS, OS, OS_FULL, OS_SHORT,
+HARDWARE, HARDWARE_FULL, SOFTWARE, SOFTWARE_FULL, SERIALNO_A, SERIALNO_B, TAG, ASSET_TAG,
+MACADDRESS_A, MACADDRESS_B, CHASSIS, MODEL, VENDOR, HW_ARCH, CONTACT, LOCATION,
+LOCATION_LAT, LOCATION_LON, NOTES, CONTRACT_NUMBER, INSTALLER_NAME, DEPLOYMENT_STATUS,
+URL_A/B/C, HOST_NETWORKS, HOST_NETMASK, HOST_ROUTER, OOB_IP, OOB_NETMASK, OOB_ROUTER,
+DATE_HW_PURCHASE / _INSTALL / _EXPIRY / _DECOMM, SITE_ADDRESS_A/B/C, SITE_CITY, SITE_STATE,
+SITE_COUNTRY, SITE_ZIP, SITE_RACK, SITE_NOTES, POC_1_* and POC_2_* (NAME, EMAIL, PHONE_A/B,
+CELL, SCREEN, NOTES), plus TYPE, TYPE_FULL, NAME, SOFTWARE_APP_A..E.
+
+`Host.to_dict()` raises `ValueError` on two incoherent combinations that Zabbix would
+silently drop on import:
+
+- `inventory` fields set but `inventory_mode` left unset
+- `inventory` fields set together with `InventoryMode.DISABLED`
+
+An `inventory_link` set on a template/host item is **not** inspected: Zabbix harmlessly
+ignores it when the host is in `MANUAL` or `DISABLED` mode, and the same template may be
+reused across hosts of varying modes.

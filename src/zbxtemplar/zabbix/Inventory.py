@@ -97,9 +97,11 @@ class WithInventory:
         self.inventory: dict[str, Any] = {}
 
     def set_inventory_mode(self, mode: InventoryMode | str):
+        """Set the host inventory mode (`DISABLED`, `MANUAL`, or `AUTOMATIC`)."""
         self.inventory_mode = InventoryMode(mode)
         return self
 
     def set_inventory(self, field: InventoryField | str, value: Any):
+        """Set a single inventory field. `field` accepts an `InventoryField` constant or a raw field name."""
         self.inventory[InventoryField(field).value] = value
         return self

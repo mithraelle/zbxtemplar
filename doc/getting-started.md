@@ -22,7 +22,7 @@ Create a Python file with a `TemplarModule` subclass:
 
 ```python
 from zbxtemplar.modules import TemplarModule
-from zbxtemplar.zabbix import TriggerPriority, functions
+from zbxtemplar.zabbix import TriggerPriority, functions, InventoryMode, InventoryField
 from zbxtemplar.zabbix.Template import TemplateGroup
 from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 
@@ -43,9 +43,14 @@ class MyModule(TemplarModule):
             priority=TriggerPriority.HIGH,
         )
 
+        os_item = template.add_item("OS version", "system.sw.os")
+        os_item.set_inventory_link(InventoryField.OS)
+
         host = self.add_host("My Server", groups=[HostGroup("Linux Servers")])
         host.link_template(template)
         host.link_interface(AgentInterface(ip="192.168.1.10"))
+        host.set_inventory_mode(InventoryMode.AUTOMATIC)
+        host.set_inventory(InventoryField.LOCATION, "DC1 Rack 12")
 ```
 
 

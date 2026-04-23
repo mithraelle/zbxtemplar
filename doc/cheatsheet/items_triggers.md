@@ -7,7 +7,7 @@ Items and triggers are built inside `compose()` and added to a `Template` or `Ho
 ```python
 from zbxtemplar.zabbix.Item import ItemType, ValueType
 from zbxtemplar.zabbix.Trigger import TriggerPriority
-from zbxtemplar.zabbix import functions
+from zbxtemplar.zabbix import functions, InventoryField
 ```
 
 ## Item
@@ -42,6 +42,19 @@ item.link_value_map(value_map)   # ValueMap object defined on the same template
 ```python
 item.link_interface(iface)   # AgentInterface assigned to the host
 ```
+
+### Inventory link
+
+Populate a host inventory field automatically from this item's collected value. Only
+takes effect when the owning host is in `InventoryMode.AUTOMATIC`; Zabbix ignores the
+link in `MANUAL` or `DISABLED` mode.
+
+```python
+item.set_inventory_link(InventoryField.OS)
+```
+
+See [`templates_hosts.md`](templates_hosts.md#inventory) for the full field list and the
+host-side `set_inventory_mode()` / `set_inventory()` API.
 
 ## Trigger expression builder
 
