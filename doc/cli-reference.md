@@ -1,10 +1,19 @@
-# Generator Guide
+# CLI Reference
 
 ## Purpose
 
-`zbxtemplar` loads Python modules, instantiates `TemplarModule` and `DecreeModule` subclasses, and writes YAML artifacts.
+This page is the operational reference for the `zbxtemplar` CLI: flags,
+`--param` coercion, `--context` behavior, and programmatic loading.
 
-The generator does not call the Zabbix API.
+For the narrative of *what to write* inside `compose()`, see:
+
+- [Authoring Monitoring](./authoring-monitoring.md) — templates, hosts, items, triggers
+- [Authoring Decree](./authoring-decree.md) — users, groups, SAML, encryption, tokens
+- [Authoring Actions](./authoring-actions.md) — conditions, expression trees, operations
+
+`zbxtemplar` loads Python modules, instantiates `TemplarModule` and
+`DecreeModule` subclasses, and writes YAML artifacts. The generator does not
+call the Zabbix API.
 
 ## CLI
 
@@ -21,7 +30,7 @@ For `TemplarModule`:
 - `-o, --output`
 - `--templates-output`
 - `--hosts-output`
-- `--macros-output` — required if module-level macros are defined (see [Macro Resolution](#macro-resolution))
+- `--macros-output` — **required** when the module defines module-level macros (see [Authoring Monitoring — Macros](./authoring-monitoring.md#macros))
 
 For `DecreeModule`:
 
@@ -31,7 +40,11 @@ For `DecreeModule`:
 - `--saml-output`
 - `--actions-output`
 - `--encryption-output`
-- `--macros-output` — optional; module-level macros are already included in `-o` output
+- `--macros-output` — **optional**; module-level macros are already in `-o`
+
+### Why `--macros-output` is asymmetric
+
+Zabbix's native `zabbix_export` format has no slot for global macros, so `TemplarModule` cannot pack them into `-o` and forces a separate file. Decree YAML has a first-class `set_macro` section, so `DecreeModule` includes module-level macros in `-o` by default and `--macros-output` is just a way to split them off.
 
 ### Other flags
 
@@ -143,28 +156,6 @@ Multiple `--context` flags accumulate into one registry. Unknown formats are rej
 - The loader builds context once for the module run.
 - `DecreeModule` and `TemplarModule` expose it as `self.context`.
 - The `compose()` method arguments define the module contract, not the constructor.
-
-## Macro Resolution
-
-`get_macro(name)` walks a fixed resolution chain in order:
-
-1. **Entity macros** — macros defined directly on the template or host (`entity.add_macro(...)`)
-2. **Linked template macros** — macros on templates linked to the current entity
-3. **Module macros** — macros defined on the module itself (`self.add_macro(...)` inside `compose()`)
-4. **Context macros** — macros loaded from `--context` files in `set_macro` format
-
-A `KeyError` is raised if the name is not found at any level.
-
-Module-level macros are the "global" tier — shared across every template and host in the module. Since Zabbix has no native import format for global macros, `TemplarModule` writes them as `set_macro` YAML via `--macros-output`. The executor applies them to the live instance via `usermacro.createglobal` / `usermacro.updateglobal`.
-
-`add_macro()` returns the `Macro` object, so you can capture it and use it directly without a separate `get_macro()` call:
-
-```python
-from zbxtemplar.zabbix import functions
-
-threshold = self.add_macro("THRESHOLD", 90, "Alert threshold")
-template.add_trigger("High CPU", functions.history.Last(item) > threshold)
-```
 
 ## Output Behavior
 

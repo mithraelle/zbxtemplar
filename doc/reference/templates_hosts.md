@@ -6,9 +6,8 @@
 
 ```python
 from zbxtemplar.modules import TemplarModule
-from zbxtemplar.zabbix.Template import TemplateGroup, ValueMapType
-from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
-from zbxtemplar.zabbix import MacroType, InventoryMode
+from zbxtemplar.zabbix import TemplateGroup, HostGroup, AgentInterface, MacroType, InventoryMode
+from zbxtemplar.zabbix.Template import ValueMapType
 from zbxtemplar.catalog.zabbix_7_4 import InventoryField
 ```
 
@@ -52,10 +51,6 @@ vm.add_mapping("1", "UP", ValueMapType.EQUAL)
 vm.add_mapping("0", "DOWN", ValueMapType.EQUAL)
 # ValueMapType: EQUAL, GREATER_OR_EQUAL, LESS_OR_EQUAL, IN_RANGE, REGEXP, DEFAULT
 ```
-
-### Value maps
-
-Same API as templates — `host.add_value_map(vm)` works identically.
 
 ### Linked templates
 

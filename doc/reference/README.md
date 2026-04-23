@@ -1,11 +1,14 @@
-# zbxtemplar Agent Reference
+# zbxtemplar Reference
 
-Compact task-oriented cheat sheets for writing zbxtemplar modules.
-Load only the files relevant to your task.
+Compact, task-oriented lookup tables for writing zbxtemplar modules — the quick-reference companion to the narrative authoring docs:
+
+- [Authoring Monitoring](../authoring-monitoring.md)
+- [Authoring Decree](../authoring-decree.md)
+- [Authoring Actions](../authoring-actions.md)
 
 Version-dependent vocabularies (trigger functions, inventory fields, media type and user role names) are imported from `zbxtemplar.catalog.zabbix_7_4`. Only Zabbix 7.4 is currently supported; upgrading is a one-line import change when a newer catalog ships.
 
-| File | Load when you need to... |
+| File | Covers |
 |---|---|
 | `modules.md` | Understand module structure, CLI flags, `--param`, `--context` |
 | `templates_hosts.md` | Create templates, hosts, groups, macros, value maps |

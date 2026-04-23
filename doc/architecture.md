@@ -33,24 +33,6 @@ The **Scroll** format links disparate YAML artifacts into a coherent deployment.
 
 The Executor consumes artifacts, parses the YAML, and communicates with the live Zabbix API to push state forward.
 
-```mermaid
-sequenceDiagram
-    participant Code as Python Definitions
-    participant Gen as Generator Pipeline
-    participant Yaml as Declarative YAML Artifacts
-    participant Scroll as Scroll Orchestration (Optional)
-    participant Exec as Stateful Executor
-    participant API as Zabbix REST API
-
-    Code->>Gen: Compile Python to YAML
-    Gen->>Yaml: Generate Native & Decree YAML
-    Yaml-->>Scroll: Bind artifacts into deployment sequence
-    Scroll->>Exec: Trigger sequenced deployment
-    Exec->>Exec: Phase 1: Validate Schema (In-Memory)
-    Exec->>API: Phase 2: Resolve IDs & Check Existing (Read)
-    Exec->>API: Phase 3: Perform Updates (Write)
-```
-
 ## Why This Shape Works
 
 - Generation is side-effect free — you can generate and validate locally without affecting production.

@@ -14,34 +14,40 @@ The project is aimed at teams who want monitoring configuration, access control,
 
 ## Documentation Map
 
+### Getting oriented
+
 - [Getting Started](./getting-started.md)  
   Installation, first module, and the basic generation workflow.
 
 - [Architecture](./architecture.md)  
   Project structure, core concepts, output formats, and end-to-end flow.
 
-- [Generator Guide](./generator.md)  
-  Module loading, CLI flags, context handling, and output behavior.
+### Authoring (what you write inside `compose()`)
+
+- [Authoring Monitoring](./authoring-monitoring.md)  
+  Templates, hosts, items, triggers, the trigger-expression builder, inventory.
+
+- [Authoring Decree](./authoring-decree.md)  
+  User groups, users, media, API tokens, SAML JIT provisioning, host encryption, module-level macros.
+
+- [Authoring Actions](./authoring-actions.md)  
+  Trigger/autoregistration actions, condition expression trees, supported operations.
+
+### Operating the tool
+
+- [CLI Reference](./cli-reference.md)  
+  Module loading, CLI flags, `--param`, `--context`, macro resolution, programmatic loading.
 
 - [Executor Guide](./executor.md)  
   Authentication, apply/decree/scroll workflows, environment interpolation, and operational guidance.
 
-- [Actions Guide](./actions.md)  
-  Trigger/autoregistration actions, condition expressions, and supported operations.
-
 - [Security & Safety](./security.md)  
   Secret management, macro types, host encryption, token safety, fail-fast validation, and the two-stage validation model.
+
+### Reference
 
 - [Decree Reference](./decree_reference.md)  
   Automatically generated reference for all valid configuration fields.
 
-- [Cheatsheets](./cheatsheet/README.md)  
-  Compact authoring references for configuration entities, action rules, and expression builders.
-
-## Recommended Reading Order
-
-1. Start with [Getting Started](./getting-started.md).
-2. Read [Architecture](./architecture.md) for the mental model.
-3. Use [Generator Guide](./generator.md) and [Executor Guide](./executor.md) as day-to-day reference.
-4. Read [Actions Guide](./actions.md) when you need decree-based alerting and routing.
-5. Read [Security & Safety](./security.md) for the operational safety model.
+- [Reference](./reference/README.md)  
+  Compact, task-oriented lookup tables. The authoring docs above are the narrative companion.

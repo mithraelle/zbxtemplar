@@ -2,7 +2,7 @@
 
 A Pythonic framework for programmatic Zabbix configuration generation — Monitoring as Code.
 
-Define templates, hosts, user groups, users, SAML directories, actions, and host encryption as Python code. Generate Zabbix-native YAML (importable via UI or API) and decree YAML (applied by the executor). The goal is to cover the essential Zabbix configuration primitives — not every possible option. If you need a field that isn't exposed, raw dicts provide an escape hatch.
+Define templates, hosts, user groups, users, SAML directories, actions, and host encryption as Python code. `TemplarModule` emits Zabbix-native YAML (importable via UI or API); `DecreeModule` emits decree YAML (applied by `zbxtemplar-exec`). The goal is to cover the essential Zabbix configuration primitives — not every possible option. If you need a field that isn't exposed, raw dicts provide an escape hatch.
 
 Aimed at teams that want:
 
@@ -18,37 +18,26 @@ Zabbix is powerful, but its configuration is not pleasant to version, review, or
 
 The Zabbix UI handles one-off setup fine. The trouble starts when you need the same action across dev, staging, and prod. When someone edits an alert filter and nobody notices until production goes silent. When "for each team, create a scoped alert" means N manual repetitions with N chances to get it wrong. That does not scale — which forces you into code.
 
-Once you are there, secrets need handling. `${ENV_VAR}` placeholders keep credentials out of git; a missing variable is a hard abort, not an empty string applied to a live instance. Zabbix `secret` and `vault` macro types are first-class. Host encryption (PSK, TLS certificates), API token provisioning, and **SAML Single Sign-On (SSO) with JIT user provisioning** — things that are clunky or impossible to automate from the web interface — are managed declaratively with the same strict contract ([`doc/security.md`](./doc/security.md)).
+Once you are there, secrets need handling. `${ENV_VAR}` placeholders keep credentials out of git; a missing variable is a hard abort, not an empty string applied to a live instance. Zabbix `secret` and `vault` macro types are first-class. Host encryption (PSK, TLS certificates), API token provisioning, and **SAML Single Sign-On (SSO) with JIT user provisioning** — things that are clunky or impossible to automate from the web interface — are managed declaratively with the same strict contract (see [Security & Safety](./doc/security.md)).
 
-Actions are where the Zabbix API gets awkward and error-prone: numeric codes for everything, manual formula labels, invalid operator-condition combinations accepted without complaint. `zbxtemplar` replaces that with typed Python — `HostGroupCondition("Production") & SeverityCondition("HIGH")`. Names, not IDs. Wrong operator on the wrong condition type? Type error at write time, not a silent misfire during an incident ([`doc/actions.md`](./doc/actions.md)).
+Actions are where the Zabbix API gets awkward and error-prone: numeric codes for everything, manual formula labels, invalid operator-condition combinations accepted without complaint. `zbxtemplar` replaces that with typed Python — `HostGroupCondition("Production") & SeverityCondition("HIGH")`. Names, not IDs. Wrong operator on the wrong condition type? Type error at write time, not a silent misfire during an incident (see [Authoring Actions](./doc/authoring-actions.md)).
 
-Trigger expressions are equally frustrating to write by hand: string concatenation, escaping issues, and manual resolution of item paths. `zbxtemplar` provides a **Trigger Expression Builder** using native Python syntax. You wrap items in typed function wrappers (e.g., `functions.history.Last(item)`) and combine them with normal arithmetic and bitwise operators (`>`, `&`, `~`). The builder handles rendering the complex Zabbix expression string format for you, with type-hinted support for all Zabbix 7.4 trigger functions ([`doc/cheatsheet/items_triggers.md`](./doc/cheatsheet/items_triggers.md)).
+Trigger expressions are equally frustrating to write by hand: string concatenation, escaping issues, and manual resolution of item paths. `zbxtemplar` provides a **Trigger Expression Builder** using native Python syntax. You wrap items in typed function wrappers (e.g., `functions.history.Last(item)`) and combine them with normal arithmetic and bitwise operators (`>`, `&`, `~`). The builder handles rendering the complex Zabbix expression string format for you, with type-hinted support for all Zabbix 7.4 trigger functions (see [Authoring Monitoring](./doc/authoring-monitoring.md)).
+
+Zabbix itself does not hold still between releases — new trigger functions, added inventory fields, renamed media types. A framework that bakes that moving vocabulary into its core ages badly against a tool that keeps evolving. `zbxtemplar` isolates it in a **versioned catalog** (`zbxtemplar.catalog.zabbix_7_4` today), so a Zabbix upgrade is one import swap per module rather than a framework migration, and the core stays stable while new releases are added as sibling `catalog.zabbix_X_Y` subpackages.
 
 Macros follow a layered resolution chain: entity macros → linked template macros → module-level macros → context macros. Module-level macros (`self.add_macro(...)` inside `compose()`) act as the global tier — shared across every template and host in the module and exported as `set_macro` YAML for the executor to apply.
 
-On top of all this, `Context` validates references at generation time — against previously generated or exported YAML. Additionally, the executor applies **fail-fast typo checking** to your `decree` YAML configurations. A typo in a host group name, a missing template, or even misspelling a configuration key (like `expire_at` instead of `expires_at`) halts execution *before* any mutating API calls are made. Deterministic UUIDs prevent import duplicates. Mistakes break against your code, not against production ([`doc/generator.md`](./doc/generator.md)).
+On top of all this, `Context` validates references at generation time — against previously generated or exported YAML. Additionally, the executor applies **fail-fast typo checking** to your `decree` YAML configurations. A typo in a host group name, a missing template, or even misspelling a configuration key (like `expire_at` instead of `expires_at`) halts execution *before* any mutating API calls are made. Deterministic UUIDs prevent import duplicates. Mistakes break against your code, not against production (see [CLI Reference](./doc/cli-reference.md)).
 
-## What It Does
-
-`zbxtemplar` has three main pieces:
-
-- `TemplarModule` generates Zabbix-native YAML for templates and hosts
-- `DecreeModule` generates decree YAML for users, user groups, SAML directories, actions, and host encryption
-- `zbxtemplar-exec` applies generated artifacts to a live Zabbix instance
-
-The split is intentional:
-
-- monitoring objects fit well into Zabbix's native import/export model
-- user management and action state often need API-driven apply logic
-- both outputs stay reviewable as plain YAML artifacts
+The two module types exist because Zabbix mixes declarative and live-state objects. Templates and hosts fit the native import/export model cleanly; users, SAML, actions, and host encryption need API-driven apply logic. Both outputs stay as plain YAML so the review boundary — the PR diff — is the same in both cases.
 
 ## Quick Example
 
 ```python
 from zbxtemplar.modules import TemplarModule
-from zbxtemplar.zabbix import TriggerPriority, functions
-from zbxtemplar.zabbix.Template import TemplateGroup
-from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
+from zbxtemplar.zabbix import TriggerPriority, TemplateGroup, HostGroup, AgentInterface
+from zbxtemplar.catalog.zabbix_7_4 import functions
 
 
 class MyModule(TemplarModule):
@@ -120,16 +109,16 @@ The structured docs live in [`doc/`](./doc/README.md):
 
 - [`doc/getting-started.md`](./doc/getting-started.md) for the first end-to-end workflow
 - [`doc/architecture.md`](./doc/architecture.md) for the mental model
-- [`doc/generator.md`](./doc/generator.md) for CLI and module-loading behavior
+- [`doc/authoring-monitoring.md`](./doc/authoring-monitoring.md) for templates, hosts, items, and the trigger expression builder
+- [`doc/authoring-decree.md`](./doc/authoring-decree.md) for users, groups, SAML, host encryption, and tokens
+- [`doc/authoring-actions.md`](./doc/authoring-actions.md) for action conditions and operations
+- [`doc/cli-reference.md`](./doc/cli-reference.md) for CLI flags, `--param`, `--context`, and module-loading behavior
 - [`doc/executor.md`](./doc/executor.md) for apply/decree/scroll usage
-- [`doc/actions.md`](./doc/actions.md) for action conditions and operations
 - [`doc/security.md`](./doc/security.md) for the operational safety model
 - [`doc/decree_reference.md`](./doc/decree_reference.md) for the generated YAML schema reference
-- [`doc/cheatsheet/`](./doc/cheatsheet/README.md) for compact authoring references, including the trigger function glossary
+- [`doc/reference/`](./doc/reference/README.md) for compact lookup tables, including the trigger function glossary
 
 ## Current Scope
-
-`zbxtemplar` is already useful, but it is still a working tool rather than a polished platform.
 
 Good fit:
 
@@ -137,11 +126,11 @@ Good fit:
 - repositories where monitoring config should live close to service code
 - environments where users, permissions, and alert-routing changes need to be scripted cleanly
 
-Things to know:
+Out of scope:
 
-- the docs in `doc/` are the public technical reference
-- the project is intentionally opinionated about the main workflow
-- the executor is practical, but not presented as a fully hardened unattended deployment system
+- a generic Zabbix API client — `zbxtemplar` covers the configuration primitives needed for the workflow, not every API endpoint
+- a dry-run / diff engine — the safety model is "test environment first, production second" (see [Getting Started — Typical Workflow](./doc/getting-started.md))
+- unattended autonomous deployment — the executor is built for reviewed pipelines, not self-healing reconciliation
 
 ## License
 

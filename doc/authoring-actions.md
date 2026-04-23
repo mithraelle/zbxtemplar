@@ -1,4 +1,4 @@
-# Actions Guide
+# Authoring Actions
 
 ## Why Actions Need Code
 
@@ -261,40 +261,11 @@ The cheapest failures happen first.
 
 ---
 
-## Trigger Expressions
+## Name Resolution in Actions
 
-Trigger expressions are built from typed function wrappers and Python operators:
+Actions follow the general decree rule: conditions reference host groups, hosts, triggers, and templates by name; operation targets reference user groups, users, and media types by name. Everything resolves to live Zabbix IDs at apply time.
 
-```python
-from zbxtemplar.zabbix import TriggerPriority, functions
-
-template.add_trigger(
-    "CPU High",
-    expression=functions.history.Last(cpu_item) > 90,
-    priority=TriggerPriority.HIGH,
-)
-
-threshold = 90
-expr = ((functions.aggregate.Avg(cpu_item, "5m") > threshold)
-        & (functions.history.Last(memory_item) < 80))
-template.add_trigger("CPU Average High", expr, TriggerPriority.WARNING)
-```
-
-The `/{host}/{key}` path is generated automatically from the item owner. Use
-`&`, `|`, and `~` for Zabbix `and`, `or`, and `not`. See the
-[trigger function glossary](./cheatsheet/trigger_functions_glossary.md) for the
-available wrappers.
-
----
-
-## Name Resolution at Apply Time
-
-Decree YAML uses names, not IDs. The executor resolves them to live Zabbix IDs at runtime:
-
-- Action condition values: host group, host, trigger, template names to IDs
-- Operation targets: user group, user, media type names to IDs
-
-This keeps decree YAML readable and reviewable while still working against any Zabbix instance.
+For the full picture of the name-based contract across all decree sections, see [Authoring Decree — Names Now, IDs at Apply Time](./authoring-decree.md#names-now-ids-at-apply-time).
 
 ---
 

@@ -1,4 +1,4 @@
-# Decree — Users & Groups
+# Decree — Users, Groups, Media, Tokens
 
 `self.*` calls below are `DecreeModule` methods called from inside `compose()`.
 

@@ -22,9 +22,7 @@ Create a Python file with a `TemplarModule` subclass:
 
 ```python
 from zbxtemplar.modules import TemplarModule
-from zbxtemplar.zabbix import TriggerPriority, InventoryMode
-from zbxtemplar.zabbix.Template import TemplateGroup
-from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
+from zbxtemplar.zabbix import TriggerPriority, InventoryMode, TemplateGroup, HostGroup, AgentInterface
 from zbxtemplar.catalog.zabbix_7_4 import functions, InventoryField
 
 
@@ -103,7 +101,7 @@ class MyDecree(DecreeModule):
 Generate decree YAML:
 
 ```bash
-zbxtemplar decree_module.py -o decree.yml --context templates.yml
+zbxtemplar decree_module.py -o decree.yml --context monitoring.yml
 ```
 
 `--context` lets a module reference known objects from YAML context files. Those files can come from previously generated artifacts or from existing exported configuration.
@@ -117,7 +115,7 @@ SAML and host encryption use the same decree output. The module helpers are `set
 For Zabbix-native YAML:
 
 ```bash
-zbxtemplar-exec apply templates.yml --url https://zabbix.example.com --token "$ZABBIX_TOKEN"
+zbxtemplar-exec apply monitoring.yml --url https://zabbix.example.com --token "$ZABBIX_TOKEN"
 ```
 
 For decree YAML:
@@ -143,5 +141,6 @@ One important implementation detail: `--context` is loaded once for the module r
 
 - Browse [`examples/`](../examples/) for complete working modules, sample YAML artifacts, and a reference scroll.
 - Read [Architecture](./architecture.md) for the overall design.
-- Read [Generator Guide](./generator.md) for CLI and module-loading details.
+- Read [Authoring Monitoring](./authoring-monitoring.md), [Authoring Decree](./authoring-decree.md), or [Authoring Actions](./authoring-actions.md) for the authoring surface you need.
+- Read [CLI Reference](./cli-reference.md) for flags, `--param`, `--context`, and module-loading details.
 - Read [Executor Guide](./executor.md) before applying to a live instance.

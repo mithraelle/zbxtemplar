@@ -34,3 +34,4 @@ htmlcov/
 !.github/workflows/
 !.github/workflows/*.yml
 /notes
+/tasks
