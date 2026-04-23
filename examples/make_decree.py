@@ -1,15 +1,14 @@
 from zbxtemplar.modules import DecreeModule
 from zbxtemplar.decree import (
     GuiAccess,
-    MediaType,
     Permission,
     SamlProvisionGroup,
     SamlProvisionMedia,
     Severity,
     Token,
-    UserRole,
     UsersStatus,
 )
+from zbxtemplar.catalog.zabbix_7_4 import MediaType, UserRole
 from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition
 
 

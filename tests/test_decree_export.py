@@ -2,7 +2,8 @@ import pytest
 import yaml
 
 from zbxtemplar.modules import DecreeModule, Context
-from zbxtemplar.decree import Token, UserGroup, MediaType, UserRole, GuiAccess, Permission, Severity
+from zbxtemplar.decree import Token, UserGroup, GuiAccess, Permission, Severity
+from zbxtemplar.catalog.zabbix_7_4 import MediaType, UserRole
 from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition
 from tests.paths import REFERENCE_DIR
 

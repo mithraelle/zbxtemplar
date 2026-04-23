@@ -8,7 +8,8 @@
 from zbxtemplar.modules import TemplarModule
 from zbxtemplar.zabbix.Template import TemplateGroup, ValueMapType
 from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
-from zbxtemplar.zabbix import MacroType, InventoryMode, InventoryField
+from zbxtemplar.zabbix import MacroType, InventoryMode
+from zbxtemplar.catalog.zabbix_7_4 import InventoryField
 ```
 
 ## Groups
@@ -104,7 +105,7 @@ host.set_inventory(InventoryField.CONTACT, "ops@example.com")
 
 **InventoryMode:** DISABLED, MANUAL, AUTOMATIC
 
-**InventoryField** covers the full Zabbix 7.4 field list: ALIAS, OS, OS_FULL, OS_SHORT,
+**InventoryField** (from `zbxtemplar.catalog.zabbix_7_4`) covers the full Zabbix 7.4 field list: ALIAS, OS, OS_FULL, OS_SHORT,
 HARDWARE, HARDWARE_FULL, SOFTWARE, SOFTWARE_FULL, SERIALNO_A, SERIALNO_B, TAG, ASSET_TAG,
 MACADDRESS_A, MACADDRESS_B, CHASSIS, MODEL, VENDOR, HW_ARCH, CONTACT, LOCATION,
 LOCATION_LAT, LOCATION_LON, NOTES, CONTRACT_NUMBER, INSTALLER_NAME, DEPLOYMENT_STATUS,

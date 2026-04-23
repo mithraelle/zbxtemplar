@@ -67,3 +67,19 @@ Where schematized executor operations are used, they follow a two-phase contract
 2. **`execute()` — Stateful Mutation:** Interaction with the Zabbix API. ID resolution against live Zabbix occurs immediately prior to writes.
 
 This is a fail-fast validation model, not an atomic rollback system. See [Security & Safety](./security.md) for the full validation and typo-checking details.
+
+## Versioned Catalog
+
+Zabbix ships vocabularies that drift between releases: the set of trigger functions grows, inventory fields are added, media type and user role names change. The core packages (`zbxtemplar.zabbix`, `zbxtemplar.decree`) hold only version-agnostic schema — wire-protocol enums, base classes, the DSL engine. Everything that depends on a specific Zabbix release lives under a versioned path:
+
+```
+zbxtemplar.catalog.zabbix_7_4
+    ├── MediaType, UserRole, InventoryField
+    └── functions/      (trigger function wrappers)
+```
+
+Upgrading to a later Zabbix version is a one-line change in authoring modules — swap `zabbix_7_4` for the newer path. The core code does not import from `catalog`; the dependency points one way only (catalog → core).
+
+For typed extension points (e.g. `InventoryField`), the core declares an empty placeholder `StrEnum` and the catalog ships a subclass that adds the members. Setters accept the base type and the versioned members satisfy `isinstance`, so argument signatures stay strictly typed without coupling the core to a specific release.
+
+Only **Zabbix 7.4** is shipped today. Additional versions are added as new `catalog.zabbix_X_Y` subpackages.

@@ -22,9 +22,10 @@ Create a Python file with a `TemplarModule` subclass:
 
 ```python
 from zbxtemplar.modules import TemplarModule
-from zbxtemplar.zabbix import TriggerPriority, functions, InventoryMode, InventoryField
+from zbxtemplar.zabbix import TriggerPriority, InventoryMode
 from zbxtemplar.zabbix.Template import TemplateGroup
 from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
+from zbxtemplar.catalog.zabbix_7_4 import functions, InventoryField
 
 
 class MyModule(TemplarModule):
@@ -76,7 +77,7 @@ Use `DecreeModule` when you need users, groups, SAML, host encryption, global ma
 from zbxtemplar.modules import DecreeModule
 from zbxtemplar.decree import Token
 from zbxtemplar.decree import GuiAccess, Permission, Severity
-from zbxtemplar.decree import MediaType, UserRole
+from zbxtemplar.catalog.zabbix_7_4 import MediaType, UserRole
 
 
 class MyDecree(DecreeModule):

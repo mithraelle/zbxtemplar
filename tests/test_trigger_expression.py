@@ -3,8 +3,8 @@ import pytest
 from zbxtemplar.zabbix.Item import Item
 from zbxtemplar.zabbix.macro import Macro
 from zbxtemplar.zabbix.Trigger import Trigger, WithTriggers, TriggerPriority
-from zbxtemplar.zabbix.functions.history import Last
-from zbxtemplar.zabbix.functions.aggregate import Min, Avg, LastForeach
+from zbxtemplar.catalog.zabbix_7_4.functions.history import Last
+from zbxtemplar.catalog.zabbix_7_4.functions.aggregate import Min, Avg, LastForeach
 
 
 class FakeOwner(WithTriggers):

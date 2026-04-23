@@ -8,8 +8,8 @@ from zbxtemplar.zabbix.DashboardWidget.SimpleGraph import SimpleGraph
 from zbxtemplar.zabbix.Item import ItemType
 from zbxtemplar.zabbix.Template import TemplateGroup, ValueMapType
 from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
-from zbxtemplar.zabbix import functions
-from zbxtemplar.zabbix.Inventory import InventoryField, InventoryMode
+from zbxtemplar.catalog.zabbix_7_4 import functions, InventoryField
+from zbxtemplar.zabbix.Inventory import InventoryMode
 
 
 class SampleTemplate(TemplarModule):

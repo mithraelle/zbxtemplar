@@ -3,6 +3,8 @@
 Compact task-oriented cheat sheets for writing zbxtemplar modules.
 Load only the files relevant to your task.
 
+Version-dependent vocabularies (trigger functions, inventory fields, media type and user role names) are imported from `zbxtemplar.catalog.zabbix_7_4`. Only Zabbix 7.4 is currently supported; upgrading is a one-line import change when a newer catalog ships.
+
 | File | Load when you need to... |
 |---|---|
 | `modules.md` | Understand module structure, CLI flags, `--param`, `--context` |

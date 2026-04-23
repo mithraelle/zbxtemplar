@@ -5,8 +5,8 @@
 ## Imports
 
 ```python
-from zbxtemplar.decree import SamlProvisionGroup, SamlProvisionMedia, GuiAccess, UsersStatus, UserRole
-from zbxtemplar.decree import MediaType
+from zbxtemplar.decree import SamlProvisionGroup, SamlProvisionMedia, GuiAccess, UsersStatus
+from zbxtemplar.catalog.zabbix_7_4 import MediaType, UserRole
 ```
 
 ## SAML

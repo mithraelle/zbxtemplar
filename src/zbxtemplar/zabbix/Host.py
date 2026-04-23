@@ -118,7 +118,7 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
         for i in data.get("items", []):
             host.items.append(Item.from_dict(i, host=data["name"]))
         if "inventory_mode" in data:
-            host.set_inventory_mode(data["inventory_mode"])
+            host.inventory_mode = InventoryMode(data["inventory_mode"])
         for field, value in data.get("inventory", {}).items():
-            host.set_inventory(field, value)
+            host.inventory[field] = value
         return host

@@ -86,9 +86,9 @@ class Item(ZbxEntity, WithTags):
         self.valuemap = {"name": value_map.name}
         return self
 
-    def set_inventory_link(self, field: InventoryField | str) -> Self:
-        """Use this item value to populate a host inventory field in automatic mode."""
-        self.inventory_link = InventoryField(field).value
+    def set_inventory_link(self, field: InventoryField) -> Self:
+        """Use this item value to populate a host inventory field in automatic mode. Pass an `InventoryField` member from a versioned catalog."""
+        self.inventory_link = str(field)
         return self
 
     @classmethod
@@ -107,7 +107,7 @@ class Item(ZbxEntity, WithTags):
         for tr in data.get("triggers", []):
             item.triggers.append(Trigger.from_dict(tr))
         if "inventory_link" in data:
-            item.inventory_link = InventoryField(data["inventory_link"]).value
+            item.inventory_link = str(data["inventory_link"])
         return item
 
 

@@ -2,7 +2,6 @@ import pytest
 
 from zbxtemplar.decree import (
     ActiveStatus,
-    MediaType,
     ProvisionStatus,
     SamlProvider,
     SamlProvisionGroup,
@@ -10,8 +9,8 @@ from zbxtemplar.decree import (
     ScimStatus,
     Severity,
     UserGroup,
-    UserRole,
 )
+from zbxtemplar.catalog.zabbix_7_4 import MediaType, UserRole
 from zbxtemplar.dicts.Decree import Decree
 from zbxtemplar.modules.DecreeModule import DecreeModule
 from zbxtemplar.zabbix import YesNo

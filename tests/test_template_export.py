@@ -4,7 +4,8 @@ import pytest
 
 from zbxtemplar.modules import TemplarModule
 from zbxtemplar.zabbix.ZbxEntity import YesNo
-from zbxtemplar.zabbix import TriggerPriority, Graph, YAxisType, YAxisSide, HostGroup, functions
+from zbxtemplar.zabbix import TriggerPriority, Graph, YAxisType, YAxisSide, HostGroup
+from zbxtemplar.catalog.zabbix_7_4 import functions
 from zbxtemplar.zabbix.Host import AgentInterface
 from zbxtemplar.zabbix.Template import TemplateGroup
 from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph

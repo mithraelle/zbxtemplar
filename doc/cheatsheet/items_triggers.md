@@ -7,7 +7,7 @@ Items and triggers are built inside `compose()` and added to a `Template` or `Ho
 ```python
 from zbxtemplar.zabbix.Item import ItemType, ValueType
 from zbxtemplar.zabbix.Trigger import TriggerPriority
-from zbxtemplar.zabbix import functions, InventoryField
+from zbxtemplar.catalog.zabbix_7_4 import functions, InventoryField
 ```
 
 ## Item
@@ -59,7 +59,7 @@ host-side `set_inventory_mode()` / `set_inventory()` API.
 ## Trigger expression builder
 
 Trigger expressions are Python expression trees. Wrap items with trigger function
-classes from `zbxtemplar.zabbix.functions`, then combine them with Python
+classes from `zbxtemplar.catalog.zabbix_7_4.functions`, then combine them with Python
 operators.
 
 ```python

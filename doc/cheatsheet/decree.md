@@ -8,9 +8,9 @@
 from zbxtemplar.modules import DecreeModule
 from zbxtemplar.decree import (
     GuiAccess, UsersStatus, Permission,
-    MediaType, UserRole, Severity,
-    Token,
+    Severity, Token,
 )
+from zbxtemplar.catalog.zabbix_7_4 import MediaType, UserRole
 ```
 
 ## User groups
@@ -56,7 +56,7 @@ user.add_media(MediaType.SLACK, "#alerts")
 
 Common `MediaType` constants: EMAIL, SLACK, TELEGRAM, MS_TEAMS, MS_TEAMS_WORKFLOW,
 PAGERDUTY, OPSGENIE, DISCORD, SMS, MATTERMOST, ROCKET_CHAT, PUSHOVER, VICTOROPS.
-Full list in `zbxtemplar.decree.DecreeEntity.MediaType`.
+Full list in `zbxtemplar.catalog.zabbix_7_4.MediaType`.
 
 ### API tokens
 
