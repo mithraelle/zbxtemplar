@@ -6,3 +6,4 @@ from zbxtemplar.zabbix.Graph import Graph, GraphType, YAxisType, DrawType, CalcF
 from zbxtemplar.zabbix.Dashboard import Dashboard, DashboardPage
 from zbxtemplar.zabbix.ZbxEntity import YesNo
 from zbxtemplar.zabbix.macro import MacroType
+from zbxtemplar.zabbix.Inventory import InventoryField, InventoryMode

@@ -5,6 +5,7 @@ from typing import Self, TYPE_CHECKING
 
 from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags
 from zbxtemplar.zabbix.Trigger import Trigger, TriggerPriority
+from zbxtemplar.zabbix.Inventory import InventoryField
 
 if TYPE_CHECKING:
     from zbxtemplar.zabbix.Template import ValueMap
@@ -85,6 +86,11 @@ class Item(ZbxEntity, WithTags):
         self.valuemap = {"name": value_map.name}
         return self
 
+    def set_inventory_link(self, field: InventoryField | str) -> Self:
+        """Use this item value to populate a host inventory field in automatic mode."""
+        self.inventory_link = InventoryField(field).value
+        return self
+
     @classmethod
     def from_dict(cls, data: dict, host: str = ""):
         item = cls(
@@ -100,6 +106,8 @@ class Item(ZbxEntity, WithTags):
             item.add_tag(t["tag"], t.get("value", ""))
         for tr in data.get("triggers", []):
             item.triggers.append(Trigger.from_dict(tr))
+        if "inventory_link" in data:
+            item.inventory_link = InventoryField(data["inventory_link"]).value
         return item
 
 

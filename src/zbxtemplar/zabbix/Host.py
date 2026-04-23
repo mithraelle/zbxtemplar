@@ -5,6 +5,7 @@ from zbxtemplar.zabbix.macro import Macro, WithMacros
 from zbxtemplar.zabbix.Trigger import WithTriggers
 from zbxtemplar.zabbix.Graph import WithGraphs
 from zbxtemplar.zabbix.Item import Item, WithItems
+from zbxtemplar.zabbix.Inventory import InventoryMode, WithInventory
 from zbxtemplar.zabbix.Template import Template, ValueMap, WithTemplates, WithValueMaps
 
 
@@ -55,7 +56,7 @@ class AgentInterface(HostInterface):
         }
 
 
-class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates, WithItems, WithValueMaps):
+class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates, WithItems, WithValueMaps, WithInventory):
     """Zabbix host definition. Exported without UUID — Zabbix rejects UUIDs on hosts."""
 
     def __init__(self, name: str, groups: list[HostGroup]):
@@ -88,7 +89,20 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
         ]
 
     def to_dict(self, **kwargs):
+        self._check_inventory_coherence()
         return super().to_dict(skip_uuid=True)
+
+    def _check_inventory_coherence(self):
+        if self.inventory_mode is None:
+            if self.inventory:
+                raise ValueError(
+                    f"Host '{self.name}' uses inventory data but inventory_mode is not set"
+                )
+            return
+        if self.inventory_mode == InventoryMode.DISABLED and self.inventory:
+            raise ValueError(
+                f"Host '{self.name}' has inventory fields but inventory_mode is DISABLED"
+            )
 
     @classmethod
     def from_dict(cls, data: dict):
@@ -103,4 +117,8 @@ class Host(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs
             host.templates.append(Template(name=tname["name"], groups=[]))
         for i in data.get("items", []):
             host.items.append(Item.from_dict(i, host=data["name"]))
+        if "inventory_mode" in data:
+            host.set_inventory_mode(data["inventory_mode"])
+        for field, value in data.get("inventory", {}).items():
+            host.set_inventory(field, value)
         return host

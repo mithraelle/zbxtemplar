@@ -9,6 +9,8 @@ from zbxtemplar.zabbix.Item import ItemType
 from zbxtemplar.zabbix.Template import TemplateGroup, ValueMapType
 from zbxtemplar.zabbix.Host import HostGroup, AgentInterface
 from zbxtemplar.zabbix import functions
+from zbxtemplar.zabbix.Inventory import InventoryField, InventoryMode
+
 
 class SampleTemplate(TemplarModule):
     def compose(self):
@@ -79,6 +81,8 @@ class SampleTemplate(TemplarModule):
         second_page.link_widget(SimpleGraph(item=item2, x=36, y=0, width=36, height=5))
 
         host = self.add_host("Templar Host", groups=[host_group])
+        host.set_inventory_mode(InventoryMode.MANUAL).set_inventory(InventoryField.OS, "Linux").set_inventory(InventoryField.NAME, "Templar Test")
+
         host_macro = host.add_macro("MY_HOST_MACRO", 1, "Testing The Host Macro")
         host.add_macro("MY_SECRET_MACRO", "some secret", "Testing The Secrets", MacroType.SECRET)
         host.link_template(template)

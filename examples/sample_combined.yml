@@ -244,7 +244,11 @@ zabbix_export:
   - name: Templar Hosts
     uuid: 06fa0ec20ab54eb4843996f8589df4ea
   hosts:
-  - items:
+  - inventory_mode: MANUAL
+    inventory:
+      os: Linux
+      name: Templar Test
+    items:
     - tags:
       - tag: Service
         value: Testing Host
