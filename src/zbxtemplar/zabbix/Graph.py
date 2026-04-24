@@ -1,4 +1,5 @@
 from enum import StrEnum
+from typing import Self
 
 from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, YesNo
 from zbxtemplar.zabbix import Item

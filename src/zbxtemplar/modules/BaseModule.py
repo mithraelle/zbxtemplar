@@ -1,4 +1,4 @@
-from zbxtemplar.modules import Context
+from zbxtemplar.modules.Context import Context
 from zbxtemplar.zabbix.macro import WithMacros
 
 

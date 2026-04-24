@@ -11,10 +11,10 @@ It handles two broad cases:
 
 ## Installation
 
-The executor depends on the optional `executor` extra:
+The executor ships with the base install:
 
 ```bash
-pip install '.[executor]'
+pip install .
 ```
 
 ## Authentication

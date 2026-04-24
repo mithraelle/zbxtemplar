@@ -77,19 +77,13 @@ zbxtemplar-exec apply monitoring.yml \
 
 ## Installation
 
-Install the generator:
+Install:
 
 ```bash
 pip install .
 ```
 
-Install the executor as well:
-
-```bash
-pip install '.[executor]'
-```
-
-Python 3.11+ is required.
+Python 3.11+ is required. The install includes both the generator (`zbxtemplar`) and the executor (`zbxtemplar-exec`).
 
 ## Typical Workflow
 
