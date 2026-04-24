@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from zbxtemplar.dicts.Schema import Schema, SchemaField
+from zbxtemplar.dicts.Schema import SchemaField
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.decree.Token import Token
 from zbxtemplar.decree.constants import ActiveStatus
@@ -62,7 +62,7 @@ class UserMedia(DecreeEntity):
         return ",".join(self.severity)
 
 
-class User(DecreeEntity, Schema):
+class User(DecreeEntity):
     """Zabbix user account managed by decree YAML."""
 
     _SCHEMA = [

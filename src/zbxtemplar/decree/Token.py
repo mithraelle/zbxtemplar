@@ -1,10 +1,10 @@
 import time
 
-from zbxtemplar.dicts.Schema import Schema, SchemaField
+from zbxtemplar.dicts.Schema import SchemaField
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 
 
-class Token(DecreeEntity, Schema):
+class Token(DecreeEntity):
     """API token provisioning settings for a managed user."""
 
     STDOUT = "STDOUT"

@@ -1,4 +1,4 @@
-from zbxtemplar.dicts.Schema import Schema, SchemaField
+from zbxtemplar.dicts.Schema import SchemaField
 from zbxtemplar.decree.DecreeEntity import DecreeEntity, _validate
 from zbxtemplar.zabbix.Host import HostGroup
 from zbxtemplar.zabbix.Template import TemplateGroup
@@ -31,7 +31,7 @@ class Permission:
     _API_VALUES = {"NONE": 0, "READ": 2, "READ_WRITE": 3}
 
 
-class UserGroup(DecreeEntity, Schema):
+class UserGroup(DecreeEntity):
     """Zabbix user group and permission mapping managed by decree YAML."""
 
     _SCHEMA = [
