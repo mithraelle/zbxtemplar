@@ -92,7 +92,7 @@ def _write_yaml(data: dict, path: str, label: str):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Zbx Templar — Zabbix configuration generator")
+    parser = argparse.ArgumentParser(prog="zbxtemplar", description="Zbx Templar — Zabbix configuration generator")
     parser.add_argument("module", help="Path to a Python module (.py) with TemplarModule/DecreeModule subclass(es)")
     parser.add_argument("-o", "--output", help="Output YAML file path (all content combined)")
     parser.add_argument("--templates-output", help="Output YAML for templates only")

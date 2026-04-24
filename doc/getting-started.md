@@ -2,19 +2,11 @@
 
 ## Installation
 
-Install the generator:
-
 ```bash
 pip install .
 ```
 
-Install the executor as well:
-
-```bash
-pip install '.[executor]'
-```
-
-`zbxtemplar` requires Python 3.11 or newer.
+`zbxtemplar` requires Python 3.11 or newer. The install provides both the generator (`zbxtemplar`) and the executor (`zbxtemplar-exec`).
 
 ## First Monitoring Module
 

@@ -107,7 +107,7 @@ def _build_parser():
     conn.add_argument("--password", help="Password (or ZABBIX_PASSWORD env)")
     conn.add_argument("--json", action="store_true", help="Output logs as JSON lines")
 
-    parser = argparse.ArgumentParser(description="Zbx Templar Executor — apply configuration to Zabbix")
+    parser = argparse.ArgumentParser(prog="zbxtemplar-exec", description="Zbx Templar Executor — apply configuration to Zabbix")
     sub = parser.add_subparsers(dest="command")
 
     sa = sub.add_parser("set_super_admin", parents=[conn], help="Bootstrap or rotate super admin password")
