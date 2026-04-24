@@ -66,13 +66,13 @@ class User(DecreeEntity, Schema):
     """Zabbix user account managed by decree YAML."""
 
     _SCHEMA = [
-        SchemaField("username", optional=False, description="Zabbix username."),
-        SchemaField("role", optional=False, description="Zabbix role name assigned to the user."),
-        SchemaField("password", description="Password to set when creating or updating the user."),
-        SchemaField("groups", str_type="list[str]", description="User group names to attach to the user."),
-        SchemaField("medias", str_type="list[UserMedia]", description="Media definitions for the user."),
-        SchemaField("token", str_type="Token", description="API token provisioning configuration for the user."),
-        SchemaField("force_token", str_type="bool", description="Update and re-generate an existing token with the same name."),
+        SchemaField("username", optional=False, type=str, description="Zabbix username."),
+        SchemaField("role", optional=False, type=str, description="Zabbix role name assigned to the user."),
+        SchemaField("password", type=str, description="Password to set when creating or updating the user."),
+        SchemaField("groups", type=list[str], str_type="list[str]", description="User group names to attach to the user."),
+        SchemaField("medias", type=list[UserMedia], str_type="list[UserMedia]", description="Media definitions for the user."),
+        SchemaField("token", type=Token, str_type="Token", description="API token provisioning configuration for the user."),
+        SchemaField("force_token", type=bool, str_type="bool", description="Update and re-generate an existing token with the same name."),
     ]
 
     def __init__(self, username: str, role: str):
@@ -119,20 +119,14 @@ class User(DecreeEntity, Schema):
     def medias_to_list(self):
         return [m.to_dict() for m in self.medias]
 
-    @classmethod
-    def from_dict(cls, data: dict, user_groups=None):
-        cls.validate(data)
-        user = cls(data["username"], data["role"])
-        if "password" in data:
-            user.set_password(data["password"])
-        for g in data.get("groups", []):
-            user.link_group(g)
-            if user_groups is not None and g not in user_groups:
-                user_groups[g] = UserGroup(g)
-        for m in data.get("medias", []):
-            user.medias.append(UserMedia.from_dict(m))
-        if "token" in data:
-            user.token = Token.from_dict(data["token"])
-            if data.get("force_token"):
-                user.force_token = True
-        return user
+    def _wire_up(self) -> None:
+        if self.groups is None:
+            self.groups = []
+        else:
+            seen = set()
+            for g in self.groups:
+                if g in seen:
+                    raise ValueError(f"Duplicate group '{g}' on user '{self.username}'")
+                seen.add(g)
+        if self.medias is None:
+            self.medias = []
