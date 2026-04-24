@@ -51,6 +51,12 @@ class Schema:
                 f"{cls.__name__}: missing required key(s): {', '.join(sorted(missing))}"
             )
 
+        empty = {k for k in required_keys if data[k] is None or data[k] == ""}
+        if empty:
+            raise ValueError(
+                f"{cls.__name__}: required key(s) must not be empty: {', '.join(sorted(empty))}"
+            )
+
         return True
 
     @classmethod
