@@ -1,5 +1,5 @@
 from zbxtemplar.decree import User, Severity
-from zbxtemplar.decree.Token import TokenOutput
+from zbxtemplar.decree.Token import Token
 from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.TokenProvisioner import TokenProvisioner, TokenProvisionerError
 from zbxtemplar.executor.exceptions import ExecutorApiError
@@ -84,7 +84,7 @@ class UserOperation(Executor):
                     )
                     action = "updated" if updated else "created"
                     extra = {"token_name": user.token.name, "owner": user.username, "result": action, "secret_redacted": True}
-                    if user.token.store_at is not TokenOutput.STDOUT:
+                    if user.token.store_at != Token.STDOUT:
                         extra["store_at"] = str(user.token.store_at)
                     log.secret_write("api_token", **extra)
                 except TokenProvisionerError as e:

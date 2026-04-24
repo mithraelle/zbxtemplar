@@ -2,15 +2,15 @@ import time
 
 import pytest
 
-from zbxtemplar.decree.Token import Token, TokenOutput, TokenExpiry
+from zbxtemplar.decree.Token import Token
 
 
 # --- Normalization (the non-obvious coercions) ---
 
-def test_normalization_enum():
+def test_normalization_sentinels():
     t = Token("t", store_at="STDOUT", expires_at="NEVER")
-    assert t.store_at is TokenOutput.STDOUT
-    assert t.expires_at is TokenExpiry.NEVER
+    assert t.store_at == Token.STDOUT
+    assert t.expires_at == Token.EXPIRES_NEVER
 
     store_at = ".secrets/api.token"
     future = int(time.time()) + 3600
@@ -41,9 +41,12 @@ def test_garbage_expires_at_rejected():
         Token("t", store_at="STDOUT", expires_at="banana")
 
 
-def test_past_expires_at_rejected():
+def test_past_expires_at_accepted_at_construction():
+    """Past-timestamp check is deferred to executor time via assert_expires_in_future()."""
+    t = Token("t", store_at="STDOUT", expires_at=1000000000)
+    assert t.expires_at == 1000000000
     with pytest.raises(ValueError, match="in the past"):
-        Token("t", store_at="STDOUT", expires_at=1000000000)
+        t.assert_expires_in_future()
 
 
 # --- from_dict ---
@@ -51,15 +54,15 @@ def test_past_expires_at_rejected():
 def test_from_dict():
     t = Token.from_dict({"name": "api-reader", "store_at": "STDOUT", "expires_at": "NEVER"})
     assert t.name == "api-reader"
-    assert t.store_at is TokenOutput.STDOUT
-    assert t.expires_at is TokenExpiry.NEVER
+    assert t.store_at == Token.STDOUT
+    assert t.expires_at == Token.EXPIRES_NEVER
 
     with pytest.raises(ValueError, match="missing required key.*store_at"):
         Token.from_dict({"name": "t"})
 
-# --- to_dict (enums serialize to strings) ---
+# --- to_dict ---
 
-def test_to_dict_serializes_enums():
+def test_to_dict_serializes_sentinels():
     t = Token("t", store_at="STDOUT", expires_at="NEVER")
     d = t.to_dict()
     assert d["store_at"] == "STDOUT"

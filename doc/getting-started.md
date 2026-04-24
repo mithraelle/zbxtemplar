@@ -94,7 +94,7 @@ class MyDecree(DecreeModule):
         user.set_token(
             "zbx-ops-api",
             store_at=".secrets/zbx-ops-api.token",
-            expires_at=Token.NEVER,
+            expires_at=Token.EXPIRES_NEVER,
         )
 ```
 

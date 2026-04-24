@@ -32,7 +32,7 @@ class SampleDecree(DecreeModule):
         service.link_group(ops_group)
         service.set_token(
             "monitoring-ro",
-            expires_at=Token.NEVER,
+            expires_at=Token.EXPIRES_NEVER,
             store_at=".secrets/monitoring-ro.token",
             force=True,
         )
@@ -98,7 +98,7 @@ def test_context_rejects_missing_host_group():
 
 def test_token_init_requires_store_at():
     with pytest.raises(ValueError, match="token.store_at must be a file path"):
-        Token("api-reader-token", store_at=None, expires_at=Token.NEVER)
+        Token("api-reader-token", store_at=None, expires_at=Token.EXPIRES_NEVER)
 
 
 class EmptyDecree(DecreeModule):

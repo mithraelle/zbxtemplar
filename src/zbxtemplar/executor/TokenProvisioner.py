@@ -1,6 +1,6 @@
 import os
 
-from zbxtemplar.decree.Token import TokenOutput, TokenExpiry
+from zbxtemplar.decree.Token import Token
 
 
 class TokenProvisionerError(Exception):
@@ -26,6 +26,13 @@ class TokenProvisioner:
             if not user.token:
                 continue
 
+            try:
+                user.token.assert_expires_in_future()
+            except ValueError as e:
+                raise TokenProvisionerError(
+                    f"User '{user.username}' token '{user.token.name}': {e}"
+                ) from e
+
             name = user.token.name
             if name in seen_names:
                 raise TokenProvisionerError(
@@ -34,7 +41,7 @@ class TokenProvisioner:
                 )
             seen_names[name] = user.username
 
-            if user.token.store_at is TokenOutput.STDOUT:
+            if user.token.store_at == Token.STDOUT:
                 continue
 
             path = os.path.normcase(os.path.abspath(self._resolve_path(user.token.store_at)))
@@ -56,7 +63,7 @@ class TokenProvisioner:
             if creating:
                 raise TokenProvisionerError("token.expires_at is required on create")
             return None
-        if token.expires_at is TokenExpiry.NEVER:
+        if token.expires_at == Token.EXPIRES_NEVER:
             return 0
         return token.expires_at
 
@@ -135,7 +142,7 @@ class TokenProvisioner:
             self._api.token.generate(tokenid=tokenid),
         )
 
-        if token.store_at is TokenOutput.STDOUT:
+        if token.store_at == Token.STDOUT:
             print(secret)
         else:
             self._write_secret(token.store_at, secret)

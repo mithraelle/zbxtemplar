@@ -64,9 +64,9 @@ Full list in `zbxtemplar.catalog.zabbix_7_4.MediaType`.
 user.set_token(
     "token-name",
     store_at=".secrets/token.txt",
-    expires_at=Token.NEVER,
+    expires_at=Token.EXPIRES_NEVER,
     force=True,   # revoke and recreate if token already exists
 )
 # store_at=Token.STDOUT — print token value to stdout instead of writing a file
-# expires_at: Token.NEVER or a future unix timestamp (int)
+# expires_at: Token.EXPIRES_NEVER or a future unix timestamp (int)
 ```

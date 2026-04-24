@@ -39,7 +39,7 @@ class MyDecree(DecreeModule):
         user.set_token(
             "zbx-ops-api",
             store_at=".secrets/zbx-ops-api.token",
-            expires_at=Token.NEVER,
+            expires_at=Token.EXPIRES_NEVER,
         )
 ```
 
@@ -101,7 +101,7 @@ Token provisioning has deliberate guardrails — see [Security & Safety](./secur
 user.set_token(
     "zbx-ops-api",
     store_at=".secrets/zbx-ops-api.token",   # or Token.STDOUT
-    expires_at=Token.NEVER,                  # or a future unix timestamp
+    expires_at=Token.EXPIRES_NEVER,                  # or a future unix timestamp
     force=True,                              # regenerate if it already exists
 )
 ```

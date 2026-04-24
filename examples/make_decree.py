@@ -37,7 +37,7 @@ class SampleDecree(DecreeModule):
         service.set_token(
             "monitoring-ro",
             store_at=".secrets/monitoring-ro.token",
-            expires_at=Token.NEVER,
+            expires_at=Token.EXPIRES_NEVER,
             force=True,
         )
         service.add_media(MediaType.SLACK, self.get_macro("TEMPLAR_GLOBAL_MACRO").value)
