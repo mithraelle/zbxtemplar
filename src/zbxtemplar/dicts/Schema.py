@@ -3,13 +3,24 @@ import builtins
 import os
 import re
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from types import GenericAlias, UnionType
 from typing import Self, TypeAlias, get_args, get_origin
 
 import yaml
 
 SchemaRuntimeType: TypeAlias = builtins.type | GenericAlias | UnionType
+
+
+class ApiStrEnum(StrEnum):
+    """StrEnum whose members carry a Zabbix API integer via `.api`. Declare members as `NAME = "NAME", <int>`."""
+    api: int
+
+    def __new__(cls, value: str, api: int):
+        member = str.__new__(cls, value)
+        member._value_ = value
+        member.api = api
+        return member
 
 
 @dataclass

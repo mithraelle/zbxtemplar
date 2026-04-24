@@ -1,48 +1,46 @@
-from zbxtemplar.dicts.Schema import SchemaField
-from zbxtemplar.decree.DecreeEntity import DecreeEntity, _validate
+from zbxtemplar.dicts.Schema import ApiStrEnum, SchemaField
+from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.zabbix.Host import HostGroup
 from zbxtemplar.zabbix.Template import TemplateGroup
 
 
-class GuiAccess:
+class GuiAccess(ApiStrEnum):
     """User group GUI access modes."""
-    DEFAULT = "DEFAULT"
-    INTERNAL = "INTERNAL"
-    LDAP = "LDAP"
-    DISABLED = "DISABLED"
-
-    _API_VALUES = {"DEFAULT": 0, "INTERNAL": 1, "LDAP": 2, "DISABLED": 3}
+    DEFAULT  = "DEFAULT",  0
+    INTERNAL = "INTERNAL", 1
+    LDAP     = "LDAP",     2
+    DISABLED = "DISABLED", 3
 
 
-class UsersStatus:
+class UsersStatus(ApiStrEnum):
     """User group users status (whether member users are enabled)."""
-    ENABLED = "ENABLED"
-    DISABLED = "DISABLED"
-
-    _API_VALUES = {"ENABLED": 0, "DISABLED": 1}
+    ENABLED  = "ENABLED",  0
+    DISABLED = "DISABLED", 1
 
 
-class Permission:
+class Permission(ApiStrEnum):
     """Host/template group permission levels."""
-    NONE = "NONE"
-    READ = "READ"
-    READ_WRITE = "READ_WRITE"
-
-    _API_VALUES = {"NONE": 0, "READ": 2, "READ_WRITE": 3}
+    NONE       = "NONE",       0
+    READ       = "READ",       2
+    READ_WRITE = "READ_WRITE", 3
 
 
 class UserGroup(DecreeEntity):
     """Zabbix user group and permission mapping managed by decree YAML."""
 
     _SCHEMA = [
-        SchemaField("name", optional=False, description="Zabbix user group name."),
-        SchemaField("gui_access", description="GUI access mode: DEFAULT, INTERNAL, LDAP, or DISABLED."),
-        SchemaField("users_status", description="Member users status: ENABLED or DISABLED."),
-        SchemaField("host_groups", str_type="list[dict]", description="Host group permission entries with name and permission."),
-        SchemaField("template_groups", str_type="list[dict]", description="Template group permission entries with name and permission."),
+        SchemaField("name", optional=False, type=str, description="Zabbix user group name."),
+        SchemaField("gui_access", type=GuiAccess, str_type="GuiAccess",
+                    description="GUI access mode: DEFAULT, INTERNAL, LDAP, or DISABLED."),
+        SchemaField("users_status", type=UsersStatus, str_type="UsersStatus",
+                    description="Member users status: ENABLED or DISABLED."),
+        SchemaField("host_groups", type=list[dict], str_type="list[dict]",
+                    description="Host group permission entries with name and permission."),
+        SchemaField("template_groups", type=list[dict], str_type="list[dict]",
+                    description="Template group permission entries with name and permission."),
     ]
 
-    def __init__(self, name: str, gui_access: GuiAccess = None, users_status: UsersStatus = None):
+    def __init__(self, name: str, gui_access: GuiAccess | None = None, users_status: UsersStatus | None = None):
         self.name = name
         self.gui_access = gui_access
         self.users_status = users_status
@@ -59,7 +57,7 @@ class UserGroup(DecreeEntity):
         self.users_status = users_status
         return self
 
-    def link_host_group(self, group, permission: Permission):
+    def link_host_group(self, group: HostGroup | str, permission: Permission):
         """Grant permission to a host group. Accepts HostGroup object or name string. Raises on duplicate."""
         name = group.name if isinstance(group, HostGroup) else group
         if any(hg["name"] == name for hg in self.host_groups):
@@ -69,7 +67,7 @@ class UserGroup(DecreeEntity):
         self.host_groups.append({"name": name, "permission": permission})
         return self
 
-    def link_template_group(self, group, permission: Permission):
+    def link_template_group(self, group: TemplateGroup | str, permission: Permission):
         """Grant permission to a template group. Accepts TemplateGroup object or name string. Raises on duplicate."""
         name = group.name if isinstance(group, TemplateGroup) else group
         if any(tg["name"] == name for tg in self.template_groups):
@@ -85,24 +83,12 @@ class UserGroup(DecreeEntity):
             return cls(data)
         return super().from_data(data)
 
-    @classmethod
-    def from_dict(cls, data: dict, host_groups=None, template_groups=None):
-        cls.validate(data)
-        gui = data.get("gui_access")
-        if gui is not None:
-            _validate(gui, GuiAccess._API_VALUES, "gui_access")
-        users_status = data.get("users_status")
-        if users_status is not None:
-            _validate(users_status, UsersStatus._API_VALUES, "users_status")
-        group = cls(data["name"], gui_access=gui, users_status=users_status)
-        for hg in data.get("host_groups", []):
-            _validate(hg["permission"], Permission._API_VALUES, "permission")
-            group.link_host_group(hg["name"], hg["permission"])
-            if host_groups is not None and hg["name"] not in host_groups:
-                host_groups[hg["name"]] = HostGroup(hg["name"])
-        for tg in data.get("template_groups", []):
-            _validate(tg["permission"], Permission._API_VALUES, "permission")
-            group.link_template_group(tg["name"], tg["permission"])
-            if template_groups is not None and tg["name"] not in template_groups:
-                template_groups[tg["name"]] = TemplateGroup(tg["name"])
-        return group
+    def _wire_up(self) -> None:
+        if self.host_groups is None:
+            self.host_groups = []
+        if self.template_groups is None:
+            self.template_groups = []
+        for hg in self.host_groups:
+            hg["permission"] = Permission(hg["permission"])
+        for tg in self.template_groups:
+            tg["permission"] = Permission(tg["permission"])

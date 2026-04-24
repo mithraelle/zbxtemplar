@@ -16,7 +16,7 @@ class UserGroupOperation(Executor):
             if name not in group_lookup:
                 raise ValueError(f"{label} '{name}' not found in Zabbix")
             perm = g.get("permission", Permission.READ)
-            rights.append({"id": group_lookup[name], "permission": Permission._API_VALUES[perm]})
+            rights.append({"id": group_lookup[name], "permission": Permission(perm).api})
         return rights
 
     def _validate(self):
@@ -30,10 +30,10 @@ class UserGroupOperation(Executor):
 
         for ug in self._spec:
             gui = ug.gui_access or GuiAccess.DEFAULT
-            params = {"name": ug.name, "gui_access": GuiAccess._API_VALUES[gui]}
+            params = {"name": ug.name, "gui_access": GuiAccess(gui).api}
 
             if ug.users_status is not None:
-                params["users_status"] = UsersStatus._API_VALUES[ug.users_status]
+                params["users_status"] = UsersStatus(ug.users_status).api
 
             if ug.host_groups:
                 params["hostgroup_rights"] = self._resolve_rights(ug.host_groups, host_groups, "Host group")
