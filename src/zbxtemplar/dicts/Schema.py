@@ -157,7 +157,11 @@ class Schema:
             else:
                 setattr(obj, property_name, None)
 
+        obj._wire_up()
         return obj
+
+    def _wire_up(self) -> None:
+        pass
 
     @classmethod
     def from_data(cls, data: dict | list | str) -> Self:
