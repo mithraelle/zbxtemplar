@@ -175,7 +175,7 @@ Template and host groups are deduplicated automatically during export.
 
 Builder helpers construct, register, and return decree objects:
 
-- `add_user_group(name, gui_access=None)` returns a `UserGroup`
+- `add_user_group(name, gui_access=None, users_status=None)` returns a `UserGroup`
 - `add_user(username, role)` returns a `User`
 - `set_saml(idp_entityid, sp_entityid, sso_url, username_attribute, slo_url=None)` returns a `SamlProvider`
 - `add_trigger_action(name)` returns a `TriggerAction`

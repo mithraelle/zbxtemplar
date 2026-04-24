@@ -27,7 +27,7 @@ graph = template.add_graph(
 ```
 
 When `y_min_type` or `y_max_type` is `ITEM`, pass the corresponding `Item` object
-as `y_min_item` / `y_max_item`. The item must already be added to the same template or host.
+directly as `y_min` / `y_max`. The item must already be added to the same template or host.
 
 ## Linking items to a graph
 

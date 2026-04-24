@@ -36,8 +36,10 @@ saml.set_security(
     sign_logout_requests=False,
     sign_logout_responses=False,
     encrypt_assertions=True,
-    encrypt_nameid=False,
 )
+
+# NameID format and encryption are configured separately:
+saml.set_nameid("urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress", encrypt=False)
 ```
 
 ### Username case sensitivity
@@ -60,9 +62,8 @@ disabled_group = self.add_user_group(
 saml.set_provisioning(
     group_name="groups",                  # SAML attribute carrying group membership
     disabled_user_group=disabled_group,   # UserGroup object or name string
-    user_username="firstName",            # SAML attribute → Zabbix user firstname
-    user_lastname="lastName",
-    user_name=None,                       # optional: maps to Zabbix user name field
+    user_username="firstName",            # SAML attribute → Zabbix user first name
+    user_lastname="lastName",             # SAML attribute → Zabbix user last name
     groups=SamlProvisionGroup("zabbix-admins", UserRole.SUPER_ADMIN, [ops_group]),
     media=SamlProvisionMedia("Email", MediaType.EMAIL, "email"),
 )

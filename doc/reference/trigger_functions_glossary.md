@@ -1,8 +1,8 @@
 # Trigger Functions Glossary
 
-Use these wrapper classes to build trigger expressions. Import `functions` from
-`zbxtemplar.zabbix`, then call wrappers like `functions.history.Last(item)` or
-`functions.aggregate.Min(item, "5m")`.
+Use these wrapper classes to build trigger expressions. Import `functions` from a
+versioned catalog such as `zbxtemplar.catalog.zabbix_7_4`, then call wrappers like
+`functions.history.Last(item)` or `functions.aggregate.Min(item, "5m")`.
 
 The `Args` column lists the Python wrapper arguments after the implicit function name.
 Use normal expression-builder operators around these calls, for example
@@ -158,7 +158,7 @@ Source: <https://www.zabbix.com/documentation/current/en/manual/appendix/functio
 
 | Zabbix function | Python wrapper | Args | Meaning |
 |---|---|---|---|
-| `between` | `functions.operator.Between` | `value, min_value, max_value` | Check if the value belongs to the given range. |
+| `between` | `functions.operator.Between` | `value, min, max` | Check if the value belongs to the given range. |
 | `in` | `functions.operator.In` | `value, *values` | Check if the value is equal to at least one of the listed values. |
 
 ## Predictive functions

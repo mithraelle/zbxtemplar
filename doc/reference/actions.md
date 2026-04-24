@@ -117,19 +117,21 @@ action.update_operations.send_message(groups=[ops_group], message="Acknowledged"
 Action-level timing (TriggerAction only):
 
 ```python
-action.set_operation_step(step_from=1, step_to=1, step_duration=0)
-action.pause_suppressed(True)   # pause while host is in maintenance
-action.pause_symptoms(True)     # pause symptom problem notifications
-action.notify_if_canceled(True)
+action.set_operation_step(duration=3600)   # default escalation step duration, seconds
+action.pause_suppressed()                  # pause while host is in maintenance
+action.pause_symptoms()                    # pause symptom problem notifications
+action.notify_if_canceled()
 ```
 
 ## Operations — AutoregistrationAction
 
 ```python
+from zbxtemplar.decree.action_operations import SetInventoryModeOperation
+
 action.operations.add_host()
 action.operations.add_to_group("Linux servers")     # name or HostGroup object
 action.operations.link_template("Linux Template")   # name or Template object
 action.operations.enable_host()
 action.operations.disable_host()
-action.operations.set_inventory_mode("AUTOMATIC")   # "AUTOMATIC" or "MANUAL"
+action.operations.set_inventory_mode(SetInventoryModeOperation.AUTOMATIC)   # MANUAL or AUTOMATIC
 ```
