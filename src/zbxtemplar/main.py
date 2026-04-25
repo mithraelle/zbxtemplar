@@ -158,7 +158,7 @@ def main():
                     _write_yaml(mod.export_encryption(), args.encryption_output, f"{name} [encryption]")
                 if args.macros_output:
                     _write_yaml(mod.export_macros(), args.macros_output, f"{name} [macros]")
-    except (ValueError, ImportError, KeyError, NotImplementedError) as e:
+    except (ValueError, TypeError, ImportError, KeyError, NotImplementedError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
 

@@ -28,7 +28,14 @@ class DecreeEntity(Schema):
                 if items:
                     result[key] = items
             elif isinstance(value, Enum):
-                result[key] = value.value
-            else:
+                result[key] = str(value)
+            elif isinstance(value, (str, int, float, bool)):
                 result[key] = value
+            elif type(value).__str__ is not object.__str__:
+                result[key] = str(value)
+            else:
+                raise TypeError(
+                    f"{type(self).__name__}.to_dict: cannot serialize "
+                    f"{key}={value!r} ({type(value).__name__})"
+                )
         return result
