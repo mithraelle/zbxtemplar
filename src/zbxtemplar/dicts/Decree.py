@@ -35,7 +35,7 @@ class Decree(Schema):
         SchemaField("actions", str_type="list[dict]",
                     description="Zabbix action definitions to create or update.",
                     type=list[Action]),
-        SchemaField("encryption", str_type="list[EncryptionDecree]",
+        SchemaField("encryption", str_type="EncryptionDecree | list[EncryptionDecree]",
                     description="Host encryption settings with host_defaults and hosts entries.",
                     type=list[EncryptionDecree]),
     ]
@@ -64,4 +64,6 @@ class Decree(Schema):
             data = cls._load_yaml(data)
         if isinstance(data, list):
             data = cls._merge_decree(data)
+        if isinstance(data, dict) and isinstance(data.get("encryption"), dict):
+            data = {**data, "encryption": [data["encryption"]]}
         return cls.from_dict(data)
