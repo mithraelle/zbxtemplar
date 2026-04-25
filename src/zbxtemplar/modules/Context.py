@@ -4,6 +4,7 @@ import re
 import yaml
 
 from zbxtemplar.decree.UserGroup import UserGroup
+from zbxtemplar.decree.User import User
 from zbxtemplar.zabbix.macro import Macro
 from zbxtemplar.zabbix.Template import Template, TemplateGroup
 from zbxtemplar.zabbix.Host import Host, HostGroup
@@ -34,6 +35,7 @@ class Context:
         self._templates = {}
         self._hosts = {}
         self._user_groups = {}
+        self._users: dict[str, User] = {}
 
     def get_macro(self, name: str) -> Macro:
         """Look up a global macro by name. Name may include or omit ``{$...}`` braces."""
@@ -121,6 +123,7 @@ class Context:
             for tg in ug.template_groups or []:
                 self._template_groups.setdefault(tg.name, TemplateGroup(tg.name))
         for u in decree.add_user or []:
+            self._upsert(self._users, u.username, u)
             for name in u.groups or []:
                 self._user_groups.setdefault(name, UserGroup(name))
 
