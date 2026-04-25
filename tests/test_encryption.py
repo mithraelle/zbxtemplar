@@ -50,8 +50,8 @@ def test_from_dict():
     assert cert.issuer == "some_issuer"
 
 
-def test_from_dict_ignores_stray_credentials():
-    """PSK creds in dict but mode is UNENCRYPTED — silently ignored."""
+def test_from_dict_rejects_stray_credentials():
+    """PSK creds in dict but mode is UNENCRYPTED — check() rejects."""
     entry = HostEncryption.from_dict({
         "host": "host4",
         "connect": "UNENCRYPTED",
@@ -59,8 +59,8 @@ def test_from_dict_ignores_stray_credentials():
         "psk": "stray",
         "psk_identity": "stray_id"
     })
-    assert entry.psk is None
-    assert entry.psk_identity is None
+    with pytest.raises(ValueError, match="provided but PSK not enabled"):
+        entry.check()
 
 
 def test_programmatic_api():

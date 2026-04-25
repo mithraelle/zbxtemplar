@@ -16,7 +16,7 @@ class EncryptionOperation(Executor):
     def _compute_bitmap(self, modes: list[EncryptionMode]) -> int:
         bitmap = 0
         for mode in modes:
-            bitmap |= mode.value
+            bitmap |= mode.api
         return bitmap
 
     @staticmethod

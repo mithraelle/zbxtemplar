@@ -1,34 +1,14 @@
 import copy
-from enum import Enum
 
-from zbxtemplar.dicts.Schema import Schema, SchemaField
+from zbxtemplar.dicts.Schema import ApiStrEnum, Schema, SchemaField
 
 
-class EncryptionMode(Enum):
+class EncryptionMode(ApiStrEnum):
     """Zabbix host communication encryption mode: UNENCRYPTED, PSK, or CERT."""
 
-    UNENCRYPTED = 1
-    PSK = 2
-    CERT = 4
-
-    @classmethod
-    def from_string(cls, value: str) -> "EncryptionMode":
-        value_upper = value.upper()
-        if value_upper == "UNENCRYPTED":
-            return cls.UNENCRYPTED
-        if value_upper == "PSK":
-            return cls.PSK
-        if value_upper == "CERT":
-            return cls.CERT
-        raise ValueError(f"Unknown EncryptionMode: '{value}'. Expected one of: UNENCRYPTED, PSK, CERT")
-
-    @classmethod
-    def parse_modes(cls, mode_string: str) -> list["EncryptionMode"]:
-        """Parse a comma-separated string of modes into a list of mode enums."""
-        if not mode_string:
-            return []
-        tokens = [t.strip() for t in mode_string.split(",")]
-        return [cls.from_string(t) for t in tokens if t]
+    UNENCRYPTED = "UNENCRYPTED", 1
+    PSK         = "PSK",         2
+    CERT        = "CERT",        4
 
 
 class Encryption(Schema):
@@ -102,22 +82,19 @@ class Encryption(Schema):
 
     @staticmethod
     def _modes_to_string(modes: list[EncryptionMode]) -> str:
-        return ", ".join(m.name for m in modes)
+        return ", ".join(m.value for m in modes)
 
-    def to_dict(self) -> dict:
-        result = {}
-        if self.connect:
-            result["connect"] = self._modes_to_string(self.connect)
-        if self.accept:
-            result["accept"] = self._modes_to_string(self.accept)
-        for fields in self._MODE_FIELDS.values():
-            for field in fields:
-                value = getattr(self, field)
-                if value is not None:
-                    result[field] = value
-        return result
+    def connect_to_list(self):
+        return self._modes_to_string(self.connect) if self.connect else None
 
-    def check(self, label: str = "Encryption"):
+    def accept_to_list(self):
+        return self._modes_to_string(self.accept) if self.accept else None
+
+    def _label(self) -> str:
+        return "Encryption"
+
+    def check(self) -> None:
+        label = self._label()
         if not self.connect:
             raise ValueError(f"{label}: no connect mode configured.")
         if not self.accept:
@@ -161,29 +138,6 @@ class HostEncryption(Encryption):
         entry.host = host
         return entry
 
-    def to_dict(self) -> dict:
-        result = {"host": self.host}
-        result.update(super().to_dict())
-        return result
+    def _label(self) -> str:
+        return f"Host '{self.host}'"
 
-    def check(self, label: str = None):
-        super().check(label or f"Host '{self.host}'")
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "HostEncryption":
-        cls.validate(data)
-        entry = cls(data["host"])
-
-        if "connect" in data:
-            entry.connect = EncryptionMode.parse_modes(data["connect"])
-        if "accept" in data:
-            entry.accept = EncryptionMode.parse_modes(data["accept"])
-
-        all_modes = set(entry.connect + entry.accept)
-        for mode, fields in cls._MODE_FIELDS.items():
-            if mode in all_modes:
-                for field in fields:
-                    if field in data:
-                        setattr(entry, field, data[field])
-
-        return entry
