@@ -5,6 +5,8 @@ import yaml
 
 from zbxtemplar.decree.UserGroup import UserGroup
 from zbxtemplar.decree.User import User
+from zbxtemplar.decree.Encryption import HostEncryption
+from zbxtemplar.decree.saml import SamlProvider
 from zbxtemplar.zabbix.macro import Macro
 from zbxtemplar.zabbix.Template import Template, TemplateGroup
 from zbxtemplar.zabbix.Host import Host, HostGroup
@@ -36,6 +38,8 @@ class Context:
         self._hosts = {}
         self._user_groups = {}
         self._users: dict[str, User] = {}
+        self._saml: SamlProvider | None = None
+        self._host_encryptions: dict[str, HostEncryption] = {}
 
     def get_macro(self, name: str) -> Macro:
         """Look up a global macro by name. Name may include or omit ``{$...}`` braces."""
@@ -126,6 +130,23 @@ class Context:
             self._upsert(self._users, u.username, u)
             for name in u.groups or []:
                 self._user_groups.setdefault(name, UserGroup(name))
+        if decree.saml is not None:
+            self._saml = decree.saml
+        for enc in decree.encryption or []:
+            for host in enc.hosts or []:
+                self._upsert(self._host_encryptions, host.host, host)
+
+    def get_saml(self) -> SamlProvider:
+        """Look up the SAML provider config."""
+        if self._saml is None:
+            raise ValueError("SAML config not found in context")
+        return self._saml
+
+    def get_host_encryption(self, host: str) -> HostEncryption:
+        """Look up host encryption settings by host technical name."""
+        if host not in self._host_encryptions:
+            raise ValueError(f"Host encryption '{host}' not found in context")
+        return self._host_encryptions[host]
 
     def _merge_scroll(self, scroll: Scroll):
         for m in scroll.set_macro or []:
