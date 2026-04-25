@@ -3,6 +3,7 @@ import re
 
 import yaml
 
+from zbxtemplar.decree.Action import Action
 from zbxtemplar.decree.UserGroup import UserGroup
 from zbxtemplar.decree.User import User
 from zbxtemplar.decree.Encryption import HostEncryption
@@ -40,6 +41,7 @@ class Context:
         self._users: dict[str, User] = {}
         self._saml: SamlProvider | None = None
         self._host_encryptions: dict[str, HostEncryption] = {}
+        self._actions: dict[str, Action] = {}
 
     def get_macro(self, name: str) -> Macro:
         """Look up a global macro by name. Name may include or omit ``{$...}`` braces."""
@@ -135,6 +137,14 @@ class Context:
         for enc in decree.encryption or []:
             for host in enc.hosts or []:
                 self._upsert(self._host_encryptions, host.host, host)
+        for action in decree.actions or []:
+            self._upsert(self._actions, action.name, action)
+
+    def get_action(self, name: str) -> Action:
+        """Look up an action by name."""
+        if name not in self._actions:
+            raise ValueError(f"Action '{name}' not found in context")
+        return self._actions[name]
 
     def get_saml(self) -> SamlProvider:
         """Look up the SAML provider config."""

@@ -1,3 +1,4 @@
+from zbxtemplar.decree.Action import Action
 from zbxtemplar.decree.Encryption import HostEncryption
 from zbxtemplar.decree.saml import SamlProvider
 from zbxtemplar.decree.Token import Token
@@ -7,6 +8,15 @@ from zbxtemplar.zabbix.ZbxEntity import YesNo
 
 
 _SAML_IDP_TYPE = 2
+
+_CONDITION_RESOLVERS = {
+    0: ("hostgroup", "groupid"),
+    1: ("host", "hostid"),
+    2: ("trigger", "triggerid"),
+    13: ("template", "templateid"),
+    18: ("drule", "druleid"),
+    20: ("proxy", "proxyid"),
+}
 
 
 class APIContext:
@@ -18,12 +28,16 @@ class APIContext:
         self._users: dict[str, User] = {}
         self._saml: SamlProvider | None = None
         self._host_encryptions: dict[str, HostEncryption] = {}
+        self._actions: dict[str, Action] = {}
 
         self._api_hostgroup_names: dict[str, str] = {}
         self._api_templategroup_names: dict[str, str] = {}
         self._api_usergroup_names: dict[str, str] = {}
+        self._api_user_names: dict[str, str] = {}
+        self._api_template_names: dict[str, str] = {}
         self._api_role_names: dict[str, str] = {}
         self._api_mediatype_names: dict[str, str] = {}
+        self._api_condition_names: dict[int, dict[str, str]] = {}
 
     def _get_hostgroup_names(self) -> dict[str, str]:
         if not self._api_hostgroup_names:
@@ -64,6 +78,29 @@ class APIContext:
                 for m in self._api.mediatype.get(output=["mediatypeid", "name"])
             }
         return self._api_mediatype_names
+
+    def _get_user_names(self) -> dict[str, str]:
+        if not self._api_user_names:
+            self._api_user_names = {
+                u["userid"]: u["username"]
+                for u in self._api.user.get(output=["userid", "username"])
+            }
+        return self._api_user_names
+
+    def _get_template_names(self) -> dict[str, str]:
+        if not self._api_template_names:
+            self._api_template_names = {
+                t["templateid"]: t["name"]
+                for t in self._api.template.get(output=["templateid", "name"])
+            }
+        return self._api_template_names
+
+    def _get_condition_names(self, ctype: int) -> dict[str, str]:
+        if ctype not in self._api_condition_names:
+            api_name, id_field = _CONDITION_RESOLVERS[ctype]
+            items = getattr(self._api, api_name).get(output=[id_field, "name"])
+            self._api_condition_names[ctype] = {item[id_field]: item["name"] for item in items}
+        return self._api_condition_names[ctype]
 
     def pull_user_groups(self, groups: list[str] | None = None):
         params: dict = {
@@ -220,3 +257,87 @@ class APIContext:
         if host not in self._host_encryptions:
             raise ValueError(f"Host encryption '{host}' not found in API context")
         return self._host_encryptions[host]
+
+    def pull_actions(self, names: list[str] | None = None):
+        params: dict = {
+            "output": [
+                "actionid", "name", "eventsource", "esc_period",
+                "pause_symptoms", "pause_suppressed", "notify_if_canceled",
+            ],
+            "selectFilter": "extend",
+            "selectOperations": "extend",
+            "selectRecoveryOperations": "extend",
+            "selectUpdateOperations": "extend",
+        }
+        if names is not None:
+            params["filter"] = {"name": names}
+
+        for raw in self._api.action.get(**params):
+            raw["eventsource"] = int(raw["eventsource"])
+
+            f = raw.get("filter") or {}
+            if "evaltype" in f:
+                f["evaltype"] = int(f["evaltype"])
+            for cond in f.get("conditions") or []:
+                ctype = int(cond.get("conditiontype", -1))
+                cond["conditiontype"] = ctype
+                if ctype in _CONDITION_RESOLVERS:
+                    names_map = self._get_condition_names(ctype)
+                    if cond.get("value") in names_map:
+                        cond["value"] = names_map[cond["value"]]
+            if f.get("conditions"):
+                f["conditions"].sort(key=lambda c: c.get("formulaid", ""))
+
+            for op_key in ("operations", "recovery_operations", "update_operations"):
+                for op in raw.get(op_key) or []:
+                    self._translate_action_op(op)
+
+            action = Action.from_dict(raw)
+            self._actions[action.name] = action
+        return self
+
+    def _translate_action_op(self, op: dict) -> None:
+        if "operationtype" in op:
+            op["operationtype"] = int(op["operationtype"])
+        for k in ("esc_step_from", "esc_step_to", "esc_period"):
+            if k in op:
+                op[k] = int(op[k])
+        if "opmessage_grp" in op:
+            ugn = self._get_usergroup_names()
+            for entry in op["opmessage_grp"]:
+                if entry.get("usrgrpid") in ugn:
+                    entry["usrgrpid"] = ugn[entry["usrgrpid"]]
+        if "opmessage_usr" in op:
+            un = self._get_user_names()
+            for entry in op["opmessage_usr"]:
+                if entry.get("userid") in un:
+                    entry["userid"] = un[entry["userid"]]
+        if "opmessage" in op:
+            msg = op["opmessage"]
+            mt = msg.get("mediatypeid")
+            if mt in (None, "", "0", 0):
+                msg.pop("mediatypeid", None)
+            else:
+                mtn = self._get_mediatype_names()
+                if mt in mtn:
+                    msg["mediatypeid"] = mtn[mt]
+            for k in ("subject", "message"):
+                if msg.get(k) == "":
+                    msg.pop(k)
+        if "opgroup" in op:
+            hgn = self._get_hostgroup_names()
+            for entry in op["opgroup"]:
+                if entry.get("groupid") in hgn:
+                    entry["groupid"] = hgn[entry["groupid"]]
+        if "optemplate" in op:
+            tn = self._get_template_names()
+            for entry in op["optemplate"]:
+                if entry.get("templateid") in tn:
+                    entry["templateid"] = tn[entry["templateid"]]
+        if "opinventory" in op and "inventory_mode" in op["opinventory"]:
+            op["opinventory"]["inventory_mode"] = int(op["opinventory"]["inventory_mode"])
+
+    def get_action(self, name: str) -> Action:
+        if name not in self._actions:
+            raise ValueError(f"Action '{name}' not found in API context")
+        return self._actions[name]
