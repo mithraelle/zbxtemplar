@@ -1,6 +1,7 @@
 import time
 
 import pytest
+import yaml
 
 from zbxtemplar.decree.Token import Token
 
@@ -72,5 +73,6 @@ def test_to_dict_serializes_sentinels():
 
 def test_round_trip():
     original = Token("api-reader", store_at="STDOUT", expires_at="NEVER")
-    restored = Token.from_dict(original.to_dict())
-    assert original.to_dict() == restored.to_dict()
+    reference = yaml.safe_load(yaml.safe_dump(original.to_dict()))
+    restored = Token.from_dict(reference)
+    assert yaml.safe_load(yaml.safe_dump(restored.to_dict())) == reference

@@ -1,4 +1,5 @@
 import pytest
+import yaml
 
 from zbxtemplar.modules.DecreeModule import DecreeModule
 from zbxtemplar.decree.Encryption import EncryptionMode, HostEncryption
@@ -77,7 +78,7 @@ def test_programmatic_api():
 def test_to_dict_roundtrip():
     h = HostEncryption("app-01", accept_unencrypted=True)
     h.set_psk(connect=True, accept=True, identity="id1", psk="secret1")
-    d = h.to_dict()
+    d = yaml.safe_load(yaml.safe_dump(h.to_dict()))
 
     assert d == {
         "host": "app-01",
@@ -88,10 +89,7 @@ def test_to_dict_roundtrip():
     }
 
     restored = HostEncryption.from_dict(d)
-    assert restored.host == h.host
-    assert restored.connect == h.connect
-    assert restored.accept == h.accept
-    assert restored.psk == h.psk
+    assert yaml.safe_load(yaml.safe_dump(restored.to_dict())) == d
 
 
 def test_decree_module_export():
