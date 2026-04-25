@@ -87,7 +87,7 @@ def _write_yaml(data: dict, path: str, label: str):
     if not data:
         return
     with open(path, "w", encoding="utf-8", newline="\n") as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+        yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False)
     print(f"{label} -> {path}")
 
 

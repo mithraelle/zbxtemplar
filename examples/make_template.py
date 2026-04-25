@@ -120,4 +120,4 @@ if __name__ == "__main__":
     import yaml
 
     module = SampleTemplate()
-    print(yaml.dump(module.to_export(), default_flow_style=False, sort_keys=False))
+    print(yaml.safe_dump(module.to_export(), default_flow_style=False, sort_keys=False))
