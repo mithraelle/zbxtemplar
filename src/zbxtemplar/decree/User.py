@@ -1,7 +1,12 @@
 from zbxtemplar.dicts.Schema import ApiStrEnum, SchemaField
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.decree.Token import Token
-from zbxtemplar.decree.constants import ActiveStatus
+
+
+class ActiveStatus(ApiStrEnum):
+    """Enable/disable status values for decree entries."""
+    ENABLED  = "ENABLED",  0
+    DISABLED = "DISABLED", 1
 
 
 class Severity(ApiStrEnum):
@@ -38,8 +43,7 @@ class UserMedia(DecreeEntity):
     ]
 
     def __init__(self, media_type: str, sendto: str):
-        self.type = media_type
-        self.sendto = sendto
+        super()._wire_up(type=media_type, sendto=sendto)
 
     def set_severity(self, severity: list):
         """Set which trigger severities activate this media. Pass a list of Severity constants."""
@@ -63,21 +67,16 @@ class User(DecreeEntity):
         SchemaField("role", optional=False, type=str, api_key="roleid",
                     description="Zabbix role name assigned to the user."),
         SchemaField("password", type=str, description="Password to set when creating or updating the user."),
-        SchemaField("groups", type=list[str], str_type="list[str]", api_key="usrgrps",
+        SchemaField("groups", type=list[str], str_type="list[str]", api_key="usrgrps", init=[],
                     description="User group names to attach to the user."),
-        SchemaField("medias", type=list[UserMedia], str_type="list[UserMedia]", description="Media definitions for the user."),
+        SchemaField("medias", type=list[UserMedia], str_type="list[UserMedia]", init=[],
+                    description="Media definitions for the user."),
         SchemaField("token", type=Token, str_type="Token", description="API token provisioning configuration for the user."),
         SchemaField("force_token", type=bool, str_type="bool", description="Update and re-generate an existing token with the same name."),
     ]
 
     def __init__(self, username: str, role: str):
-        self.username = username
-        self.role = role
-        self.password = None
-        self.groups = []
-        self.medias = []
-        self.token = None
-        self.force_token = None
+        super()._wire_up(username=username, role=role)
 
     def set_password(self, password: str):
         """Set the login password. Supports env-var placeholder syntax, e.g. ``"${ZBX_PASSWORD}"``."""
@@ -111,14 +110,9 @@ class User(DecreeEntity):
             self.force_token = True
         return self.token
 
-    def _wire_up(self) -> None:
-        if self.groups is None:
-            self.groups = []
-        else:
-            seen = set()
-            for g in self.groups:
-                if g in seen:
-                    raise ValueError(f"Duplicate group '{g}' on user '{self.username}'")
-                seen.add(g)
-        if self.medias is None:
-            self.medias = []
+    def _check(self) -> None:
+        seen = set()
+        for g in self.groups:
+            if g in seen:
+                raise ValueError(f"Duplicate group '{g}' on user '{self.username}'")
+            seen.add(g)

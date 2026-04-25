@@ -77,7 +77,7 @@ def test_saml_provider_from_dict_uses_schema_deserialization():
     assert provider.sign_assertions == YesNo.YES
     assert provider.provision_groups[0].name == "zabbix-admins"
     assert provider.provision_groups[0].role == UserRole.SUPER_ADMIN
-    assert provider.provision_groups[0].user_groups[0].name == "Operations"
+    assert provider.provision_groups[0].user_groups[0] == "Operations"
     assert provider.provision_media[0].type == MediaType.EMAIL
     assert provider.provision_media[0].attribute == "email"
     assert provider.provision_media[0].active == ActiveStatus.ENABLED
@@ -87,8 +87,8 @@ def test_saml_provider_from_dict_uses_schema_deserialization():
         Severity.DISASTER,
     ]
 
-    assert provider.to_dict()["provision_status"] == 1
-    assert provider.to_dict()["scim_status"] == 0
+    assert provider.to_dict()["provision_status"] == "ENABLED"
+    assert provider.to_dict()["scim_status"] == "DISABLED"
     assert provider.to_dict()["sign_messages"] == "NO"
     assert provider.to_dict()["sign_assertions"] == "YES"
     assert provider.to_dict()["provision_media"][0] == {
@@ -97,7 +97,7 @@ def test_saml_provider_from_dict_uses_schema_deserialization():
         "severity": "AVERAGE,HIGH,DISASTER",
         "period": "1-7,00:00-24:00",
         "name": "Email from Okta",
-        "active": 0,
+        "active": "ENABLED",
     }
 
 
@@ -109,10 +109,10 @@ def test_saml_provider_defaults_saml_and_scim_disabled():
         "sp_entityid": "zabbix",
     })
 
-    assert provider.provision_status is None
-    assert provider.scim_status is None
-    assert provider.provision_groups is None
-    assert provider.provision_media is None
+    assert provider.provision_status == ProvisionStatus.DISABLED
+    assert provider.scim_status == ScimStatus.DISABLED
+    assert provider.provision_groups == []
+    assert provider.provision_media == []
 
 
 def test_saml_provision_media_defaults():
@@ -187,7 +187,7 @@ def test_saml_provider_requires_provisioning_fields_when_enabled():
 def test_decree_accepts_saml_top_level_key():
     decree = Decree.from_dict({"saml": _sample_saml_dict()})
 
-    assert decree.saml.provision_groups[0].user_groups[0].name == "Operations"
+    assert decree.saml.provision_groups[0].user_groups[0] == "Operations"
     assert decree.saml.to_dict()["provision_groups"][0]["user_groups"] == ["Operations"]
 
 
@@ -211,8 +211,7 @@ def test_decree_module_exports_saml_after_user_groups():
 
     assert list(export) == ["user_group", "saml"]
     assert export["saml"] == {
-        "provision_status": 1,
-        "scim_status": 0,
+        "provision_status": "ENABLED",
         "idp_entityid": "http://www.okta.com/example",
         "sso_url": "https://example.okta.com/sso/saml",
         "username_attribute": "usrEmail",
@@ -227,6 +226,7 @@ def test_decree_module_exports_saml_after_user_groups():
         "encrypt_assertions": "NO",
         "encrypt_nameid": "NO",
         "saml_case_sensitive": "YES",
+        "scim_status": "DISABLED",
         "provision_groups": [{
             "name": "zabbix-admins",
             "role": "Super admin role",
@@ -242,8 +242,8 @@ def test_saml_provider_rejects_orphan_provision_mappings():
         sso_url="https://example.okta.com/sso/saml",
         username_attribute="usrEmail",
     )
-    provider.add_provision_group(
-        SamlProvisionGroup("zabbix-admins", UserRole.SUPER_ADMIN, ["Operations"])
+    provider.link_provision_group(
+        SamlProvisionGroup("zabbix-admins", UserRole.SUPER_ADMIN, [UserGroup("Operations")])
     )
 
     with pytest.raises(ValueError, match="provisioning is disabled"):
@@ -267,7 +267,7 @@ def test_saml_provider_fluent_setters():
         group_name="groups",
         disabled_user_group=UserGroup("Disabled"),
         user_username="firstName",
-        groups=SamlProvisionGroup("zabbix-admins", UserRole.SUPER_ADMIN, ["Operations"]),
+        groups=SamlProvisionGroup("zabbix-admins", UserRole.SUPER_ADMIN, [UserGroup("Operations")]),
         media=SamlProvisionMedia("Email", MediaType.EMAIL, "email"),
     )
 
@@ -278,7 +278,7 @@ def test_saml_provider_fluent_setters():
     assert exported["sign_assertions"] == "YES"
     assert exported["sign_messages"] == "NO"
     assert exported["encrypt_assertions"] == "YES"
-    assert exported["provision_status"] == 1
+    assert exported["provision_status"] == "ENABLED"
     assert exported["group_name"] == "groups"
     assert exported["disabled_user_group"] == "Disabled"
     assert exported["saml_case_sensitive"] == "NO"
@@ -294,17 +294,17 @@ def test_saml_provider_rejects_duplicate_provision_entries():
         sso_url="https://example.okta.com/sso/saml",
         username_attribute="usrEmail",
     )
-    group = SamlProvisionGroup("zabbix-admins", UserRole.SUPER_ADMIN, ["Operations"])
+    group = SamlProvisionGroup("zabbix-admins", UserRole.SUPER_ADMIN, [UserGroup("Operations")])
     media = SamlProvisionMedia("Email", MediaType.EMAIL, "email")
-    provider.add_provision_group(group)
-    provider.add_provision_media(media)
+    provider.link_provision_group(group)
+    provider.link_provision_media(media)
 
     with pytest.raises(ValueError, match="Duplicate provision_group 'zabbix-admins'"):
-        provider.add_provision_group(
-            SamlProvisionGroup("zabbix-admins", UserRole.ADMIN, ["Operations"])
+        provider.link_provision_group(
+            SamlProvisionGroup("zabbix-admins", UserRole.ADMIN, [UserGroup("Operations")])
         )
     with pytest.raises(ValueError, match="Duplicate provision_media 'Email'"):
-        provider.add_provision_media(SamlProvisionMedia("Email", MediaType.EMAIL, "other"))
+        provider.link_provision_media(SamlProvisionMedia("Email", MediaType.EMAIL, "other"))
 
 
 def test_add_saml_rejects_second_provider():

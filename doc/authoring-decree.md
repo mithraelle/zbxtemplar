@@ -147,8 +147,8 @@ saml.set_provisioning(
     media=SamlProvisionMedia("Email", MediaType.EMAIL, "email"),
 )
 
-saml.add_provision_group(SamlProvisionGroup("zabbix-users", UserRole.USER, [ops]))
-saml.add_provision_media(SamlProvisionMedia("Slack", MediaType.SLACK, "slackHandle"))
+saml.link_provision_group(SamlProvisionGroup("zabbix-users", UserRole.USER, [ops]))
+saml.link_provision_media(SamlProvisionMedia("Slack", MediaType.SLACK, "slackHandle"))
 ```
 
 `SamlProvisionGroup(saml_group_name, role, user_groups)` maps a SAML group to a Zabbix role and a list of user groups.

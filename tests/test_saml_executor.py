@@ -110,7 +110,9 @@ def test_saml_updates_existing_userdirectory():
     assert "idp_type" not in params
     assert params["idp_entityid"] == "http://idp.example"
     api.userdirectory.create.assert_not_called()
-    api.authentication.update.assert_called_once_with(saml_auth_enabled=1)
+    api.authentication.update.assert_called_once_with(
+        saml_auth_enabled=1, saml_jit_status=0, saml_case_sensitive=1
+    )
 
 
 def test_saml_rejects_unknown_role():

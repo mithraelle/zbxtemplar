@@ -49,19 +49,15 @@ class UserGroup(DecreeEntity):
         SchemaField("users_status", type=UsersStatus, str_type="UsersStatus",
                     description="Member users status: ENABLED or DISABLED."),
         SchemaField("host_groups", type=list[PermissionGroup], str_type="list[PermissionGroup]",
-                    api_key="hostgroup_rights",
+                    api_key="hostgroup_rights", init=[],
                     description="Host group permission entries with name and permission."),
         SchemaField("template_groups", type=list[PermissionGroup], str_type="list[PermissionGroup]",
-                    api_key="templategroup_rights",
+                    api_key="templategroup_rights", init=[],
                     description="Template group permission entries with name and permission."),
     ]
 
     def __init__(self, name: str, gui_access: GuiAccess | None = None, users_status: UsersStatus | None = None):
-        self.name = name
-        self.gui_access = gui_access
-        self.users_status = users_status
-        self.host_groups = []
-        self.template_groups = []
+        super()._wire_up(name=name, gui_access=gui_access, users_status=users_status)
 
     def set_gui_access(self, gui_access: GuiAccess):
         """Set GUI access mode. Use GuiAccess constants: DEFAULT, INTERNAL, LDAP, DISABLED."""
@@ -98,9 +94,3 @@ class UserGroup(DecreeEntity):
         if isinstance(data, str):
             return cls(data)
         return super().from_data(data)
-
-    def _wire_up(self) -> None:
-        if self.host_groups is None:
-            self.host_groups = []
-        if self.template_groups is None:
-            self.template_groups = []

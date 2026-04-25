@@ -40,10 +40,10 @@ class SamlOperation(Executor):
             if g.role not in roles:
                 raise ValueError(f"Role '{g.role}' not found in Zabbix")
             user_groups = []
-            for ug in g.user_groups:
-                if ug.name not in ugroups:
-                    raise ValueError(f"User group '{ug.name}' not found in Zabbix")
-                user_groups.append({"usrgrpid": ugroups[ug.name]})
+            for name in g.user_groups:
+                if name not in ugroups:
+                    raise ValueError(f"User group '{name}' not found in Zabbix")
+                user_groups.append({"usrgrpid": ugroups[name]})
             result.append({
                 "name": g.name,
                 "roleid": roles[g.role],
@@ -62,7 +62,7 @@ class SamlOperation(Executor):
                 "attribute": m.attribute,
             }
             if m.active is not None:
-                entry["active"] = int(m.active)
+                entry["active"] = m.active.api
             if m.severity is not None:
                 entry["severity"] = Severity.mask(m.severity)
             if m.period is not None:
@@ -90,9 +90,9 @@ class SamlOperation(Executor):
                 params[field] = v
 
         if provider.provision_status is not None:
-            params["provision_status"] = int(provider.provision_status)
+            params["provision_status"] = provider.provision_status.api
         if provider.scim_status is not None:
-            params["scim_status"] = int(provider.scim_status)
+            params["scim_status"] = provider.scim_status.api
 
         if provider.provision_groups:
             params["provision_groups"] = self._build_provision_groups(provider, roles, ugroups)
@@ -116,7 +116,7 @@ class SamlOperation(Executor):
 
         disabled_usrgrpid = None
         if provider.disabled_user_group is not None:
-            name = provider.disabled_user_group.name
+            name = provider.disabled_user_group
             if name not in ugroups:
                 raise ValueError(f"User group '{name}' not found in Zabbix")
             disabled_usrgrpid = ugroups[name]
@@ -153,7 +153,7 @@ class SamlOperation(Executor):
     def _enable_saml_authentication(self, provider, disabled_usrgrpid):
         auth_params = {"saml_auth_enabled": 1}
         if provider.provision_status is not None:
-            auth_params["saml_jit_status"] = int(provider.provision_status)
+            auth_params["saml_jit_status"] = provider.provision_status.api
         if disabled_usrgrpid is not None:
             auth_params["disabled_usrgrpid"] = disabled_usrgrpid
         case_sensitive = self._yesno(provider.saml_case_sensitive)

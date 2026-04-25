@@ -1,7 +1,6 @@
 add_user:
 - username: zbx-admin
   role: Super admin role
-  password: ${ZBX_ADMIN_PASSWORD}
   groups:
   - Templar Users
   medias:
@@ -10,14 +9,15 @@ add_user:
     severity: AVERAGE,HIGH,DISASTER
   - type: Slack
     sendto: '#ops-alerts'
+  password: ${ZBX_ADMIN_PASSWORD}
 - username: zbx-service
   role: User role
-  password: ${ZBX_SERVICE_PASSWORD}
   groups:
   - Templar Users
   medias:
   - type: Slack
     sendto: '1'
+  password: ${ZBX_SERVICE_PASSWORD}
   token:
     name: monitoring-ro
     store_at: .secrets/monitoring-ro.token

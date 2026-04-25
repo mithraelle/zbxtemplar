@@ -1,3 +1,4 @@
+import copy
 import difflib
 import builtins
 import os
@@ -10,6 +11,8 @@ from typing import Self, TypeAlias, get_args, get_origin
 import yaml
 
 SchemaRuntimeType: TypeAlias = builtins.type | GenericAlias | UnionType
+
+NO_INIT = object()
 
 
 class ApiStrEnum(StrEnum):
@@ -46,6 +49,7 @@ class SchemaField:
     type: SchemaRuntimeType | None = None
     property: str | None = None
     api_key: str | None = None
+    init: object = NO_INIT
 
 
 class Schema:
@@ -55,6 +59,7 @@ class Schema:
     _resolve_envs: bool = False
 
     def to_dict(self) -> dict:
+        self._check()
         result = {}
         for key, value in self.__dict__.items():
             if key.startswith('_'):
@@ -201,11 +206,6 @@ class Schema:
                 return value
             if isinstance(value, str) and value in value_type.__members__:
                 return value_type[value]
-            if isinstance(value, str) and issubclass(value_type, int):
-                try:
-                    value = int(value)
-                except ValueError:
-                    pass
             try:
                 return value_type(value)
             except ValueError as e:
@@ -241,10 +241,21 @@ class Schema:
                 setattr(obj, property_name, None)
 
         obj._wire_up()
+        obj._check()
         return obj
 
-    def _wire_up(self) -> None:
+    def _check(self) -> None:
         pass
+
+    def _wire_up(self, **kwargs) -> None:
+        for field in self._SCHEMA:
+            prop = field.property or field.key
+            if getattr(self, prop, None) is not None:
+                continue
+            if field.key in kwargs:
+                setattr(self, prop, kwargs[field.key])
+            elif field.init is not NO_INIT:
+                setattr(self, prop, copy.copy(field.init))
 
     @classmethod
     def from_data(cls, data: dict | list | str) -> Self:

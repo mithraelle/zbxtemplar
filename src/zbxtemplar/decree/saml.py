@@ -3,9 +3,20 @@ from typing import Self
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.decree.UserGroup import UserGroup
 from zbxtemplar.decree.User import UserMedia
-from zbxtemplar.decree.constants import ProvisionStatus, ScimStatus
-from zbxtemplar.dicts.Schema import SchemaField
+from zbxtemplar.dicts.Schema import ApiStrEnum, SchemaField
 from zbxtemplar.zabbix.ZbxEntity import YesNo
+
+
+class ProvisionStatus(ApiStrEnum):
+    """Zabbix SAML provisioning status values."""
+    DISABLED = "DISABLED", 0
+    ENABLED  = "ENABLED",  1
+
+
+class ScimStatus(ApiStrEnum):
+    """Zabbix SCIM provisioning status values."""
+    DISABLED = "DISABLED", 0
+    ENABLED  = "ENABLED",  1
 
 
 class SamlProvisionGroup(DecreeEntity):
@@ -16,51 +27,32 @@ class SamlProvisionGroup(DecreeEntity):
         SchemaField("role", optional=False, description="Zabbix role name to resolve via role.get."),
         SchemaField("user_groups", str_type="list[UserGroup]",
                     description="Zabbix user groups to attach to provisioned users.",
-                    type=list[UserGroup]),
+                    type=list[str], init=[]),
     ]
 
-    def __init__(self, name: str, role: str, user_groups: list[UserGroup | str] | None = None):
-        if not role:
-            raise ValueError(
-                f"SamlProvisionGroup '{name}': role must not be empty"
-            )
-        self.name = name
-        self.role = role
-        self.user_groups = []
+    def __init__(self, name: str, role: str, user_groups: list[UserGroup] | None = None):
+        super()._wire_up(name=name, role=role)
         for group in user_groups or []:
             self.link_user_group(group)
+        self._check()
 
-    def link_user_group(self, group: UserGroup | str):
-        user_group = group if isinstance(group, UserGroup) else UserGroup(group)
-        if any(existing.name == user_group.name for existing in self.user_groups):
+    def link_user_group(self, group: UserGroup):
+        if group.name in self.user_groups:
             raise ValueError(
-                f"Duplicate user_group '{user_group.name}' on SAML provision group '{self.name}'"
+                f"Duplicate user_group '{group.name}' on SAML provision group '{self.name}'"
             )
-        self.user_groups.append(user_group)
+        self.user_groups.append(group.name)
         return self
 
-    def user_groups_to_list(self):
-        return [group.name for group in self.user_groups]
-
-    def to_dict(self) -> dict:
+    def _check(self) -> None:
+        if not self.role:
+            raise ValueError(
+                f"SamlProvisionGroup '{self.name}': role must not be empty"
+            )
         if not self.user_groups:
             raise ValueError(
                 f"SamlProvisionGroup '{self.name}': user_groups must contain at least one group"
             )
-        return super().to_dict()
-
-    @classmethod
-    def validate(cls, data: dict) -> bool:
-        super().validate(data)
-        if not data.get("role"):
-            raise ValueError(
-                f"SamlProvisionGroup '{data.get('name')}': role must not be empty"
-            )
-        if not data.get("user_groups"):
-            raise ValueError(
-                f"SamlProvisionGroup '{data.get('name')}': user_groups must contain at least one group"
-            )
-        return True
 
 
 class SamlProvisionMedia(UserMedia):
@@ -74,9 +66,7 @@ class SamlProvisionMedia(UserMedia):
     ]
 
     def __init__(self, name: str, media_type: str, attribute: str):
-        self.name = name
-        self.type = media_type
-        self.attribute = attribute
+        super()._wire_up(name=name, type=media_type, attribute=attribute)
 
 
 class SamlProvider(DecreeEntity):
@@ -93,52 +83,52 @@ class SamlProvider(DecreeEntity):
 
         SchemaField("nameid_format", description="SAML NameID format URI."),
         SchemaField("encrypt_nameid", str_type="YES or NO", description="Encrypt SAML NameID flag.",
-                    type=YesNo),
+                    type=YesNo, init=YesNo.NO),
 
 
         SchemaField("encrypt_assertions", str_type="YES or NO",
                     description="Encrypt SAML assertions flag.",
-                    type=YesNo),
+                    type=YesNo, init=YesNo.NO),
         SchemaField("sign_messages", str_type="YES or NO", description="Sign SAML messages flag.",
-                    type=YesNo),
+                    type=YesNo, init=YesNo.NO),
         SchemaField("sign_assertions", str_type="YES or NO", description="Sign SAML assertions flag.",
-                    type=YesNo),
+                    type=YesNo, init=YesNo.NO),
         SchemaField("sign_authn_requests", str_type="YES or NO",
                     description="Sign SAML authn requests flag.",
-                    type=YesNo),
+                    type=YesNo, init=YesNo.NO),
         SchemaField("sign_logout_requests", str_type="YES or NO",
                     description="Sign SAML logout requests flag.",
-                    type=YesNo),
+                    type=YesNo, init=YesNo.NO),
         SchemaField("sign_logout_responses", str_type="YES or NO",
                     description="Sign SAML logout responses flag.",
-                    type=YesNo),
+                    type=YesNo, init=YesNo.NO),
 
 
         SchemaField("provision_status", str_type="ProvisionStatus",
                     description="JIT provisioning status: DISABLED or ENABLED.",
-                    type=ProvisionStatus),
-        SchemaField("group_name", description="SAML attribute carrying group membership."),
-        SchemaField("user_username", description="SAML attribute to use as the user's first name."),
-        SchemaField("user_lastname", description="SAML attribute to use as the user's last name."),
+                    type=ProvisionStatus, init=ProvisionStatus.DISABLED),
+        SchemaField("group_name", description="SAML attribute carrying group membership.", init=None),
+        SchemaField("user_username", description="SAML attribute to use as the user's first name.", init=None),
+        SchemaField("user_lastname", description="SAML attribute to use as the user's last name.", init=None),
         SchemaField("disabled_user_group", str_type="UserGroup",
                     description="Zabbix user group to place deprovisioned SAML users into. For a real lockout, configure this group with users_status=DISABLED (gui_access=DISABLED alone blocks frontend login but not API token access).",
-                    type=UserGroup),
+                    type=str, init=None),
         SchemaField("provision_groups", str_type="list[SamlProvisionGroup]",
                     description="SAML group to Zabbix role/user group mappings.",
-                    type=list[SamlProvisionGroup]),
+                    type=list[SamlProvisionGroup], init=[]),
         SchemaField("provision_media", str_type="list[SamlProvisionMedia]",
                     description="SAML attribute to Zabbix media mappings.",
-                    type=list[SamlProvisionMedia]),
+                    type=list[SamlProvisionMedia], init=[]),
 
 
         SchemaField("scim_status", str_type="ScimStatus",
                     description="SCIM provisioning status: DISABLED or ENABLED.",
-                    type=ScimStatus),
+                    type=ScimStatus, init=ScimStatus.DISABLED),
 
 
         SchemaField("saml_case_sensitive", str_type="YES or NO",
                     description="SAML case-sensitive login flag applied via authentication.update.",
-                    type=YesNo),
+                    type=YesNo, init=YesNo.YES),
     ]
 
     def __init__(
@@ -149,30 +139,14 @@ class SamlProvider(DecreeEntity):
         username_attribute: str,
         slo_url: str | None = None,
     ):
-        self.idp_entityid = idp_entityid
-        self.sp_entityid = sp_entityid
-        self.sso_url = sso_url
-        self.username_attribute = username_attribute
-        if slo_url is not None:
-            self.slo_url = slo_url
-
-        self.sign_assertions = YesNo.NO
-        self.sign_authn_requests = YesNo.NO
-        self.sign_messages = YesNo.NO
-        self.sign_logout_requests = YesNo.NO
-        self.sign_logout_responses = YesNo.NO
-        self.encrypt_assertions = YesNo.NO
-        self.encrypt_nameid = YesNo.NO
-
-        self.provision_status = ProvisionStatus.DISABLED
-        self.scim_status = ScimStatus.DISABLED
-        self.group_name = None
-        self.user_username = None
-        self.user_lastname = None
-        self.disabled_user_group = None
-        self.provision_groups = []
-        self.provision_media = []
-        self.saml_case_sensitive = YesNo.YES
+        super()._wire_up(
+            idp_entityid=idp_entityid,
+            sp_entityid=sp_entityid,
+            sso_url=sso_url,
+            username_attribute=username_attribute,
+            slo_url=slo_url,
+        )
+        self._check()
 
     def set_nameid(self, format: str, encrypt: bool = False) -> Self:
         """Set the SAML NameID format URI and optional encryption flag."""
@@ -220,13 +194,13 @@ class SamlProvider(DecreeEntity):
         """
         self.provision_status = ProvisionStatus.ENABLED
         self.group_name = group_name
-        self.disabled_user_group = disabled_user_group
+        self.disabled_user_group = disabled_user_group.name
         self.user_username = user_username
         self.user_lastname = user_lastname
         if groups is not None:
-            self.add_provision_group(groups)
+            self.link_provision_group(groups)
         if media is not None:
-            self.add_provision_media(media)
+            self.link_provision_media(media)
         return self
 
     def set_case_sensitive(self, enabled: bool) -> Self:
@@ -234,11 +208,11 @@ class SamlProvider(DecreeEntity):
         self.saml_case_sensitive = YesNo.YES if enabled else YesNo.NO
         return self
 
-    def add_provision_group(
+    def link_provision_group(
         self,
         group: SamlProvisionGroup | list[SamlProvisionGroup],
     ) -> Self:
-        """Add a SAML group-to-role mapping. Accepts SamlProvisionGroup or list. Raises on duplicate."""
+        """Link a SAML group-to-role mapping. Accepts SamlProvisionGroup or list. Raises on duplicate."""
         items = group if isinstance(group, list) else [group]
         for item in items:
             if any(existing.name == item.name for existing in self.provision_groups):
@@ -248,11 +222,11 @@ class SamlProvider(DecreeEntity):
             self.provision_groups.append(item)
         return self
 
-    def add_provision_media(
+    def link_provision_media(
         self,
         media: SamlProvisionMedia | list[SamlProvisionMedia],
     ) -> Self:
-        """Add a SAML attribute-to-media mapping. Accepts SamlProvisionMedia or list."""
+        """Link a SAML attribute-to-media mapping. Accepts SamlProvisionMedia or list."""
         items = media if isinstance(media, list) else [media]
         for item in items:
             if any(existing.name == item.name for existing in self.provision_media):
@@ -262,22 +236,7 @@ class SamlProvider(DecreeEntity):
             self.provision_media.append(item)
         return self
 
-    def disabled_user_group_to_list(self):
-        if self.disabled_user_group is None:
-            return None
-        return self.disabled_user_group.name
-
-    def to_dict(self) -> dict:
-        self._check()
-        return super().to_dict()
-
-    @classmethod
-    def from_dict(cls, data: dict) -> Self:
-        obj = super().from_dict(data)
-        obj._check()
-        return obj
-
-    def _check(self):
+    def _check(self) -> None:
         if self.provision_status == ProvisionStatus.ENABLED:
             if not self.group_name:
                 raise ValueError(

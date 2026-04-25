@@ -21,17 +21,18 @@ class Token(DecreeEntity):
     expires_at: int | str | None
 
     def __init__(self, name: str, store_at: str, expires_at: int | str | None = None):
-        self.name = name
-        self.store_at = store_at
-        self.expires_at = expires_at
-        self._wire_up()
+        self._wire_up(name=name, store_at=store_at, expires_at=expires_at)
+        self._check()
 
-    def _wire_up(self) -> None:
+    def _wire_up(self, **kwargs) -> None:
+        super()._wire_up(**kwargs)
+        self.expires_at = self._normalize_expires_at(self.expires_at)
+
+    def _check(self) -> None:
         if not self.name:
             raise ValueError("token.name must be a non-empty string")
         if not self.store_at:
             raise ValueError("token.store_at must be a file path or STDOUT")
-        self.expires_at = self._normalize_expires_at(self.expires_at)
 
     @classmethod
     def _normalize_expires_at(cls, expires_at: int | str | None) -> int | str | None:

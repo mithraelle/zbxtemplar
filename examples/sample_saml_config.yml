@@ -3,15 +3,14 @@ saml:
   sp_entityid: zabbix
   sso_url: https://example.okta.com/sso/saml
   username_attribute: usrEmail
+  encrypt_nameid: 'NO'
+  encrypt_assertions: 'YES'
+  sign_messages: 'NO'
   sign_assertions: 'YES'
   sign_authn_requests: 'NO'
-  sign_messages: 'NO'
   sign_logout_requests: 'NO'
   sign_logout_responses: 'NO'
-  encrypt_assertions: 'YES'
-  encrypt_nameid: 'NO'
-  provision_status: 1
-  scim_status: 0
+  provision_status: ENABLED
   group_name: groups
   user_username: firstName
   user_lastname: lastName
@@ -23,6 +22,7 @@ saml:
     - Templar Users
   provision_media:
   - name: Email
-    type: Email
     attribute: email
+    type: Email
+  scim_status: DISABLED
   saml_case_sensitive: 'YES'
