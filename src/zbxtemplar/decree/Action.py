@@ -5,6 +5,35 @@ from zbxtemplar.decree.action_conditions import ConditionList, ConditionExpressi
 from zbxtemplar.decree.action_operations import TriggerOperations, TriggerAckOperations, AutoregistrationOperations
 
 
+# Shared API translation tables — used by both push (executor) and pull (APIContext).
+# Direction differs (name↔id) but the shape is identical.
+
+# conditiontype -> (api_name, id_field, label)
+CONDITION_RESOLVERS = {
+    0:  ("hostgroup", "groupid",    "Host group"),
+    1:  ("host",      "hostid",     "Host"),
+    2:  ("trigger",   "triggerid",  "Trigger"),
+    13: ("template",  "templateid", "Template"),
+    18: ("drule",     "druleid",    "Discovery rule"),
+    20: ("proxy",     "proxyid",    "Proxy"),
+}
+
+# Operation sub-arrays carrying ID-shaped values.
+# (parent_key, id_field, api_name, name_field, label)
+OP_LIST_TARGETS = [
+    ("opmessage_grp", "usrgrpid",   "usergroup", "name",     "User group"),
+    ("opmessage_usr", "userid",     "user",      "username", "User"),
+    ("opgroup",       "groupid",    "hostgroup", "name",     "Host group"),
+    ("optemplate",    "templateid", "template",  "name",     "Template"),
+]
+
+# Operation single-field ID translations (parent dict carries the ID directly).
+# (parent_key, id_field, api_name, name_field, label)
+OP_DICT_TARGETS = [
+    ("opmessage", "mediatypeid", "mediatype", "name", "Media type"),
+]
+
+
 class Action(DecreeEntity, ABC):
     """Abstract base for Zabbix actions. Use TriggerAction or AutoregistrationAction."""
 

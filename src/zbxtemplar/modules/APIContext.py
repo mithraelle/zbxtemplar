@@ -1,4 +1,6 @@
-from zbxtemplar.decree.Action import Action
+from zbxtemplar.decree.Action import (
+    Action, CONDITION_RESOLVERS, OP_LIST_TARGETS, OP_DICT_TARGETS,
+)
 from zbxtemplar.decree.Encryption import HostEncryption
 from zbxtemplar.decree.saml import SamlProvider
 from zbxtemplar.decree.Token import Token
@@ -8,15 +10,6 @@ from zbxtemplar.zabbix.ZbxEntity import YesNo
 
 
 _SAML_IDP_TYPE = 2
-
-_CONDITION_RESOLVERS = {
-    0: ("hostgroup", "groupid"),
-    1: ("host", "hostid"),
-    2: ("trigger", "triggerid"),
-    13: ("template", "templateid"),
-    18: ("drule", "druleid"),
-    20: ("proxy", "proxyid"),
-}
 
 
 class APIContext:
@@ -30,77 +23,14 @@ class APIContext:
         self._host_encryptions: dict[str, HostEncryption] = {}
         self._actions: dict[str, Action] = {}
 
-        self._api_hostgroup_names: dict[str, str] = {}
-        self._api_templategroup_names: dict[str, str] = {}
-        self._api_usergroup_names: dict[str, str] = {}
-        self._api_user_names: dict[str, str] = {}
-        self._api_template_names: dict[str, str] = {}
-        self._api_role_names: dict[str, str] = {}
-        self._api_mediatype_names: dict[str, str] = {}
-        self._api_condition_names: dict[int, dict[str, str]] = {}
+        self._api_id_name: dict[tuple, dict[str, str]] = {}
 
-    def _get_hostgroup_names(self) -> dict[str, str]:
-        if not self._api_hostgroup_names:
-            self._api_hostgroup_names = {
-                g["groupid"]: g["name"]
-                for g in self._api.hostgroup.get(output=["groupid", "name"])
-            }
-        return self._api_hostgroup_names
-
-    def _get_templategroup_names(self) -> dict[str, str]:
-        if not self._api_templategroup_names:
-            self._api_templategroup_names = {
-                g["groupid"]: g["name"]
-                for g in self._api.templategroup.get(output=["groupid", "name"])
-            }
-        return self._api_templategroup_names
-
-    def _get_usergroup_names(self) -> dict[str, str]:
-        if not self._api_usergroup_names:
-            self._api_usergroup_names = {
-                g["usrgrpid"]: g["name"]
-                for g in self._api.usergroup.get(output=["usrgrpid", "name"])
-            }
-        return self._api_usergroup_names
-
-    def _get_role_names(self) -> dict[str, str]:
-        if not self._api_role_names:
-            self._api_role_names = {
-                r["roleid"]: r["name"]
-                for r in self._api.role.get(output=["roleid", "name"])
-            }
-        return self._api_role_names
-
-    def _get_mediatype_names(self) -> dict[str, str]:
-        if not self._api_mediatype_names:
-            self._api_mediatype_names = {
-                m["mediatypeid"]: m["name"]
-                for m in self._api.mediatype.get(output=["mediatypeid", "name"])
-            }
-        return self._api_mediatype_names
-
-    def _get_user_names(self) -> dict[str, str]:
-        if not self._api_user_names:
-            self._api_user_names = {
-                u["userid"]: u["username"]
-                for u in self._api.user.get(output=["userid", "username"])
-            }
-        return self._api_user_names
-
-    def _get_template_names(self) -> dict[str, str]:
-        if not self._api_template_names:
-            self._api_template_names = {
-                t["templateid"]: t["name"]
-                for t in self._api.template.get(output=["templateid", "name"])
-            }
-        return self._api_template_names
-
-    def _get_condition_names(self, ctype: int) -> dict[str, str]:
-        if ctype not in self._api_condition_names:
-            api_name, id_field = _CONDITION_RESOLVERS[ctype]
-            items = getattr(self._api, api_name).get(output=[id_field, "name"])
-            self._api_condition_names[ctype] = {item[id_field]: item["name"] for item in items}
-        return self._api_condition_names[ctype]
+    def _id_name_map(self, api_name: str, id_field: str, name_field: str = "name") -> dict[str, str]:
+        key = (api_name, id_field, name_field)
+        if key not in self._api_id_name:
+            items = getattr(self._api, api_name).get(output=[id_field, name_field])
+            self._api_id_name[key] = {item[id_field]: item[name_field] for item in items}
+        return self._api_id_name[key]
 
     def pull_user_groups(self, groups: list[str] | None = None):
         params: dict = {
@@ -112,8 +42,8 @@ class APIContext:
             params["filter"] = {"name": groups}
 
         raw_groups = self._api.usergroup.get(**params)
-        hg_names = self._get_hostgroup_names()
-        tg_names = self._get_templategroup_names()
+        hg_names = self._id_name_map("hostgroup", "groupid")
+        tg_names = self._id_name_map("templategroup", "groupid")
 
         for raw in raw_groups:
             raw["hostgroup_rights"] = [
@@ -143,8 +73,8 @@ class APIContext:
             params["filter"] = {"username": users}
 
         raw_users = self._api.user.get(**params)
-        role_names = self._get_role_names()
-        mediatype_names = self._get_mediatype_names()
+        role_names = self._id_name_map("role", "roleid")
+        mediatype_names = self._id_name_map("mediatype", "mediatypeid")
 
         by_userid = {raw["userid"]: raw for raw in raw_users}
         if by_userid:
@@ -190,9 +120,9 @@ class APIContext:
             return self
         raw_saml = raw[0]
 
-        role_names = self._get_role_names()
-        mediatype_names = self._get_mediatype_names()
-        ugroup_names = self._get_usergroup_names()
+        role_names = self._id_name_map("role", "roleid")
+        mediatype_names = self._id_name_map("mediatype", "mediatypeid")
+        ugroup_names = self._id_name_map("usergroup", "usrgrpid")
 
         for field in SamlProvider._SCHEMA:
             if field.type is YesNo and field.key in raw_saml:
@@ -281,8 +211,9 @@ class APIContext:
             for cond in f.get("conditions") or []:
                 ctype = int(cond.get("conditiontype", -1))
                 cond["conditiontype"] = ctype
-                if ctype in _CONDITION_RESOLVERS:
-                    names_map = self._get_condition_names(ctype)
+                if ctype in CONDITION_RESOLVERS:
+                    api_name, id_field, _ = CONDITION_RESOLVERS[ctype]
+                    names_map = self._id_name_map(api_name, id_field)
                     if cond.get("value") in names_map:
                         cond["value"] = names_map[cond["value"]]
             if f.get("conditions"):
@@ -302,38 +233,32 @@ class APIContext:
         for k in ("esc_step_from", "esc_step_to", "esc_period"):
             if k in op:
                 op[k] = int(op[k])
-        if "opmessage_grp" in op:
-            ugn = self._get_usergroup_names()
-            for entry in op["opmessage_grp"]:
-                if entry.get("usrgrpid") in ugn:
-                    entry["usrgrpid"] = ugn[entry["usrgrpid"]]
-        if "opmessage_usr" in op:
-            un = self._get_user_names()
-            for entry in op["opmessage_usr"]:
-                if entry.get("userid") in un:
-                    entry["userid"] = un[entry["userid"]]
+
+        for parent, id_field, api_name, name_field, _label in OP_LIST_TARGETS:
+            if parent not in op:
+                continue
+            lookup = self._id_name_map(api_name, id_field, name_field)
+            for entry in op[parent]:
+                if entry.get(id_field) in lookup:
+                    entry[id_field] = lookup[entry[id_field]]
+
+        for parent, id_field, api_name, name_field, _label in OP_DICT_TARGETS:
+            if parent not in op:
+                continue
+            value = op[parent].get(id_field)
+            if value in (None, "", "0", 0):
+                op[parent].pop(id_field, None)
+                continue
+            lookup = self._id_name_map(api_name, id_field, name_field)
+            if value in lookup:
+                op[parent][id_field] = lookup[value]
+
         if "opmessage" in op:
             msg = op["opmessage"]
-            mt = msg.get("mediatypeid")
-            if mt in (None, "", "0", 0):
-                msg.pop("mediatypeid", None)
-            else:
-                mtn = self._get_mediatype_names()
-                if mt in mtn:
-                    msg["mediatypeid"] = mtn[mt]
             for k in ("subject", "message"):
                 if msg.get(k) == "":
                     msg.pop(k)
-        if "opgroup" in op:
-            hgn = self._get_hostgroup_names()
-            for entry in op["opgroup"]:
-                if entry.get("groupid") in hgn:
-                    entry["groupid"] = hgn[entry["groupid"]]
-        if "optemplate" in op:
-            tn = self._get_template_names()
-            for entry in op["optemplate"]:
-                if entry.get("templateid") in tn:
-                    entry["templateid"] = tn[entry["templateid"]]
+
         if "opinventory" in op and "inventory_mode" in op["opinventory"]:
             op["opinventory"]["inventory_mode"] = int(op["opinventory"]["inventory_mode"])
 

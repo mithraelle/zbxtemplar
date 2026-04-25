@@ -2,88 +2,59 @@ from zbxtemplar.executor.Executor import Executor
 from zbxtemplar.executor.exceptions import ExecutorApiError
 from zbxtemplar.executor.log import log
 from zabbix_utils import APIRequestError
-from zbxtemplar.decree.Action import Action
+from zbxtemplar.decree.Action import (
+    Action, CONDITION_RESOLVERS, OP_LIST_TARGETS, OP_DICT_TARGETS,
+)
 
 
 class ActionOperation(Executor):
-    # Condition types that store names needing ID resolution
-
-    _CONDITION_RESOLVERS = {
-        0: ("hostgroup", "groupid", "Host group"),
-        1: ("host", "hostid", "Host"),
-        2: ("trigger", "triggerid", "Trigger"),
-        13: ("template", "templateid", "Template"),
-        18: ("drule", "druleid", "Discovery rule"),
-        20: ("proxy", "proxyid", "Proxy"),
-    }
-
     def __init__(self, spec: list[Action], api, base_dir=None):
         super().__init__(spec, api, base_dir)
+        self._lookups: dict[tuple, dict[str, str]] = {}
+
+    def _name_id_map(self, api_name: str, id_field: str, name_field: str = "name") -> dict[str, str]:
+        key = (api_name, id_field, name_field)
+        if key not in self._lookups:
+            items = getattr(self._api, api_name).get(output=[id_field, name_field])
+            self._lookups[key] = {item[name_field]: item[id_field] for item in items}
+        return self._lookups[key]
 
     def _resolve_conditions(self, conditions):
-        lookups = {}
         for cond in conditions:
             ct = cond["conditiontype"]
-            if ct in self._CONDITION_RESOLVERS and ct not in lookups:
-                api_name, id_field, _ = self._CONDITION_RESOLVERS[ct]
-                api = getattr(self._api, api_name)
-                lookups[ct] = {
-                    item["name"]: item[id_field]
-                    for item in api.get(output=[id_field, "name"])
-                }
+            if ct not in CONDITION_RESOLVERS:
+                continue
+            api_name, id_field, label = CONDITION_RESOLVERS[ct]
+            lookup = self._name_id_map(api_name, id_field)
+            name = cond["value"]
+            if name not in lookup:
+                raise ValueError(f"{label} '{name}' not found in Zabbix")
+            cond["value"] = lookup[name]
 
-        for cond in conditions:
-            ct = cond["conditiontype"]
-            if ct in lookups:
-                _, _, label = self._CONDITION_RESOLVERS[ct]
-                name = cond["value"]
-                if name not in lookups[ct]:
-                    raise ValueError(f"{label} '{name}' not found in Zabbix")
-                cond["value"] = lookups[ct][name]
-
-    def _resolve_operations(self, ops, ugroups, users, media_types, host_groups, templates):
+    def _resolve_operations(self, ops):
         for op in ops:
-            if "opmessage_grp" in op:
-                for entry in op["opmessage_grp"]:
-                    name = entry["usrgrpid"]
-                    if name not in ugroups:
-                        raise ValueError(f"User group '{name}' not found in Zabbix")
-                    entry["usrgrpid"] = ugroups[name]
-            if "opmessage_usr" in op:
-                for entry in op["opmessage_usr"]:
-                    name = entry["userid"]
-                    if name not in users:
-                        raise ValueError(f"User '{name}' not found in Zabbix")
-                    entry["userid"] = users[name]
-            if "opmessage" in op:
-                msg = op["opmessage"]
-                if "mediatypeid" in msg:
-                    name = msg["mediatypeid"]
-                    if name not in media_types:
-                        raise ValueError(f"Media type '{name}' not found in Zabbix")
-                    msg["mediatypeid"] = media_types[name]
-            if "opgroup" in op:
-                for entry in op["opgroup"]:
-                    name = entry["groupid"]
-                    if name not in host_groups:
-                        raise ValueError(f"Host group '{name}' not found in Zabbix")
-                    entry["groupid"] = host_groups[name]
-            if "optemplate" in op:
-                for entry in op["optemplate"]:
-                    name = entry["templateid"]
-                    if name not in templates:
-                        raise ValueError(f"Template '{name}' not found in Zabbix")
-                    entry["templateid"] = templates[name]
+            for parent, id_field, api_name, name_field, label in OP_LIST_TARGETS:
+                if parent not in op:
+                    continue
+                lookup = self._name_id_map(api_name, id_field, name_field)
+                for entry in op[parent]:
+                    name = entry[id_field]
+                    if name not in lookup:
+                        raise ValueError(f"{label} '{name}' not found in Zabbix")
+                    entry[id_field] = lookup[name]
+            for parent, id_field, api_name, name_field, label in OP_DICT_TARGETS:
+                if parent not in op or id_field not in op[parent]:
+                    continue
+                lookup = self._name_id_map(api_name, id_field, name_field)
+                name = op[parent][id_field]
+                if name not in lookup:
+                    raise ValueError(f"{label} '{name}' not found in Zabbix")
+                op[parent][id_field] = lookup[name]
 
     def _validate(self):
         pass
 
     def execute(self):
-        ugroups = {g["name"]: g["usrgrpid"] for g in self._api.usergroup.get(output=["usrgrpid", "name"])}
-        users = {u["username"]: u["userid"] for u in self._api.user.get(output=["userid", "username"])}
-        media_types = {m["name"]: m["mediatypeid"] for m in self._api.mediatype.get(output=["mediatypeid", "name"])}
-        host_groups = {g["name"]: g["groupid"] for g in self._api.hostgroup.get(output=["groupid", "name"])}
-        templates = {t["name"]: t["templateid"] for t in self._api.template.get(output=["templateid", "name"])}
         existing = {a["name"]: a["actionid"] for a in self._api.action.get(output=["actionid", "name"])}
         log.lookup_end("actions", count=len(existing))
 
@@ -96,7 +67,7 @@ class ActionOperation(Executor):
 
             for op_key in ("operations", "recovery_operations", "update_operations"):
                 if op_key in action:
-                    self._resolve_operations(action[op_key], ugroups, users, media_types, host_groups, templates)
+                    self._resolve_operations(action[op_key])
 
             if name in existing:
                 action["actionid"] = existing[name]
