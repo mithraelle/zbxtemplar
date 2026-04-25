@@ -117,9 +117,9 @@ class Context:
         for ug in decree.user_group or []:
             self._upsert(self._user_groups, ug.name, ug)
             for hg in ug.host_groups or []:
-                self._host_groups.setdefault(hg["name"], HostGroup(hg["name"]))
+                self._host_groups.setdefault(hg.name, HostGroup(hg.name))
             for tg in ug.template_groups or []:
-                self._template_groups.setdefault(tg["name"], TemplateGroup(tg["name"]))
+                self._template_groups.setdefault(tg.name, TemplateGroup(tg.name))
         for u in decree.add_user or []:
             for name in u.groups or []:
                 self._user_groups.setdefault(name, UserGroup(name))

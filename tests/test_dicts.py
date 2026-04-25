@@ -68,7 +68,7 @@ def test_decree_unknown_keys_raises():
 
 
 def test_decree_invalid_permission():
-    with pytest.raises(ValueError, match="'ADMIN' is not a valid Permission"):
+    with pytest.raises(ValueError, match="expected Permission, got 'ADMIN'"):
         Decree.from_dict({
             "user_group": [{
                 "name": "Bad Group",
