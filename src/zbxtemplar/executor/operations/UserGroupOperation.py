@@ -12,11 +12,10 @@ class UserGroupOperation(Executor):
     def _resolve_rights(self, groups, group_lookup, label):
         rights = []
         for g in groups:
-            name = g["name"]
-            if name not in group_lookup:
-                raise ValueError(f"{label} '{name}' not found in Zabbix")
-            perm = g.get("permission", Permission.READ)
-            rights.append({"id": group_lookup[name], "permission": Permission(perm).api})
+            if g.name not in group_lookup:
+                raise ValueError(f"{label} '{g.name}' not found in Zabbix")
+            perm = g.permission or Permission.READ
+            rights.append({"id": group_lookup[g.name], "permission": Permission(perm).api})
         return rights
 
     def _validate(self):

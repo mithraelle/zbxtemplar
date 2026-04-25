@@ -1,32 +1,24 @@
-from enum import StrEnum
-
-from zbxtemplar.dicts.Schema import SchemaField
+from zbxtemplar.dicts.Schema import ApiStrEnum, SchemaField
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.decree.Token import Token
 from zbxtemplar.decree.constants import ActiveStatus
 
 
-class Severity(StrEnum):
+class Severity(ApiStrEnum):
     """Trigger severity levels."""
-    NOT_CLASSIFIED = "NOT_CLASSIFIED"
-    INFORMATION = "INFORMATION"
-    WARNING = "WARNING"
-    AVERAGE = "AVERAGE"
-    HIGH = "HIGH"
-    DISASTER = "DISASTER"
+    NOT_CLASSIFIED = "NOT_CLASSIFIED", 1
+    INFORMATION    = "INFORMATION",    2
+    WARNING        = "WARNING",        4
+    AVERAGE        = "AVERAGE",        8
+    HIGH           = "HIGH",           16
+    DISASTER       = "DISASTER",       32
 
     @staticmethod
     def mask(severities: list) -> int:
         mask = 0
         for s in severities:
-            mask |= Severity._API_VALUES[s]
+            mask |= Severity(s).api
         return mask
-
-
-Severity._API_VALUES = {
-    "NOT_CLASSIFIED": 1, "INFORMATION": 2, "WARNING": 4,
-    "AVERAGE": 8, "HIGH": 16, "DISASTER": 32,
-}
 
 from zbxtemplar.decree.UserGroup import UserGroup
 
@@ -35,7 +27,8 @@ class UserMedia(DecreeEntity):
     """Notification media configuration for a managed user."""
 
     _SCHEMA = [
-        SchemaField("type", optional=False, type=str, description="Zabbix media type name."),
+        SchemaField("type", optional=False, type=str, api_key="mediatypeid",
+                    description="Zabbix media type name."),
         SchemaField("sendto", optional=False, type=str, description="Recipient address or target for the media type."),
         SchemaField("active", str_type="ENABLED or DISABLED", type=ActiveStatus,
                     description="Whether the media is enabled."),
@@ -67,9 +60,11 @@ class User(DecreeEntity):
 
     _SCHEMA = [
         SchemaField("username", optional=False, type=str, description="Zabbix username."),
-        SchemaField("role", optional=False, type=str, description="Zabbix role name assigned to the user."),
+        SchemaField("role", optional=False, type=str, api_key="roleid",
+                    description="Zabbix role name assigned to the user."),
         SchemaField("password", type=str, description="Password to set when creating or updating the user."),
-        SchemaField("groups", type=list[str], str_type="list[str]", description="User group names to attach to the user."),
+        SchemaField("groups", type=list[str], str_type="list[str]", api_key="usrgrps",
+                    description="User group names to attach to the user."),
         SchemaField("medias", type=list[UserMedia], str_type="list[UserMedia]", description="Media definitions for the user."),
         SchemaField("token", type=Token, str_type="Token", description="API token provisioning configuration for the user."),
         SchemaField("force_token", type=bool, str_type="bool", description="Update and re-generate an existing token with the same name."),
@@ -115,9 +110,6 @@ class User(DecreeEntity):
         if force:
             self.force_token = True
         return self.token
-
-    def medias_to_list(self):
-        return [m.to_dict() for m in self.medias]
 
     def _wire_up(self) -> None:
         if self.groups is None:

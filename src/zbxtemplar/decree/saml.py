@@ -262,12 +262,6 @@ class SamlProvider(DecreeEntity):
             self.provision_media.append(item)
         return self
 
-    def provision_groups_to_list(self):
-        return [group.to_dict() for group in self.provision_groups]
-
-    def provision_media_to_list(self):
-        return [media.to_dict() for media in self.provision_media]
-
     def disabled_user_group_to_list(self):
         if self.disabled_user_group is None:
             return None

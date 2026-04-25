@@ -54,6 +54,41 @@ class Schema:
     _base_dir: str = None
     _resolve_envs: bool = False
 
+    def to_dict(self) -> dict:
+        result = {}
+        for key, value in self.__dict__.items():
+            if key.startswith('_'):
+                continue
+            if value is None or value == {} or value == []:
+                continue
+            list_method = getattr(self, f'{key}_to_list', None)
+            if list_method:
+                items = list_method()
+                if items:
+                    result[key] = items
+                continue
+            serialized = self._serialize(value, key)
+            if serialized == {} or serialized == []:
+                continue
+            result[key] = serialized
+        return result
+
+    def _serialize(self, value, key):
+        if hasattr(value, 'to_dict'):
+            return value.to_dict()
+        if isinstance(value, Enum):
+            return value.value
+        if isinstance(value, list):
+            return [self._serialize(v, key) for v in value]
+        if isinstance(value, (str, int, float, bool)):
+            return value
+        if type(value).__str__ is not object.__str__:
+            return str(value)
+        raise TypeError(
+            f"{type(self).__name__}.to_dict: cannot serialize "
+            f"{key}={value!r} ({type(value).__name__})"
+        )
+
     @classmethod
     def validate(cls, data: dict) -> bool:
         if not isinstance(data, dict):
@@ -117,6 +152,17 @@ class Schema:
         if origin is list:
             item_type = args[0] if args else None
             if (
+                isinstance(item_type, type)
+                and issubclass(item_type, ApiStrEnum)
+                and not isinstance(value, list)
+            ):
+                try:
+                    mask = int(value)
+                except (TypeError, ValueError):
+                    pass
+                else:
+                    return [m for m in item_type if mask & m.api]
+            if (
                 isinstance(value, str)
                 and isinstance(item_type, type)
                 and issubclass(item_type, Enum)
@@ -155,6 +201,11 @@ class Schema:
                 return value
             if isinstance(value, str) and value in value_type.__members__:
                 return value_type[value]
+            if isinstance(value, str) and issubclass(value_type, int):
+                try:
+                    value = int(value)
+                except ValueError:
+                    pass
             try:
                 return value_type(value)
             except ValueError as e:

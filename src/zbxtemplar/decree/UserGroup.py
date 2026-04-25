@@ -25,6 +25,20 @@ class Permission(ApiStrEnum):
     READ_WRITE = "READ_WRITE", 3
 
 
+class PermissionGroup(DecreeEntity):
+    """Host or template group permission entry on a UserGroup."""
+
+    _SCHEMA = [
+        SchemaField("name", optional=False, type=str, description="Host or template group name."),
+        SchemaField("permission", optional=False, type=Permission, str_type="Permission",
+                    description="Permission level: NONE, READ, or READ_WRITE."),
+    ]
+
+    def __init__(self, name: str, permission: Permission):
+        self.name = name
+        self.permission = permission
+
+
 class UserGroup(DecreeEntity):
     """Zabbix user group and permission mapping managed by decree YAML."""
 
@@ -34,9 +48,11 @@ class UserGroup(DecreeEntity):
                     description="GUI access mode: DEFAULT, INTERNAL, LDAP, or DISABLED."),
         SchemaField("users_status", type=UsersStatus, str_type="UsersStatus",
                     description="Member users status: ENABLED or DISABLED."),
-        SchemaField("host_groups", type=list[dict], str_type="list[dict]",
+        SchemaField("host_groups", type=list[PermissionGroup], str_type="list[PermissionGroup]",
+                    api_key="hostgroup_rights",
                     description="Host group permission entries with name and permission."),
-        SchemaField("template_groups", type=list[dict], str_type="list[dict]",
+        SchemaField("template_groups", type=list[PermissionGroup], str_type="list[PermissionGroup]",
+                    api_key="templategroup_rights",
                     description="Template group permission entries with name and permission."),
     ]
 
@@ -60,21 +76,21 @@ class UserGroup(DecreeEntity):
     def link_host_group(self, group: HostGroup | str, permission: Permission):
         """Grant permission to a host group. Accepts HostGroup object or name string. Raises on duplicate."""
         name = group.name if isinstance(group, HostGroup) else group
-        if any(hg["name"] == name for hg in self.host_groups):
+        if any(pg.name == name for pg in self.host_groups):
             raise ValueError(
                 f"Duplicate host_group '{name}' on user group '{self.name}'"
             )
-        self.host_groups.append({"name": name, "permission": permission})
+        self.host_groups.append(PermissionGroup(name, permission))
         return self
 
     def link_template_group(self, group: TemplateGroup | str, permission: Permission):
         """Grant permission to a template group. Accepts TemplateGroup object or name string. Raises on duplicate."""
         name = group.name if isinstance(group, TemplateGroup) else group
-        if any(tg["name"] == name for tg in self.template_groups):
+        if any(pg.name == name for pg in self.template_groups):
             raise ValueError(
                 f"Duplicate template_group '{name}' on user group '{self.name}'"
             )
-        self.template_groups.append({"name": name, "permission": permission})
+        self.template_groups.append(PermissionGroup(name, permission))
         return self
 
     @classmethod
@@ -88,7 +104,3 @@ class UserGroup(DecreeEntity):
             self.host_groups = []
         if self.template_groups is None:
             self.template_groups = []
-        for hg in self.host_groups:
-            hg["permission"] = Permission(hg["permission"])
-        for tg in self.template_groups:
-            tg["permission"] = Permission(tg["permission"])
