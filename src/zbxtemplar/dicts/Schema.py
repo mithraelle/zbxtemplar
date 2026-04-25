@@ -13,7 +13,10 @@ SchemaRuntimeType: TypeAlias = builtins.type | GenericAlias | UnionType
 
 
 class ApiStrEnum(StrEnum):
-    """StrEnum whose members carry a Zabbix API integer via `.api`. Declare members as `NAME = "NAME", <int>`."""
+    """StrEnum whose members carry a Zabbix API integer via `.api`. Declare members as `NAME = "NAME", <int>`.
+
+    Also accepts the api integer (as int or str) for construction, e.g. ``Permission("2") is Permission.READ``.
+    """
     api: int
 
     def __new__(cls, value: str, api: int):
@@ -21,6 +24,17 @@ class ApiStrEnum(StrEnum):
         member._value_ = value
         member.api = api
         return member
+
+    @classmethod
+    def _missing_(cls, value):
+        try:
+            api_int = int(value)
+        except (TypeError, ValueError):
+            return None
+        for member in cls:
+            if member.api == api_int:
+                return member
+        return None
 
 
 @dataclass
@@ -31,6 +45,7 @@ class SchemaField:
     description: str = ""
     type: SchemaRuntimeType | None = None
     property: str | None = None
+    api_key: str | None = None
 
 
 class Schema:
@@ -185,6 +200,36 @@ class Schema:
         if isinstance(data, dict):
             return cls.from_dict(data)
         raise NotImplementedError()
+
+    @classmethod
+    def from_api(cls, data: dict) -> Self:
+        """Build an instance from a raw Zabbix API payload: recursively strip unknown keys and apply ``api_key`` renames."""
+        return cls.from_data(cls._strip_api(data))
+
+    @classmethod
+    def _strip_api(cls, data: dict) -> dict:
+        payload = {}
+        for field in cls._SCHEMA:
+            src_key = field.api_key or field.key
+            if src_key not in data:
+                continue
+            payload[field.key] = cls._strip_api_value(field.type, data[src_key])
+        return payload
+
+    @staticmethod
+    def _strip_api_value(field_type, value):
+        if value is None or field_type is None:
+            return value
+        if isinstance(field_type, type) and issubclass(field_type, Schema):
+            if isinstance(value, dict):
+                return field_type._strip_api(value)
+            return value
+        if get_origin(field_type) is list and isinstance(value, list):
+            args = get_args(field_type)
+            if args and isinstance(args[0], type) and issubclass(args[0], Schema):
+                inner = args[0]
+                return [inner._strip_api(v) if isinstance(v, dict) else v for v in value]
+        return value
 
     @staticmethod
     def _resolve_env(obj):
