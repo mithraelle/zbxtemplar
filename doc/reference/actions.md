@@ -117,10 +117,10 @@ action.update_operations.send_message(groups=[ops_group], message="Acknowledged"
 Action-level timing (TriggerAction only):
 
 ```python
-action.set_operation_step(duration=3600)   # default escalation step duration, seconds
-action.pause_suppressed()                  # pause while host is in maintenance
-action.pause_symptoms()                    # pause symptom problem notifications
-action.notify_if_canceled()
+action.set_operation_step(duration=3600)  # default escalation step duration, seconds
+action.set_pause_suppressed()  # pause while host is in maintenance
+action.set_pause_symptoms()  # pause symptom problem notifications
+action.set_notify_if_canceled()
 ```
 
 ## Operations — AutoregistrationAction

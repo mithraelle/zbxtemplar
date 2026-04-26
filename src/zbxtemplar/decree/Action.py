@@ -2,7 +2,13 @@ from abc import ABC
 
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.decree.action_conditions import ConditionList, ConditionExpression, ConditionExpr
-from zbxtemplar.decree.action_operations import TriggerOperations, TriggerAckOperations, AutoregistrationOperations
+from zbxtemplar.decree.action_operations import (
+    AutoregistrationOperations,
+    TriggerAckOperations,
+    TriggerOperations,
+    check_duration,
+)
+from zbxtemplar.zabbix.macro import Macro
 
 
 # Shared API translation tables — used by both push (executor) and pull (APIContext).
@@ -42,7 +48,13 @@ class Action(DecreeEntity, ABC):
 
     def __init__(self, name: str):
         self.name = name
+        self.status = 0
         self._filter = None
+
+    def set_state(self, enabled: bool = True):
+        """Enable (status=0) or disable (status=1) the action."""
+        self.status = 0 if enabled else 1
+        return self
 
     def set_conditions(self, conditions: ConditionList | ConditionExpression | ConditionExpr):
         """Set the action filter condition.
@@ -88,28 +100,37 @@ class TriggerAction(Action):
 
     def __init__(self, name: str):
         super().__init__(name)
-        self.operations = TriggerOperations()
-        self.recovery_operations = TriggerAckOperations()
-        self.update_operations = TriggerAckOperations()
+        self.operations: TriggerOperations = TriggerOperations()
+        self.recovery_operations: TriggerAckOperations = TriggerAckOperations()
+        self.update_operations: TriggerAckOperations = TriggerAckOperations()
+        self.esc_period = "1h"
+        self.pause_symptoms = 1
+        self.pause_suppressed = 1
+        self.notify_if_canceled = 1
 
-    def set_operation_step(self, duration: int):
-        """Set the escalation step duration in seconds."""
-        self.esc_period = duration
+    def set_operation_step(self, duration: int | str | Macro):
+        """Set the default escalation step duration.
+
+        Accepts an int (seconds, ``>= 0``), a time-unit string (``"1h"``, ``"30m"``, ``"7d"``),
+        a ``"{$MACRO}"`` reference, or a :class:`Macro` instance. Zabbix requires the
+        resulting duration to be at least 60 seconds at deploy time.
+        """
+        self.esc_period = check_duration(duration, label="set_operation_step")
         return self
 
-    def pause_symptoms(self):
-        """Suppress notifications for symptom (non-root-cause) problems."""
-        self.pause_symptoms = 0
+    def set_pause_symptoms(self, enabled: bool = True):
+        """Enable or disable suppression of notifications for symptom (non-root-cause) problems."""
+        self.pause_symptoms = 1 if enabled else 0
         return self
 
-    def pause_suppressed(self):
-        """Suppress notifications while the problem is in a maintenance window."""
-        self.pause_suppressed = 0
+    def set_pause_suppressed(self, enabled: bool = True):
+        """Enable or disable suppression of notifications during maintenance windows."""
+        self.pause_suppressed = 1 if enabled else 0
         return self
 
-    def notify_if_canceled(self):
-        """Send a notification when the action is canceled."""
-        self.notify_if_canceled = 0
+    def set_notify_if_canceled(self, enabled: bool = True):
+        """Enable or disable notification when the action is canceled."""
+        self.notify_if_canceled = 1 if enabled else 0
         return self
 
     def operations_to_list(self) -> list:
@@ -124,14 +145,16 @@ class TriggerAction(Action):
     @classmethod
     def from_dict(cls, data: dict):
         obj = cls(data["name"])
+        if "status" in data:
+            obj.status = int(data["status"])
         if "esc_period" in data:
-            obj.set_operation_step(data["esc_period"])
+            obj.esc_period = data["esc_period"]
         if "pause_symptoms" in data:
-            obj.pause_symptoms()
+            obj.pause_symptoms = int(data["pause_symptoms"])
         if "pause_suppressed" in data:
-            obj.pause_suppressed()
+            obj.pause_suppressed = int(data["pause_suppressed"])
         if "notify_if_canceled" in data:
-            obj.notify_if_canceled()
+            obj.notify_if_canceled = int(data["notify_if_canceled"])
             
         if "filter" in data:
             f = data["filter"]
@@ -160,7 +183,7 @@ class AutoregistrationAction(Action):
 
     def __init__(self, name: str):
         super().__init__(name)
-        self.operations = AutoregistrationOperations()
+        self.operations: AutoregistrationOperations = AutoregistrationOperations()
 
     def operations_to_list(self) -> list:
         return self.operations.to_list()
@@ -168,13 +191,15 @@ class AutoregistrationAction(Action):
     @classmethod
     def from_dict(cls, data: dict):
         obj = cls(data["name"])
+        if "status" in data:
+            obj.status = int(data["status"])
         if "filter" in data:
             f = data["filter"]
             if f.get("evaltype") == 3:
                 obj.set_conditions(ConditionExpression.from_dict(f))
             else:
                 obj.set_conditions(ConditionList.from_dict(f))
-                
+
         if "operations" in data:
             obj.operations = AutoregistrationOperations.from_dict(data["operations"])
         return obj

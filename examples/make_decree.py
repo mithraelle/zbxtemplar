@@ -42,18 +42,28 @@ class SampleDecree(DecreeModule):
         )
         service.add_media(MediaType.SLACK, self.get_macro("TEMPLAR_GLOBAL_MACRO").value)
 
+        duration_macro = self.add_macro("DEFAULT_DURATION_MACRO", "It's a time!")
+
         test_action = self.add_trigger_action("Test Action")
-        test_action.operations.send_message(groups=[ops_group], message="Test message")
-        test_action.recovery_operations.send_message(groups=[ops_group], message="Resolved")
-        test_action.update_operations.send_message(groups=[ops_group], message="Acknowledged")
+        test_action.operations.send_message(groups=[ops_group], message="Test message 0", step_duration=0)
+        test_action.operations.send_message(groups=[ops_group], message="Test message 120", step_duration=120, media_type=MediaType.SLACK)
+        test_action.operations.send_message(groups=[ops_group], users=[service], step_duration="3h")
+        test_action.operations.send_message(groups=[ops_group], message="Test message String Macro", step_duration="{$TEST_DURATION}")
+        test_action.recovery_operations.send_message(groups=[ops_group], message="Resolved").send_message(users=[service])
+        test_action.update_operations.send_message(groups=[ops_group], message="Acknowledged").send_message(users=[service])
         group_condition = HostGroupCondition(test_host_group)
         template_condition = HostTemplateCondition(test_template)
         test_action.set_conditions(group_condition | template_condition)
+        test_action.set_notify_if_canceled(True)
+        test_action.set_pause_symptoms(False)
+        test_action.set_operation_step(duration_macro)
 
         test_registration = self.add_autoregistration_action("Test Registration")
-        test_registration.operations.add_host()
+        test_registration.operations.add_host().add_to_group(test_host_group)
         test_registration.operations.link_template(test_template)
+        test_registration.operations.send_message(groups=[ops_group], message="Registered")
         test_registration.set_conditions(HostMetadataCondition("test", HostMetadataCondition.Op.CONTAINS))
+        test_registration.set_state(enabled=False)
 
         saml = self.set_saml(
             idp_entityid="http://www.okta.com/example",

@@ -14,7 +14,6 @@ user_group:
 add_user:
 - username: zbx-admin
   role: Super admin role
-  password: ${ZBX_ADMIN_PASSWORD}
   groups:
   - Templar Users
   medias:
@@ -23,19 +22,21 @@ add_user:
     severity: AVERAGE,HIGH,DISASTER
   - type: Slack
     sendto: '#ops-alerts'
+  password: ${ZBX_ADMIN_PASSWORD}
 - username: zbx-service
   role: User role
-  password: ${ZBX_SERVICE_PASSWORD}
   groups:
   - Templar Users
+  password: ${ZBX_SERVICE_PASSWORD}
   token:
     name: monitoring-ro
-    expires_at: NEVER
     store_at: .secrets/monitoring-ro.token
+    expires_at: NEVER
   force_token: true
 actions:
 - eventsource: 0
   name: Test Action
+  status: 0
   operations:
   - operationtype: 0
     opmessage:
@@ -46,6 +47,10 @@ actions:
     esc_step_from: 1
     esc_step_to: 1
     esc_period: 0
+  esc_period: 1h
+  pause_symptoms: 1
+  pause_suppressed: 1
+  notify_if_canceled: 1
   filter:
     evaltype: 3
     formula: A or B
@@ -60,6 +65,7 @@ actions:
       formulaid: B
 - eventsource: 2
   name: Test Registration
+  status: 0
   operations:
   - operationtype: 2
   - operationtype: 6

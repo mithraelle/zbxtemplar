@@ -230,9 +230,13 @@ class APIContext:
     def _translate_action_op(self, op: dict) -> None:
         if "operationtype" in op:
             op["operationtype"] = int(op["operationtype"])
-        for k in ("esc_step_from", "esc_step_to", "esc_period"):
+        for k in ("esc_step_from", "esc_step_to"):
             if k in op:
                 op[k] = int(op[k])
+        if "esc_period" in op:
+            v = op["esc_period"]
+            if isinstance(v, str) and v.isdigit():
+                op["esc_period"] = int(v)
 
         for parent, id_field, api_name, name_field, _label in OP_LIST_TARGETS:
             if parent not in op:

@@ -130,14 +130,14 @@ def main():
         return
 
     generate()
-    if not args.no_docker:
-        try:
+    try:
+        if not args.no_docker:
             docker_up()
-            wait_zabbix()
-            apply()
-        finally:
-            if not args.keep:
-                docker_down()
+        wait_zabbix()
+        apply()
+    finally:
+        if not args.keep:
+            docker_down()
 
 
 if __name__ == "__main__":

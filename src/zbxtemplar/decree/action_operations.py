@@ -1,4 +1,11 @@
+import re
 from typing import Self
+
+from zbxtemplar.zabbix.macro import Macro
+
+
+_TIME_UNIT_RE = re.compile(r"^\d+[smhdw]$")
+_MACRO_REF_RE = re.compile(r"^\{\$.+\}$")
 
 
 def _name(value):
@@ -7,6 +14,34 @@ def _name(value):
     if hasattr(value, 'username'):
         return value.username
     return value
+
+
+def check_duration(duration, *, label: str = "duration"):
+    """Validate a Zabbix duration value and return it normalized.
+
+    Accepts:
+
+    - ``int`` seconds — ``0`` (use action default) or ``60``..``604800`` (1 minute to 1 week).
+    - Time-unit string ``\\d+[smhdw]`` — e.g. ``"60s"``, ``"1h"``, ``"30m"``, ``"7d"``.
+    - User macro reference string ``"{$NAME}"`` or a :class:`Macro` instance.
+    """
+    if isinstance(duration, Macro):
+        return str(duration)
+    if isinstance(duration, bool):
+        raise TypeError(f"{label}: bool not accepted, got {duration!r}")
+    if isinstance(duration, int):
+        if duration != 0 and not (60 <= duration <= 604800):
+            raise ValueError(
+                f"{label}: int duration must be 0 or in 60..604800 seconds, got {duration}"
+            )
+        return duration
+    if isinstance(duration, str):
+        if not (_TIME_UNIT_RE.match(duration) or _MACRO_REF_RE.match(duration)):
+            raise ValueError(
+                f"{label}: str duration must match '\\d+[smhdw]' or '{{$NAME}}', got {duration!r}"
+            )
+        return duration
+    raise TypeError(f"{label}: expected int, str, or Macro, got {type(duration).__name__}")
 
 
 class SendMessageOperation:
@@ -21,7 +56,7 @@ class SendMessageOperation:
                  message: str | None = None,
                  step_from: int | None = None,
                  step_to: int | None = None,
-                 step_duration: int | None = None):
+                 step_duration: int | str | Macro | None = None):
         """
         Args:
             users: User objects or username strings to notify.
@@ -31,7 +66,8 @@ class SendMessageOperation:
             message: Override default message body template.
             step_from: Escalation step range start (TriggerOperations only).
             step_to: Escalation step range end (TriggerOperations only).
-            step_duration: Step duration in seconds (TriggerOperations only).
+            step_duration: Step duration — int seconds, time-unit string (e.g. ``"1h"``),
+                ``"{$MACRO}"`` reference, or a :class:`Macro` instance (TriggerOperations only).
         """
         self.users = [_name(u) for u in (users or [])]
         self.groups = [_name(g) for g in (groups or [])]
@@ -40,21 +76,22 @@ class SendMessageOperation:
         self.message = message
         self.step_from = step_from
         self.step_to = step_to
-        self.step_duration = step_duration
+        self.step_duration = (
+            check_duration(step_duration, label="step_duration")
+            if step_duration is not None else None
+        )
 
     def to_dict(self) -> dict:
         d = {"operationtype": self.operationtype}
-        opmessage = {}
+        has_custom = self.subject is not None or self.message is not None
+        opmessage: dict = {"default_msg": 0 if has_custom else 1}
         if self.media_type is not None:
             opmessage["mediatypeid"] = self.media_type
-        if self.subject is not None or self.message is not None:
-            opmessage["default_msg"] = 0
-            if self.subject is not None:
-                opmessage["subject"] = self.subject
-            if self.message is not None:
-                opmessage["message"] = self.message
-        if opmessage:
-            d["opmessage"] = opmessage
+        if self.subject is not None:
+            opmessage["subject"] = self.subject
+        if self.message is not None:
+            opmessage["message"] = self.message
+        d["opmessage"] = opmessage
         if self.users:
             d["opmessage_usr"] = [{"userid": u} for u in self.users]
         if self.groups:
@@ -97,7 +134,7 @@ class TriggerOperations:
                      subject: str | None = None,
                      message: str | None = None,
                      step_from: int = 1, step_to: int = 1,
-                     step_duration: int = 0) -> Self:
+                     step_duration: int | str | Macro = 0) -> Self:
         """Append a send-message escalation step. Returns self for chaining."""
         self._ops.append(SendMessageOperation(
             users=users, groups=groups,
@@ -220,12 +257,16 @@ class AutoregistrationOperations:
                      groups: list | None = None,
                      media_type=None,
                      subject: str | None = None,
-                     message: str | None = None) -> Self:
+                     message: str | None = None,
+                     step_from: int = 1, step_to: int = 1,
+                     step_duration: int | str | Macro = 0) -> Self:
         """Append a send-message step. Returns self for chaining."""
         self._ops.append(SendMessageOperation(
             users=users, groups=groups,
             media_type=media_type, subject=subject,
             message=message,
+            step_from=step_from, step_to=step_to,
+            step_duration=step_duration,
         ))
         return self
 
