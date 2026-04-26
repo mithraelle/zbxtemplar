@@ -188,8 +188,8 @@ class DecreeModule(BaseModule):
         return {"encryption": enc}
 
     def to_export(self) -> dict:
+        # Macros belong to Scroll, not Decree — they're emitted only via --macros-output.
         result = {}
-        result.update(self.export_macros())
         result.update(self.export_user_groups())
         result.update(self.export_saml())
         result.update(self.export_users())
