@@ -1,0 +1,4 @@
+set_macro:
+- macro: '{$DEFAULT_DURATION_MACRO}'
+  type: TEXT
+  value: It's a time!

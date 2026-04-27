@@ -59,6 +59,7 @@ def generate():
         "--actions-output", str(EXAMPLES / "sample_actions_decree.yml"),
         "--encryption-output", str(EXAMPLES / "sample_encryption_decree.yml"),
         "--saml-output", str(EXAMPLES / "sample_saml_config.yml"),
+        "--macros-output", str(EXAMPLES / "sample_decree_macro.yml"),
         label="Generate decree")
 
 
@@ -109,6 +110,15 @@ def apply():
         label="Apply scroll")
 
 
+def inquest():
+    run("zbxtemplar-inquest",
+        "--url", ZBX_URL,
+        "--user", "TemplarAdmin",
+        "--password", os.environ["ZBX_ADMIN_PASSWORD"],
+        "schema", str(EXAMPLES / "sample_decree.yml"),
+        label="Inquest (schema)")
+
+
 def docker_down():
     print("\n=== Docker down ===")
     subprocess.run(["docker", "compose", "-f", str(COMPOSE), "-p", COMPOSE_PROJECT, "down"])
@@ -135,6 +145,7 @@ def main():
             docker_up()
         wait_zabbix()
         apply()
+        inquest()
     finally:
         if not args.keep:
             docker_down()

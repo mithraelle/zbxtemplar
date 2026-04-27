@@ -257,16 +257,11 @@ class AutoregistrationOperations:
                      groups: list | None = None,
                      media_type=None,
                      subject: str | None = None,
-                     message: str | None = None,
-                     step_from: int = 1, step_to: int = 1,
-                     step_duration: int | str | Macro = 0) -> Self:
+                     message: str | None = None) -> Self:
         """Append a send-message step. Returns self for chaining."""
         self._ops.append(SendMessageOperation(
             users=users, groups=groups,
-            media_type=media_type, subject=subject,
-            message=message,
-            step_from=step_from, step_to=step_to,
-            step_duration=step_duration,
+            media_type=media_type, subject=subject, message=message
         ))
         return self
 

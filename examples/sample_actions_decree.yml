@@ -98,9 +98,6 @@ actions:
       message: Registered
     opmessage_grp:
     - usrgrpid: Templar Users
-    esc_step_from: 1
-    esc_step_to: 1
-    esc_period: 0
   filter:
     evaltype: 3
     formula: A
