@@ -1,4 +1,4 @@
-from zbxtemplar.dicts.Schema import ApiStrEnum, SchemaField
+from zbxtemplar.dicts.Schema import ApiStrEnum, SchemaField, SubsetBy
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.zabbix.Host import HostGroup
 from zbxtemplar.zabbix.Template import TemplateGroup
@@ -47,12 +47,12 @@ class UserGroup(DecreeEntity):
         SchemaField("gui_access", type=GuiAccess, str_type="GuiAccess",
                     description="GUI access mode: DEFAULT, INTERNAL, LDAP, or DISABLED."),
         SchemaField("users_status", type=UsersStatus, str_type="UsersStatus",
-                    description="Member users status: ENABLED or DISABLED."),
+                    description="Member users status: ENABLED or DISABLED.", api_default="ENABLED"),
         SchemaField("host_groups", type=list[PermissionGroup], str_type="list[PermissionGroup]",
-                    api_key="hostgroup_rights", init=[],
+                    api_key="hostgroup_rights", init=[], policy=SubsetBy("name"),
                     description="Host group permission entries with name and permission."),
         SchemaField("template_groups", type=list[PermissionGroup], str_type="list[PermissionGroup]",
-                    api_key="templategroup_rights", init=[],
+                    api_key="templategroup_rights", init=[], policy=SubsetBy("name"),
                     description="Template group permission entries with name and permission."),
     ]
 

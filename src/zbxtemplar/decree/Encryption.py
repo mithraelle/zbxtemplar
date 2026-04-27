@@ -1,6 +1,6 @@
 import copy
 
-from zbxtemplar.dicts.Schema import ApiStrEnum, Schema, SchemaField
+from zbxtemplar.dicts.Schema import ApiStrEnum, Schema, SchemaField, FieldPolicy
 
 
 class EncryptionMode(ApiStrEnum):
@@ -120,8 +120,8 @@ class HostEncryption(Encryption):
         SchemaField("host", optional=False, description="Zabbix host technical name to update."),
         SchemaField("connect", type=list[EncryptionMode], description="Comma-separated encryption modes used for outbound connections: UNENCRYPTED, PSK, or CERT."),
         SchemaField("accept", type=list[EncryptionMode], description="Comma-separated encryption modes accepted by the host: UNENCRYPTED, PSK, or CERT."),
-        SchemaField("psk_identity", description="PSK identity required when PSK mode is enabled."),
-        SchemaField("psk", description="PSK secret required when PSK mode is enabled."),
+        SchemaField("psk_identity", description="PSK identity required when PSK mode is enabled.", policy=FieldPolicy.IGNORE),
+        SchemaField("psk", description="PSK secret required when PSK mode is enabled.", policy=FieldPolicy.IGNORE),
         SchemaField("issuer", description="TLS certificate issuer required with subject when CERT mode is enabled."),
         SchemaField("subject", description="TLS certificate subject required with issuer when CERT mode is enabled."),
     ]

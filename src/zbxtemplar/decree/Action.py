@@ -8,6 +8,7 @@ from zbxtemplar.decree.action_operations import (
     TriggerOperations,
     check_duration,
 )
+from zbxtemplar.dicts.Schema import SchemaField
 from zbxtemplar.zabbix.macro import Macro
 
 

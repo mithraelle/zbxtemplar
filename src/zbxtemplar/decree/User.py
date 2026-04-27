@@ -1,4 +1,4 @@
-from zbxtemplar.dicts.Schema import ApiStrEnum, SchemaField
+from zbxtemplar.dicts.Schema import ApiStrEnum, SchemaField, SubsetBy, FieldPolicy
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.decree.Token import Token
 
@@ -36,10 +36,10 @@ class UserMedia(DecreeEntity):
                     description="Zabbix media type name."),
         SchemaField("sendto", optional=False, type=str, description="Recipient address or target for the media type."),
         SchemaField("active", str_type="ENABLED or DISABLED", type=ActiveStatus,
-                    description="Whether the media is enabled."),
+                    description="Whether the media is enabled.", api_default="ENABLED"),
         SchemaField("severity", type=list[Severity], str_type="list[Severity]",
-                    description="Enabled trigger severities."),
-        SchemaField("period", type=str, description="Zabbix media active time period, for example 1-7,00:00-24:00."),
+                    description="Enabled trigger severities.", api_default=["NOT_CLASSIFIED", "INFORMATION", "WARNING", "AVERAGE", "HIGH", "DISASTER"]),
+        SchemaField("period", type=str, description="Zabbix media active time period, for example 1-7,00:00-24:00.", api_default="1-7,00:00-24:00"),
     ]
 
     def __init__(self, media_type: str, sendto: str):
@@ -66,13 +66,14 @@ class User(DecreeEntity):
         SchemaField("username", optional=False, type=str, description="Zabbix username."),
         SchemaField("role", optional=False, type=str, api_key="roleid",
                     description="Zabbix role name assigned to the user."),
-        SchemaField("password", type=str, description="Password to set when creating or updating the user."),
+        SchemaField("password", type=str, description="Password to set when creating or updating the user.", policy=FieldPolicy.IGNORE),
         SchemaField("groups", type=list[str], str_type="list[str]", api_key="usrgrps", init=[],
                     description="User group names to attach to the user."),
         SchemaField("medias", type=list[UserMedia], str_type="list[UserMedia]", init=[],
+                    policy=SubsetBy("type"),
                     description="Media definitions for the user."),
         SchemaField("token", type=Token, str_type="Token", description="API token provisioning configuration for the user."),
-        SchemaField("force_token", type=bool, str_type="bool", description="Update and re-generate an existing token with the same name."),
+        SchemaField("force_token", type=bool, str_type="bool", description="Update and re-generate an existing token with the same name.", policy=FieldPolicy.IGNORE),
     ]
 
     def __init__(self, username: str, role: str):

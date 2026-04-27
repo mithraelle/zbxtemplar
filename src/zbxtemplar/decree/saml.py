@@ -3,7 +3,7 @@ from typing import Self
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.decree.UserGroup import UserGroup
 from zbxtemplar.decree.User import UserMedia
-from zbxtemplar.dicts.Schema import ApiStrEnum, SchemaField
+from zbxtemplar.dicts.Schema import ApiStrEnum, SchemaField, SubsetBy
 from zbxtemplar.zabbix.ZbxEntity import YesNo
 
 
@@ -76,12 +76,12 @@ class SamlProvider(DecreeEntity):
         SchemaField("idp_entityid", optional=False, description="Identity provider entity ID."),
         SchemaField("sp_entityid", optional=False, description="Zabbix service provider entity ID."),
         SchemaField("sso_url", optional=False, description="Identity provider SSO URL."),
-        SchemaField("slo_url", description="Identity provider SLO URL."),
+        SchemaField("slo_url", description="Identity provider SLO URL.", api_default=""),
         SchemaField("username_attribute", optional=False,
                     description="SAML attribute to use as the Zabbix username."),
 
 
-        SchemaField("nameid_format", description="SAML NameID format URI."),
+        SchemaField("nameid_format", description="SAML NameID format URI.", api_default=""),
         SchemaField("encrypt_nameid", str_type="YES or NO", description="Encrypt SAML NameID flag.",
                     type=YesNo, init=YesNo.NO),
 
@@ -115,10 +115,10 @@ class SamlProvider(DecreeEntity):
                     type=str, init=None),
         SchemaField("provision_groups", str_type="list[SamlProvisionGroup]",
                     description="SAML group to Zabbix role/user group mappings.",
-                    type=list[SamlProvisionGroup], init=[]),
+                    type=list[SamlProvisionGroup], init=[], policy=SubsetBy("name")),
         SchemaField("provision_media", str_type="list[SamlProvisionMedia]",
                     description="SAML attribute to Zabbix media mappings.",
-                    type=list[SamlProvisionMedia], init=[]),
+                    type=list[SamlProvisionMedia], init=[], policy=SubsetBy("name")),
 
 
         SchemaField("scim_status", str_type="ScimStatus",

@@ -34,6 +34,7 @@ test = ["pytest"]
 [project.scripts]
 zbxtemplar = "zbxtemplar.main:main"
 zbxtemplar-exec = "zbxtemplar.executor_main:main"
+zbxtemplar-inquest = "zbxtemplar.inquest_main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

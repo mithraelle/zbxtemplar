@@ -15,6 +15,16 @@ SchemaRuntimeType: TypeAlias = builtins.type | GenericAlias | UnionType
 NO_INIT = object()
 
 
+class FieldPolicy(Enum):
+    STRICT = "strict"
+    IGNORE = "ignore"
+
+
+@dataclass(frozen=True)
+class SubsetBy:
+    key: str
+
+
 class ApiStrEnum(StrEnum):
     """StrEnum whose members carry a Zabbix API integer via `.api`. Declare members as `NAME = "NAME", <int>`.
 
@@ -50,6 +60,8 @@ class SchemaField:
     property: str | None = None
     api_key: str | None = None
     init: object = NO_INIT
+    policy: FieldPolicy | SubsetBy = FieldPolicy.STRICT
+    api_default: str | list[str] | None = None
 
 
 class Schema:

@@ -6,6 +6,7 @@ from zbxtemplar.decree.saml import SamlProvider
 from zbxtemplar.decree.Token import Token
 from zbxtemplar.decree.User import User
 from zbxtemplar.decree.UserGroup import UserGroup
+from zbxtemplar.modules import Context
 from zbxtemplar.zabbix.ZbxEntity import YesNo
 
 
@@ -24,6 +25,21 @@ class APIContext:
         self._actions: dict[str, Action] = {}
 
         self._api_id_name: dict[tuple, dict[str, str]] = {}
+
+    @classmethod
+    def from_context(cls, ctx: Context, api) -> "APIContext":
+        api_ctx = cls(api)
+        if ctx._user_groups:
+            api_ctx.pull_user_groups(list(ctx._user_groups))
+        if ctx._users:
+            api_ctx.pull_users(list(ctx._users))
+        if ctx._saml is not None:
+            api_ctx.pull_saml()
+        if ctx._host_encryptions:
+            api_ctx.pull_host_encryption(list(ctx._host_encryptions))
+        if ctx._actions:
+            api_ctx.pull_actions(list(ctx._actions))
+        return api_ctx
 
     def _id_name_map(self, api_name: str, id_field: str, name_field: str = "name") -> dict[str, str]:
         key = (api_name, id_field, name_field)
@@ -191,7 +207,7 @@ class APIContext:
     def pull_actions(self, names: list[str] | None = None):
         params: dict = {
             "output": [
-                "actionid", "name", "eventsource", "esc_period",
+                "actionid", "name", "eventsource", "status", "esc_period",
                 "pause_symptoms", "pause_suppressed", "notify_if_canceled",
             ],
             "selectFilter": "extend",

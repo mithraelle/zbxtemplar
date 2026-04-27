@@ -1,6 +1,6 @@
 import time
 
-from zbxtemplar.dicts.Schema import SchemaField
+from zbxtemplar.dicts.Schema import SchemaField, FieldPolicy
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 
 
@@ -12,7 +12,7 @@ class Token(DecreeEntity):
 
     _SCHEMA = [
         SchemaField("name", optional=False, str_type="str", description="API token name."),
-        SchemaField("store_at", optional=False, str_type="str | STDOUT", description="Output sink for the generated token secret: a file path or STDOUT."),
+        SchemaField("store_at", optional=False, str_type="str | STDOUT", description="Output sink for the generated token secret: a file path or STDOUT.", policy=FieldPolicy.IGNORE),
         SchemaField("expires_at", str_type="int | NEVER", description="Token expiration as a future Unix timestamp, or NEVER for a non-expiring token."),
     ]
 
