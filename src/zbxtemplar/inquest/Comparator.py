@@ -64,6 +64,12 @@ class Comparator:
         return diffs
 
     def _compare_entity(self, local, remote, path) -> list[Diff]:
+        from zbxtemplar.decree.Action import Action
+        from zbxtemplar.inquest.ActionComparator import ActionComparator
+
+        if isinstance(local, Action):
+            return ActionComparator.compare(self, local, remote, path)
+
         diffs = []
         if getattr(local, '_SCHEMA', None):
             fields = local._SCHEMA

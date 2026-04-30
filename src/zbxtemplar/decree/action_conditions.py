@@ -140,7 +140,7 @@ class Condition(ConditionExpr):
                     obj.op = sub_cls.Op(int(data["operator"]))
                 if "value" in data:
                     obj.value = data["value"]
-                if "value2" in data:
+                if data.get("value2", "") != "":
                     obj.value2 = data["value2"]
                 if "formulaid" in data:
                     obj.formulaid = data["formulaid"]

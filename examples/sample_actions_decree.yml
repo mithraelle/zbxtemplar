@@ -29,8 +29,8 @@ actions:
     - userid: zbx-service
     opmessage_grp:
     - usrgrpid: Templar Users
-    esc_step_from: 1
-    esc_step_to: 1
+    esc_step_from: 2
+    esc_step_to: 3
     esc_period: 3h
   - operationtype: 0
     opmessage:
@@ -38,8 +38,8 @@ actions:
       message: Test message String Macro
     opmessage_grp:
     - usrgrpid: Templar Users
-    esc_step_from: 1
-    esc_step_to: 1
+    esc_step_from: 5
+    esc_step_to: 5
     esc_period: '{$TEST_DURATION}'
   recovery_operations:
   - operationtype: 0

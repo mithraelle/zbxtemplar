@@ -1,5 +1,5 @@
 from zbxtemplar.decree.Action import (
-    Action, CONDITION_RESOLVERS, OP_LIST_TARGETS, OP_DICT_TARGETS,
+    Action, AutoregistrationAction, CONDITION_RESOLVERS, OP_LIST_TARGETS, OP_DICT_TARGETS,
 )
 from zbxtemplar.decree.Encryption import HostEncryption
 from zbxtemplar.decree.saml import SamlProvider
@@ -238,6 +238,9 @@ class APIContext:
             for op_key in ("operations", "recovery_operations", "update_operations"):
                 for op in raw.get(op_key) or []:
                     self._translate_action_op(op)
+                    if raw["eventsource"] == AutoregistrationAction.eventsource:
+                        for k in ("esc_step_from", "esc_step_to", "esc_period"):
+                            op.pop(k, None)
 
             action = Action.from_dict(raw)
             self._actions[action.name] = action

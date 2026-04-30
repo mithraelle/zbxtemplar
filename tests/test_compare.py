@@ -225,3 +225,242 @@ def test_ignore_policy(show):
              ".secrets/monitoring-ro.token", "/tmp/different.token"),
     ]
     assert schema == []
+
+
+def test_action_filter_equal_all_shapes():
+    from zbxtemplar.decree.Action import AutoregistrationAction
+    from zbxtemplar.decree.action_conditions import (
+        ConditionList, EvalType, HostGroupCondition, HostTemplateCondition,
+    )
+    from zbxtemplar.inquest.ActionComparator import ActionComparator
+
+    pairs = [
+        (AutoregistrationAction("a"), AutoregistrationAction("a")),
+    ]
+
+    a = AutoregistrationAction("a")
+    a.set_conditions(ConditionList(EvalType.AND).add(HostGroupCondition("g")))
+    b = AutoregistrationAction("a")
+    b.set_conditions(ConditionList(EvalType.AND).add(HostGroupCondition("g")))
+    pairs.append((a, b))
+
+    a = AutoregistrationAction("a")
+    a.set_conditions(HostGroupCondition("g") | HostTemplateCondition("t"))
+    b = AutoregistrationAction("a")
+    b.set_conditions(HostGroupCondition("g") | HostTemplateCondition("t"))
+    pairs.append((a, b))
+
+    for local, remote in pairs:
+        assert ActionComparator.compare(RawDiff(), local, remote, "act") == []
+
+
+def test_action_filter_set_or_unset(show):
+    from zbxtemplar.decree.Action import AutoregistrationAction
+    from zbxtemplar.decree.action_conditions import HostGroupCondition
+    from zbxtemplar.inquest.ActionComparator import ActionComparator
+
+    has_filter = AutoregistrationAction("a")
+    has_filter.set_conditions(HostGroupCondition("g"))
+    bare = AutoregistrationAction("a")
+
+    diffs = ActionComparator.compare(RawDiff(), has_filter, bare, "action.a")
+    assert diffs == [Diff("action.a.filter", "ConditionExpression", None)]
+    text = _render(diffs)
+    show(text)
+    assert text == "\n".join([
+        "", HEADER, "  1 diff across 1 entity", "",
+        "  DIFF   action            a",
+        "      ~ filter:",
+        '        local:  "ConditionExpression"',
+        "        remote: null",
+        "",
+        LEGEND, "",
+    ])
+
+    diffs = ActionComparator.compare(RawDiff(), bare, has_filter, "action.a")
+    assert diffs == [Diff("action.a.filter", None, "ConditionExpression")]
+
+
+def test_action_filter_shape_mismatch(show):
+    from zbxtemplar.decree.Action import AutoregistrationAction
+    from zbxtemplar.decree.action_conditions import (
+        ConditionList, EvalType, HostGroupCondition,
+    )
+    from zbxtemplar.inquest.ActionComparator import ActionComparator
+
+    local = AutoregistrationAction("a")
+    local.set_conditions(ConditionList(EvalType.AND).add(HostGroupCondition("g")))
+    remote = AutoregistrationAction("a")
+    remote.set_conditions(HostGroupCondition("g"))
+
+    diffs = ActionComparator.compare(RawDiff(), local, remote, "action.a")
+    assert diffs == [Diff("action.a.filter", "ConditionList", "ConditionExpression")]
+    text = _render(diffs)
+    show(text)
+    assert text == "\n".join([
+        "", HEADER, "  1 diff across 1 entity", "",
+        "  DIFF   action            a",
+        "      ~ filter:",
+        '        local:  "ConditionList"',
+        '        remote: "ConditionExpression"',
+        "",
+        LEGEND, "",
+    ])
+
+
+def test_action_filter_list_branches(show):
+    from zbxtemplar.decree.Action import AutoregistrationAction
+    from zbxtemplar.decree.action_conditions import (
+        ConditionList, EvalType,
+        HostGroupCondition, HostMetadataCondition, HostTemplateCondition,
+    )
+    from zbxtemplar.inquest.ActionComparator import ActionComparator
+
+    local = AutoregistrationAction("a")
+    local.set_conditions(
+        ConditionList(EvalType.AND)
+        .add(HostGroupCondition("g1"))
+        .add(HostGroupCondition("same"))
+        .add(HostTemplateCondition("t1"))
+        .add(HostGroupCondition("only-local"))
+    )
+    remote = AutoregistrationAction("a")
+    remote.set_conditions(
+        ConditionList(EvalType.OR)
+        .add(HostGroupCondition("g2"))
+        .add(HostGroupCondition("same"))
+        .add(HostMetadataCondition("p"))
+    )
+
+    diffs = ActionComparator.compare(RawDiff(), local, remote, "action.a")
+    assert diffs == [
+        Diff("action.a.filter.evaltype", "AND", "OR"),
+        Diff("action.a.filter[0].value", "g1", "g2"),
+        Diff(
+            "action.a.filter[2]",
+            "HostTemplateCondition(op=EQUALS, value='t1')",
+            "HostMetadataCondition(op=CONTAINS, value='p')",
+        ),
+        Diff("action.a.filter", ["HostGroupCondition(op=EQUALS, value='only-local')"], None),
+    ]
+    text = _render(diffs)
+    show(text)
+    assert text == "\n".join([
+        "", HEADER, "  4 diffs across 1 entity", "",
+        "  DIFF   action            a",
+        "      ~ filter.evaltype:",
+        '        local:  "AND"',
+        '        remote: "OR"',
+        "      ~ filter[0].value:",
+        '        local:  "g1"',
+        '        remote: "g2"',
+        "      ~ filter[2]:",
+        '        local:  "HostTemplateCondition(op=EQUALS, value=\'t1\')"',
+        '        remote: "HostMetadataCondition(op=CONTAINS, value=\'p\')"',
+        '      - filter: ["HostGroupCondition(op=EQUALS, value=\'only-local\')"]',
+        "",
+        LEGEND, "",
+    ])
+
+
+def test_action_filter_expression_branches(show):
+    from zbxtemplar.decree.Action import AutoregistrationAction
+    from zbxtemplar.decree.action_conditions import ConditionExpression
+    from zbxtemplar.inquest.ActionComparator import ActionComparator
+
+    local = AutoregistrationAction("a")
+    local.set_conditions(ConditionExpression.from_dict({
+        "evaltype": 3,
+        "formula": "A and B",
+        "conditions": [
+            {"conditiontype": 0,  "operator": 0, "value": "g-local",  "formulaid": "A"},
+            {"conditiontype": 13, "operator": 0, "value": "t-shared", "formulaid": "B"},
+        ],
+    }))
+    remote = AutoregistrationAction("a")
+    remote.set_conditions(ConditionExpression.from_dict({
+        "evaltype": 3,
+        "formula": "A or B or C",
+        "conditions": [
+            {"conditiontype": 0,  "operator": 0, "value": "g-remote", "formulaid": "A"},
+            {"conditiontype": 13, "operator": 0, "value": "t-shared", "formulaid": "B"},
+            {"conditiontype": 0,  "operator": 0, "value": "extra",    "formulaid": "C"},
+        ],
+    }))
+
+    diffs = ActionComparator.compare(RawDiff(), local, remote, "action.a")
+    assert diffs == [
+        Diff("action.a.filter.formula", "A and B", "A or B or C"),
+        Diff("action.a.filter", None, ["HostGroupCondition(op=EQUALS, value='extra')"]),
+        Diff("action.a.filter[A].value", "g-local", "g-remote"),
+    ]
+    text = _render(diffs)
+    show(text)
+    assert text == "\n".join([
+        "", HEADER, "  3 diffs across 1 entity", "",
+        "  DIFF   action            a",
+        "      ~ filter.formula:",
+        '        local:  "A and B"',
+        '        remote: "A or B or C"',
+        '      + filter: ["HostGroupCondition(op=EQUALS, value=\'extra\')"]',
+        "      ~ filter[A].value:",
+        '        local:  "g-local"',
+        '        remote: "g-remote"',
+        "",
+        LEGEND, "",
+    ])
+
+
+def test_action_op_grouping_pairing_tails(show):
+    from zbxtemplar.decree.Action import AutoregistrationAction
+    from zbxtemplar.decree.action_operations import SetInventoryModeOperation
+    from zbxtemplar.inquest.ActionComparator import ActionComparator
+
+    local = AutoregistrationAction("act")
+    local.operations.send_message(users=["alice"], subject="A")
+    local.operations.add_host()
+    local.operations.add_to_group("g1")
+    local.operations.link_template("t1")
+    local.operations.set_inventory_mode(SetInventoryModeOperation.MANUAL)
+    local.operations.disable_host()
+
+    remote = AutoregistrationAction("act")
+    remote.operations.send_message(users=["alice"], subject="A_PRIME")
+    remote.operations.add_host()
+    remote.operations.add_to_group("g2")
+    remote.operations.link_template("t2")
+    remote.operations.set_inventory_mode(SetInventoryModeOperation.AUTOMATIC)
+    remote.operations.enable_host()
+
+    diffs = ActionComparator.compare(RawDiff(), local, remote, "action.act")
+    assert diffs == [
+        Diff("action.act.operations[SendMessageOperation][0].subject", "A", "A_PRIME"),
+        Diff("action.act.operations[AddToGroupOperation][0].group", "g1", "g2"),
+        Diff("action.act.operations[LinkTemplateOperation][0].template", "t1", "t2"),
+        Diff("action.act.operations", None, ["EnableHostOperation"]),
+        Diff("action.act.operations", ["DisableHostOperation"], None),
+        Diff("action.act.operations[SetInventoryModeOperation][0].inventory_mode", 0, 1),
+    ]
+
+    text = _render(diffs)
+    show(text)
+    assert text == "\n".join([
+        "", HEADER, "  6 diffs across 1 entity", "",
+        "  DIFF   action            act",
+        "      ~ operations[SendMessageOperation][0].subject:",
+        '        local:  "A"',
+        '        remote: "A_PRIME"',
+        "      ~ operations[AddToGroupOperation][0].group:",
+        '        local:  "g1"',
+        '        remote: "g2"',
+        "      ~ operations[LinkTemplateOperation][0].template:",
+        '        local:  "t1"',
+        '        remote: "t2"',
+        '      + operations: ["EnableHostOperation"]',
+        '      - operations: ["DisableHostOperation"]',
+        "      ~ operations[SetInventoryModeOperation][0].inventory_mode:",
+        "        local:  0",
+        "        remote: 1",
+        "",
+        LEGEND, "",
+    ])
