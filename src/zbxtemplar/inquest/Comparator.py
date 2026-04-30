@@ -8,16 +8,18 @@ _SCALAR_TYPES = (str, int, float, bool, bytes, Enum, type(None))
 
 
 class Comparator:
-    def compare(self, ctx: Context, api_ctx: APIContext) -> list[Diff]:
-        registries = [
+    def _registries(self, ctx: Context, api_ctx: APIContext):
+        return [
             ("user_group",  ctx._user_groups,       api_ctx._user_groups),
             ("user",        ctx._users,             api_ctx._users),
             ("encryption",  ctx._host_encryptions,  api_ctx._host_encryptions),
             ("action",      ctx._actions,           api_ctx._actions),
         ]
+
+    def compare(self, ctx: Context, api_ctx: APIContext) -> list[Diff]:
         diffs = []
-        for label, local, remote in registries:
-            if local is not None:
+        for label, local, remote in self._registries(ctx, api_ctx):
+            if local:
                 diffs += self._compare_registry(label, local, remote)
         if ctx._saml is not None:
             if api_ctx._saml is None:
@@ -25,6 +27,16 @@ class Comparator:
             else:
                 diffs += self._compare_entity(ctx._saml, api_ctx._saml, "saml")
         return diffs
+
+    def checked(self, ctx: Context, api_ctx: APIContext) -> list[tuple[str, str]]:
+        """(label, name) for every entity this comparator would inspect."""
+        out: list[tuple[str, str]] = []
+        for label, local, _ in self._registries(ctx, api_ctx):
+            if local:
+                out.extend((label, name) for name in local)
+        if ctx._saml is not None:
+            out.append(("saml", ""))
+        return out
 
     def _compare_registry(self, label: str, local, remote) -> list[Diff]:
         diffs = self._compare_list(label, local.keys(), remote.keys())
@@ -99,3 +111,4 @@ class SchemaDiff(Comparator):
         ):
             return False
         return True
+
