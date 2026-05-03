@@ -107,20 +107,22 @@ action.operations.send_message(
     message="{EVENT.NAME} on {HOST.NAME}",
     step_from=1,                  # escalation step range (TriggerOperations only)
     step_to=1,
-    step_duration=0,              # 0 = use action default
+    step_duration=0,              # int seconds (0 = action default), "1h" / "30m" / "{$NAME}", or Macro
 )
 
 action.recovery_operations.send_message(groups=[ops_group], message="Resolved")
 action.update_operations.send_message(groups=[ops_group], message="Acknowledged")
 ```
 
-Action-level timing (TriggerAction only):
+Action-level toggles (TriggerAction only). `pause_suppressed`, `pause_symptoms`, and
+`notify_if_canceled` are **on by default** — call with `False` to disable:
 
 ```python
-action.set_operation_step(duration=3600)  # default escalation step duration, seconds
-action.set_pause_suppressed()  # pause while host is in maintenance
-action.set_pause_symptoms()  # pause symptom problem notifications
-action.set_notify_if_canceled()
+action.set_operation_step(3600)             # int seconds, "1h" / "30m" / "{$NAME}", or Macro
+action.set_pause_suppressed(False)          # don't pause while host is in maintenance
+action.set_pause_symptoms(False)            # don't pause symptom problem notifications
+action.set_notify_if_canceled(False)        # don't send a final notification on cancel
+action.set_state(False)                     # disable the action (default: enabled)
 ```
 
 ## Operations — AutoregistrationAction

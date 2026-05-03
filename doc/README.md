@@ -9,6 +9,7 @@ This directory is the structured documentation for `zbxtemplar`.
 - `TemplarModule` generates Zabbix-native YAML for templates and hosts.
 - `DecreeModule` generates decree YAML for users, user groups, SAML directories, actions, host encryption, and global macros.
 - `zbxtemplar-exec` applies those artifacts to a live Zabbix instance.
+- `zbxtemplar-inquest` compares declared YAML against live Zabbix state (read-only).
 
 The project is aimed at teams who want monitoring configuration, access control, SSO provisioning, host security, and alert routing to live in code and git instead of being managed manually in the Zabbix UI.
 
@@ -40,6 +41,9 @@ The project is aimed at teams who want monitoring configuration, access control,
 
 - [Executor Guide](./executor.md)  
   Authentication, apply/decree/scroll workflows, environment interpolation, and operational guidance.
+
+- [Inquest Guide](./inquest.md)  
+  Compare declared YAML against live Zabbix state — read-only diff for review and drift checks.
 
 - [Security & Safety](./security.md)  
   Secret management, macro types, host encryption, token safety, fail-fast validation, and the two-stage validation model.

@@ -2,7 +2,7 @@
 
 A Pythonic framework for programmatic Zabbix configuration generation — Monitoring as Code.
 
-Define templates, hosts, user groups, users, SAML directories, actions, and host encryption as Python code. `TemplarModule` emits Zabbix-native YAML (importable via UI or API); `DecreeModule` emits decree YAML (applied by `zbxtemplar-exec`). The goal is to cover the essential Zabbix configuration primitives — not every possible option. If you need a field that isn't exposed, raw dicts provide an escape hatch.
+Define templates, hosts, user groups, users, SAML directories, actions, and host encryption as Python code. `TemplarModule` emits Zabbix-native YAML (importable via UI or API); `DecreeModule` emits decree YAML (applied by `zbxtemplar-exec`). `zbxtemplar-inquest` is a read-only diff between the declared YAML and a live Zabbix server, for confirming an apply landed correctly and for catching drift between code and what is actually deployed. The goal is to cover the essential Zabbix configuration primitives — not every possible option. If you need a field that isn't exposed, raw dicts provide an escape hatch.
 
 Aimed at teams that want:
 
@@ -83,7 +83,7 @@ Install:
 pip install .
 ```
 
-Python 3.11+ is required. The install includes both the generator (`zbxtemplar`) and the executor (`zbxtemplar-exec`).
+Python 3.11+ is required. The install includes the generator (`zbxtemplar`), the executor (`zbxtemplar-exec`), and the inquest CLI (`zbxtemplar-inquest`).
 
 ## Typical Workflow
 
@@ -108,6 +108,7 @@ The structured docs live in [`doc/`](./doc/README.md):
 - [`doc/authoring-actions.md`](./doc/authoring-actions.md) for action conditions and operations
 - [`doc/cli-reference.md`](./doc/cli-reference.md) for CLI flags, `--param`, `--context`, and module-loading behavior
 - [`doc/executor.md`](./doc/executor.md) for apply/decree/scroll usage
+- [`doc/inquest.md`](./doc/inquest.md) for the read-only diff against live Zabbix
 - [`doc/security.md`](./doc/security.md) for the operational safety model
 - [`doc/decree_reference.md`](./doc/decree_reference.md) for the generated YAML schema reference
 - [`doc/reference/`](./doc/reference/README.md) for compact lookup tables, including the trigger function glossary
@@ -123,7 +124,6 @@ Good fit:
 Out of scope:
 
 - a generic Zabbix API client — `zbxtemplar` covers the configuration primitives needed for the workflow, not every API endpoint
-- a dry-run / diff engine — the safety model is "test environment first, production second" (see [Getting Started — Typical Workflow](./doc/getting-started.md))
 - unattended autonomous deployment — the executor is built for reviewed pipelines, not self-healing reconciliation
 
 ## License

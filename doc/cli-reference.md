@@ -40,11 +40,11 @@ For `DecreeModule`:
 - `--saml-output`
 - `--actions-output`
 - `--encryption-output`
-- `--macros-output` — **optional**; module-level macros are already in `-o`
+- `--macros-output` — **required** when the module defines module-level macros
 
-### Why `--macros-output` is asymmetric
+### Why `--macros-output` is its own flag
 
-Zabbix's native `zabbix_export` format has no slot for global macros, so `TemplarModule` cannot pack them into `-o` and forces a separate file. Decree YAML has a first-class `set_macro` section, so `DecreeModule` includes module-level macros in `-o` by default and `--macros-output` is just a way to split them off.
+Module-level macros are global Zabbix macros — applied via `usermacro.createglobal` / `usermacro.updateglobal`, not via the regular import path. They have no native slot in `zabbix_export`, and they are emitted as a `set_macro` scroll section rather than mixed into the decree output, so they always travel in their own file regardless of module type.
 
 ### Other flags
 
