@@ -126,9 +126,10 @@ class WithMacros():
         templates = getattr(self, "templates", None)
         if templates:
             for t in templates:
-                macro = t.get_macro(name)
-                if macro is not None:
-                    return macro
+                try:
+                    return t.get_macro(name)
+                except KeyError:
+                    continue
 
         macro = self._lookup.get(clean_name)
         if macro is not None:

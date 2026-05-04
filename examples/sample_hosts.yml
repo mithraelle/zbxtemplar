@@ -30,6 +30,7 @@ zabbix_export:
         description: Host trigger using two items
       interface_ref: if1
     templates:
+    - name: Linux by Zabbix agent
     - name: Test Template
     groups:
     - name: Templar Hosts

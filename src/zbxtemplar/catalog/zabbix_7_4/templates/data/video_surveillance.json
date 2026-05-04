@@ -1,0 +1,599 @@
+[
+  {
+    "items": [
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Boot loader released date",
+        "uuid": "c6bd203f679042d38be8da9936b07647",
+        "key": "hikvision_cam.boot_released_date",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Boot loader version",
+        "uuid": "ff78c656e5a7417caff8b84b4893149e",
+        "key": "hikvision_cam.boot_version",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "SOFTWARE_APP_E"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "cpu"
+          }
+        ],
+        "name": "CPU utilization",
+        "uuid": "74360a1d7ac148a5b5b1b4c9c035fddf",
+        "key": "hikvision_cam.cpu.util",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "Hikvision: High CPU utilization",
+            "uuid": "6821d93e7b7149b39122c30b423b247e",
+            "expression": "min(/Hikvision camera by HTTP/hikvision_cam.cpu.util,5m)>{$CPU.UTIL.CRIT}",
+            "priority": "WARNING",
+            "description": "The CPU utilization is too high. The system might be slow to respond."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Current device time",
+        "uuid": "070012fe4b824225bb41512141ad52a4",
+        "key": "hikvision_cam.current_device_time",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Device description",
+        "uuid": "7b06fefa225b458bb08b07976bb38a9e",
+        "key": "hikvision_cam.device_description",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "NOTES"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Device ID",
+        "uuid": "45746b4e96a44b9888129bb98f9e67a5",
+        "key": "hikvision_cam.device_id",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Device location",
+        "uuid": "9c8e69477d8541839fd2c44625a7e418",
+        "key": "hikvision_cam.device_location",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "LOCATION"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Device name",
+        "uuid": "13427e809d1c45a4ac3f852603c4789f",
+        "key": "hikvision_cam.device_name",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "NAME"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Device type",
+        "uuid": "b37e21a00ac247528a529948282ae42f",
+        "key": "hikvision_cam.device_type",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "TYPE"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Encoder released date",
+        "uuid": "22575f7cfa87476fab4d7646d933c095",
+        "key": "hikvision_cam.encoder_released_date",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "SOFTWARE_APP_D"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Encoder version",
+        "uuid": "36904c50ee554145b09b9d657b1a13a1",
+        "key": "hikvision_cam.encoder_version",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "SOFTWARE_APP_C"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Firmware released date",
+        "uuid": "c6ffe8d98fd24eccb05e34d442e59016",
+        "key": "hikvision_cam.firmware_released_date",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "SOFTWARE_APP_B"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Firmware version",
+        "uuid": "e10c950523974daebc254da3a6173f97",
+        "key": "hikvision_cam.firmware_version",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "Hikvision: Version has changed",
+            "uuid": "49bf596950cb4a85aaba2f9e7845e507",
+            "expression": "last(/Hikvision camera by HTTP/hikvision_cam.firmware_version,#1)<>last(/Hikvision camera by HTTP/hikvision_cam.firmware_version,#2) and length(last(/Hikvision camera by HTTP/hikvision_cam.firmware_version))>0",
+            "priority": "INFO",
+            "description": "Hikvision camera version has changed. Acknowledge to close the problem manually."
+          }
+        ],
+        "inventory_link": "SOFTWARE_APP_A"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get device info",
+        "uuid": "e83212c786824e74998824e3721f2ad3",
+        "key": "hikvision_cam.get_info",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Get device info: Login status",
+        "uuid": "d6fc07b57a7c4ea7b5dc77237ba2a45f",
+        "key": "hikvision_cam.get_info.login_status",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get system status",
+        "uuid": "44845b2c39b24498a060b48f422d35b8",
+        "key": "hikvision_cam.get_status",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Get system status: Login status",
+        "uuid": "1ec8078a86dc4679b5078681f93f5f50",
+        "key": "hikvision_cam.get_status.login_status",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get streaming channels",
+        "uuid": "7f738fabf1294ec6b3fd6dd2cf8d2a83",
+        "key": "hikvision_cam.get_streaming",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Get streaming channels: Login status",
+        "uuid": "5c08b52533d64aa4bb9d728a98de6a2a",
+        "key": "hikvision_cam.get_streaming.login_status",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Hardware version",
+        "uuid": "8d452fae211c477d8f56da8604529d9d",
+        "key": "hikvision_cam.hardware_version",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "MACaddress",
+        "uuid": "7fd92e464dc64bdcade8fca7a1b0ce2b",
+        "key": "hikvision_cam.mac_address",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "MACADDRESS_A"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "memory"
+          }
+        ],
+        "name": "Memory utilization",
+        "uuid": "0e5879298c254bae8bd877034cdfafc5",
+        "key": "hikvision_cam.memory.usage",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "Hikvision: High memory utilization",
+            "uuid": "2a84a9260aca4b6589c675ba71f303d6",
+            "expression": "min(/Hikvision camera by HTTP/hikvision_cam.memory.usage,5m)>{$MEMORY.UTIL.MAX}",
+            "priority": "AVERAGE",
+            "description": "The system is running out of free memory."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Model",
+        "uuid": "49723c45ef614ed38fa6ee62f67ba856",
+        "key": "hikvision_cam.model",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "MODEL"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Serial number",
+        "uuid": "00f4ab33abd147c19f11e96dc91aa743",
+        "key": "hikvision_cam.serial_number",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "Hikvision: Camera has been replaced",
+            "uuid": "e778d65b3805447ebcad4a2505a240db",
+            "expression": "last(/Hikvision camera by HTTP/hikvision_cam.serial_number,#1)<>last(/Hikvision camera by HTTP/hikvision_cam.serial_number,#2) and length(last(/Hikvision camera by HTTP/hikvision_cam.serial_number))>0",
+            "priority": "INFO",
+            "description": "Camera serial number has changed. Acknowledge to close the problem manually."
+          }
+        ],
+        "inventory_link": "SERIALNO_A"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Supported beep",
+        "uuid": "2a1f9ba545cf400e942ca5667df8acd7",
+        "key": "hikvision_cam.support_beep",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Supported video loss",
+        "uuid": "6e9767532aa54cedba9ba093bbda3a85",
+        "key": "hikvision_cam.support_video_loss",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System contact",
+        "uuid": "7a36c3504e4c46679635bddd3f566cb5",
+        "key": "hikvision_cam.system_contact",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "CONTACT"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Telecontrol ID",
+        "uuid": "1d1e5b8f327147bb812929fc738c6763",
+        "key": "hikvision_cam.telecontrol_id",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Uptime",
+        "uuid": "fc9838195ddd43ae805992efdb8eaf48",
+        "key": "hikvision_cam.uptime",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "0",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "Hikvision: Camera has been restarted",
+            "uuid": "4f57e1a126bf4ad3b621f037084ba6bc",
+            "expression": "last(/Hikvision camera by HTTP/hikvision_cam.uptime)<10m",
+            "priority": "INFO",
+            "description": "Uptime is less than 10 minutes."
+          }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "name": "Templates/Video surveillance"
+      }
+    ],
+    "macros": [
+      {
+        "macro": "{$CPU.UTIL.CRIT}",
+        "type": "TEXT",
+        "value": "90"
+      },
+      {
+        "macro": "{$HIKVISION_ISAPI_HOST}",
+        "type": "TEXT",
+        "value": "<SET ISAPI HOST>",
+        "description": "The hostname or IP address of the Hikvision ISAPI host."
+      },
+      {
+        "macro": "{$HIKVISION_ISAPI_PORT}",
+        "type": "TEXT",
+        "value": "80",
+        "description": "ISAPI port on device"
+      },
+      {
+        "macro": "{$HIKVISION_MAIN_CHANNEL_ID}",
+        "type": "TEXT",
+        "value": "101",
+        "description": "Main video stream ID"
+      },
+      {
+        "macro": "{$HIKVISION_STREAM_HEIGHT}",
+        "type": "TEXT",
+        "value": "1080",
+        "description": "Main video stream image height"
+      },
+      {
+        "macro": "{$HIKVISION_STREAM_WIDTH}",
+        "type": "TEXT",
+        "value": "1920",
+        "description": "Main video stream image width"
+      },
+      {
+        "macro": "{$MEMORY.UTIL.MAX}",
+        "type": "TEXT",
+        "value": "95"
+      },
+      {
+        "macro": "{$PASSWORD}",
+        "type": "SECRET_TEXT",
+        "value": ""
+      },
+      {
+        "macro": "{$USER}",
+        "type": "TEXT",
+        "value": "admin"
+      }
+    ],
+    "tags": [
+      {
+        "tag": "class",
+        "value": "hardware"
+      },
+      {
+        "tag": "target",
+        "value": "hikvision"
+      }
+    ],
+    "name": "Hikvision camera by HTTP",
+    "uuid": "cea75cd3efec4a98bb300cad540fbb6c",
+    "template": "Hikvision camera by HTTP"
+  }
+]

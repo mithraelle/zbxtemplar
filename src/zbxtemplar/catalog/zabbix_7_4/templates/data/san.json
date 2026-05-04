@@ -1,0 +1,5576 @@
+[
+  {
+    "items": [
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get disk group statistics",
+        "uuid": "eb4863aa0bea492d9ea1ca8ae4833cbb",
+        "key": "hpe.msa.disks.get.groups.statistics",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get controllers",
+        "uuid": "d0886fd7c26c420b8ed064fb7026679e",
+        "key": "hpe.msa.get.controllers",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get controller statistics",
+        "uuid": "777e832e3e9646a2bd36d6008a992309",
+        "key": "hpe.msa.get.controller_statistics",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get data",
+        "uuid": "f561c35d364647b6a1e5f9030e1801d6",
+        "key": "hpe.msa.get.data",
+        "type": "SCRIPT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get disks",
+        "uuid": "d5f0ad86037e47469ea80578285a735c",
+        "key": "hpe.msa.get.disks",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get disk groups",
+        "uuid": "c5487f410f3f42ea8e2d549490bc65b3",
+        "key": "hpe.msa.get.disks.groups",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get enclosures",
+        "uuid": "552bf3c078224936bb2239ab4e646b08",
+        "key": "hpe.msa.get.enclosures",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "errors"
+          }
+        ],
+        "name": "Get method errors",
+        "uuid": "31fd48af7e224960983e7f6c6a6ea62c",
+        "key": "hpe.msa.get.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "HPE MSA 2040 Storage: There are errors in method requests to API",
+            "uuid": "f5b5cf9a77b1463da769132a3709bab6",
+            "expression": "length(last(/HPE MSA 2040 Storage by HTTP/hpe.msa.get.errors))>0",
+            "priority": "AVERAGE",
+            "description": "There are errors in method requests to API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get fans",
+        "uuid": "7e518444583746a38186e5c7d9bb000e",
+        "key": "hpe.msa.get.fans",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get FRU",
+        "uuid": "99c02ea38af84c528ffefe7f962bd4ff",
+        "key": "hpe.msa.get.fru",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get pools",
+        "uuid": "039abe1bef1846eab25180df852bf9e1",
+        "key": "hpe.msa.get.pools",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get ports",
+        "uuid": "a0bf86c0c0f74ba0888a2cd086f5364f",
+        "key": "hpe.msa.get.ports",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get power supplies",
+        "uuid": "9e9c68323c0e457895604d7c9d075423",
+        "key": "hpe.msa.get.power_supplies",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get system",
+        "uuid": "6f3e1d82655f4b02849911fe11851432",
+        "key": "hpe.msa.get.system",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get volumes",
+        "uuid": "65c7498927f44ca6a9baea90c65eaafb",
+        "key": "hpe.msa.get.volumes",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get volume statistics",
+        "uuid": "10be826f539541af90f5bcf8eb260338",
+        "key": "hpe.msa.get.volumes.statistics",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System contact",
+        "uuid": "0d39659e8ce443728ec616199526f5f2",
+        "key": "hpe.msa.system.contact",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "CONTACT"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System health",
+        "uuid": "a745668d19de419aa523f34a49c39351",
+        "key": "hpe.msa.system.health",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "HPE MSA 2040 Storage: System health is in degraded state",
+            "uuid": "d25989c6940e48deb9e7454f5e8dd47b",
+            "expression": "last(/HPE MSA 2040 Storage by HTTP/hpe.msa.system.health)=1",
+            "priority": "WARNING",
+            "description": "System health is in degraded state."
+          },
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "HPE MSA 2040 Storage: System health is in fault state",
+            "uuid": "b9ff6c1897bd457eb418c912409f5737",
+            "expression": "last(/HPE MSA 2040 Storage by HTTP/hpe.msa.system.health)=2",
+            "priority": "AVERAGE",
+            "description": "System health is in fault state."
+          },
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "HPE MSA 2040 Storage: System health is in unknown state",
+            "uuid": "e8bda52339084ef2a703b73009e4d556",
+            "expression": "last(/HPE MSA 2040 Storage by HTTP/hpe.msa.system.health)=3",
+            "priority": "INFO",
+            "description": "System health is in unknown state."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System information",
+        "uuid": "6035798efe7d4336a8ee5c2bb382ff38",
+        "key": "hpe.msa.system.info",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "NOTES"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System location",
+        "uuid": "1322d297418f42ccb8343c3e30c38313",
+        "key": "hpe.msa.system.location",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "LOCATION"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System name",
+        "uuid": "7ac32cd0f46f428e8dc1ed4fab47193b",
+        "key": "hpe.msa.system.name",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "NAME"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Product ID",
+        "uuid": "27c1b40fe425487d90a80986a02b8338",
+        "key": "hpe.msa.system.product_id",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "MODEL"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Vendor name",
+        "uuid": "57a4c0b56ad741a888fd59beb6b45637",
+        "key": "hpe.msa.system.vendor_name",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "VENDOR"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "Service ping",
+        "uuid": "eda86bb9b00e410d8c9f37b712e917ae",
+        "key": "net.tcp.service[\"{$HPE.MSA.API.SCHEME}\",\"{$HPE.MSA.API.HOST}\",\"{$HPE.MSA.API.PORT}\"]",
+        "type": "SIMPLE",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "HPE MSA 2040 Storage: Service is down or unavailable",
+            "uuid": "49e323af73674742a7c51c8c2a406c93",
+            "expression": "max(/HPE MSA 2040 Storage by HTTP/net.tcp.service[\"{$HPE.MSA.API.SCHEME}\",\"{$HPE.MSA.API.HOST}\",\"{$HPE.MSA.API.PORT}\"],5m)=0",
+            "priority": "HIGH",
+            "description": "HTTP/HTTPS service is down or unable to establish TCP connection."
+          }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "name": "Templates/SAN"
+      }
+    ],
+    "macros": [
+      {
+        "macro": "{$HPE.MSA.API.HOST}",
+        "type": "TEXT",
+        "value": "<SET API HOST>",
+        "description": "The hostname or IP address of the API host."
+      },
+      {
+        "macro": "{$HPE.MSA.API.PASSWORD}",
+        "type": "SECRET_TEXT",
+        "value": "",
+        "description": "Specify password for API."
+      },
+      {
+        "macro": "{$HPE.MSA.API.PORT}",
+        "type": "TEXT",
+        "value": "443",
+        "description": "Connection port for API."
+      },
+      {
+        "macro": "{$HPE.MSA.API.SCHEME}",
+        "type": "TEXT",
+        "value": "https",
+        "description": "Connection scheme for API."
+      },
+      {
+        "macro": "{$HPE.MSA.API.USERNAME}",
+        "type": "TEXT",
+        "value": "zabbix",
+        "description": "Specify user name for API."
+      },
+      {
+        "macro": "{$HPE.MSA.CONTROLLER.CPU.UTIL.CRIT}",
+        "type": "TEXT",
+        "value": "90",
+        "description": "The critical threshold of the CPU utilization expressed in %."
+      },
+      {
+        "macro": "{$HPE.MSA.DATA.TIMEOUT}",
+        "type": "TEXT",
+        "value": "30s",
+        "description": "Response timeout for API."
+      },
+      {
+        "macro": "{$HPE.MSA.DISKS.GROUP.PUSED.MAX.CRIT}",
+        "type": "TEXT",
+        "value": "90",
+        "description": "The critical threshold of the disk group space utilization in %."
+      },
+      {
+        "macro": "{$HPE.MSA.DISKS.GROUP.PUSED.MAX.WARN}",
+        "type": "TEXT",
+        "value": "80",
+        "description": "The warning threshold of the disk group space utilization in %."
+      },
+      {
+        "macro": "{$HPE.MSA.POOL.PUSED.MAX.CRIT}",
+        "type": "TEXT",
+        "value": "90",
+        "description": "The critical threshold of the pool space utilization in %."
+      },
+      {
+        "macro": "{$HPE.MSA.POOL.PUSED.MAX.WARN}",
+        "type": "TEXT",
+        "value": "80",
+        "description": "The warning threshold of the pool space utilization in %."
+      }
+    ],
+    "tags": [
+      {
+        "tag": "class",
+        "value": "storage"
+      },
+      {
+        "tag": "target",
+        "value": "msa-2040"
+      }
+    ],
+    "name": "HPE MSA 2040 Storage by HTTP",
+    "uuid": "750808f3df7b461ab85217f64505bc34",
+    "template": "HPE MSA 2040 Storage by HTTP"
+  },
+  {
+    "items": [
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get disk group statistics",
+        "uuid": "eb4863aa0bea492d9ea1ca8ae4833cbb",
+        "key": "hpe.msa.disks.get.groups.statistics",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get controllers",
+        "uuid": "d0886fd7c26c420b8ed064fb7026679e",
+        "key": "hpe.msa.get.controllers",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get controller statistics",
+        "uuid": "777e832e3e9646a2bd36d6008a992309",
+        "key": "hpe.msa.get.controller_statistics",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get data",
+        "uuid": "f561c35d364647b6a1e5f9030e1801d6",
+        "key": "hpe.msa.get.data",
+        "type": "SCRIPT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get disks",
+        "uuid": "d5f0ad86037e47469ea80578285a735c",
+        "key": "hpe.msa.get.disks",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get disk groups",
+        "uuid": "c5487f410f3f42ea8e2d549490bc65b3",
+        "key": "hpe.msa.get.disks.groups",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get enclosures",
+        "uuid": "552bf3c078224936bb2239ab4e646b08",
+        "key": "hpe.msa.get.enclosures",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "errors"
+          }
+        ],
+        "name": "Get method errors",
+        "uuid": "31fd48af7e224960983e7f6c6a6ea62c",
+        "key": "hpe.msa.get.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "HPE MSA 2060 Storage: There are errors in method requests to API",
+            "uuid": "963124e0eeda403383bc7b11080fa600",
+            "expression": "length(last(/HPE MSA 2060 Storage by HTTP/hpe.msa.get.errors))>0",
+            "priority": "AVERAGE",
+            "description": "There are errors in method requests to API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get fans",
+        "uuid": "7e518444583746a38186e5c7d9bb000e",
+        "key": "hpe.msa.get.fans",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get FRU",
+        "uuid": "99c02ea38af84c528ffefe7f962bd4ff",
+        "key": "hpe.msa.get.fru",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get pools",
+        "uuid": "039abe1bef1846eab25180df852bf9e1",
+        "key": "hpe.msa.get.pools",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get ports",
+        "uuid": "a0bf86c0c0f74ba0888a2cd086f5364f",
+        "key": "hpe.msa.get.ports",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get power supplies",
+        "uuid": "9e9c68323c0e457895604d7c9d075423",
+        "key": "hpe.msa.get.power_supplies",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get system",
+        "uuid": "6f3e1d82655f4b02849911fe11851432",
+        "key": "hpe.msa.get.system",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get volumes",
+        "uuid": "65c7498927f44ca6a9baea90c65eaafb",
+        "key": "hpe.msa.get.volumes",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get volume statistics",
+        "uuid": "10be826f539541af90f5bcf8eb260338",
+        "key": "hpe.msa.get.volumes.statistics",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System contact",
+        "uuid": "0d39659e8ce443728ec616199526f5f2",
+        "key": "hpe.msa.system.contact",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "CONTACT"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System health",
+        "uuid": "a745668d19de419aa523f34a49c39351",
+        "key": "hpe.msa.system.health",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "HPE MSA 2060 Storage: System health is in degraded state",
+            "uuid": "d49ee16b35a94e0787b116fab0ffb8ae",
+            "expression": "last(/HPE MSA 2060 Storage by HTTP/hpe.msa.system.health)=1",
+            "priority": "WARNING",
+            "description": "System health is in degraded state."
+          },
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "HPE MSA 2060 Storage: System health is in fault state",
+            "uuid": "425e2bd65cf849f5ae3c66e041dd40b5",
+            "expression": "last(/HPE MSA 2060 Storage by HTTP/hpe.msa.system.health)=2",
+            "priority": "AVERAGE",
+            "description": "System health is in fault state."
+          },
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "HPE MSA 2060 Storage: System health is in unknown state",
+            "uuid": "5d73900de02e452e865ed66ec34eb389",
+            "expression": "last(/HPE MSA 2060 Storage by HTTP/hpe.msa.system.health)=3",
+            "priority": "INFO",
+            "description": "System health is in unknown state."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System information",
+        "uuid": "6035798efe7d4336a8ee5c2bb382ff38",
+        "key": "hpe.msa.system.info",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "NOTES"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System location",
+        "uuid": "1322d297418f42ccb8343c3e30c38313",
+        "key": "hpe.msa.system.location",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "LOCATION"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System name",
+        "uuid": "7ac32cd0f46f428e8dc1ed4fab47193b",
+        "key": "hpe.msa.system.name",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "NAME"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Product ID",
+        "uuid": "27c1b40fe425487d90a80986a02b8338",
+        "key": "hpe.msa.system.product_id",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "MODEL"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Vendor name",
+        "uuid": "57a4c0b56ad741a888fd59beb6b45637",
+        "key": "hpe.msa.system.vendor_name",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "VENDOR"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "Service ping",
+        "uuid": "eda86bb9b00e410d8c9f37b712e917ae",
+        "key": "net.tcp.service[\"{$HPE.MSA.API.SCHEME}\",\"{$HPE.MSA.API.HOST}\",\"{$HPE.MSA.API.PORT}\"]",
+        "type": "SIMPLE",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "HPE MSA 2060 Storage: Service is down or unavailable",
+            "uuid": "aebfbba6fb224e01ae136a6fa1936779",
+            "expression": "max(/HPE MSA 2060 Storage by HTTP/net.tcp.service[\"{$HPE.MSA.API.SCHEME}\",\"{$HPE.MSA.API.HOST}\",\"{$HPE.MSA.API.PORT}\"],5m)=0",
+            "priority": "HIGH",
+            "description": "HTTP/HTTPS service is down or unable to establish TCP connection."
+          }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "name": "Templates/SAN"
+      }
+    ],
+    "macros": [
+      {
+        "macro": "{$HPE.MSA.API.HOST}",
+        "type": "TEXT",
+        "value": "<SET API HOST>",
+        "description": "The hostname or IP address of the API host."
+      },
+      {
+        "macro": "{$HPE.MSA.API.PASSWORD}",
+        "type": "SECRET_TEXT",
+        "value": "",
+        "description": "Specify password for API."
+      },
+      {
+        "macro": "{$HPE.MSA.API.PORT}",
+        "type": "TEXT",
+        "value": "443",
+        "description": "Connection port for API."
+      },
+      {
+        "macro": "{$HPE.MSA.API.SCHEME}",
+        "type": "TEXT",
+        "value": "https",
+        "description": "Connection scheme for API."
+      },
+      {
+        "macro": "{$HPE.MSA.API.USERNAME}",
+        "type": "TEXT",
+        "value": "zabbix",
+        "description": "Specify user name for API."
+      },
+      {
+        "macro": "{$HPE.MSA.CONTROLLER.CPU.UTIL.CRIT}",
+        "type": "TEXT",
+        "value": "90",
+        "description": "The critical threshold of the CPU utilization expressed in %."
+      },
+      {
+        "macro": "{$HPE.MSA.DATA.TIMEOUT}",
+        "type": "TEXT",
+        "value": "30s",
+        "description": "Response timeout for API."
+      },
+      {
+        "macro": "{$HPE.MSA.DISKS.GROUP.PUSED.MAX.CRIT}",
+        "type": "TEXT",
+        "value": "90",
+        "description": "The critical threshold of the disk group space utilization in %."
+      },
+      {
+        "macro": "{$HPE.MSA.DISKS.GROUP.PUSED.MAX.WARN}",
+        "type": "TEXT",
+        "value": "80",
+        "description": "The warning threshold of the disk group space utilization in %."
+      },
+      {
+        "macro": "{$HPE.MSA.POOL.PUSED.MAX.CRIT}",
+        "type": "TEXT",
+        "value": "90",
+        "description": "The critical threshold of the pool space utilization in %."
+      },
+      {
+        "macro": "{$HPE.MSA.POOL.PUSED.MAX.WARN}",
+        "type": "TEXT",
+        "value": "80",
+        "description": "The warning threshold of the pool space utilization in %."
+      }
+    ],
+    "tags": [
+      {
+        "tag": "class",
+        "value": "storage"
+      },
+      {
+        "tag": "target",
+        "value": "msa-2060"
+      }
+    ],
+    "name": "HPE MSA 2060 Storage by HTTP",
+    "uuid": "2b20965812154632b41afb8f82b1f2ab",
+    "template": "HPE MSA 2060 Storage by HTTP"
+  },
+  {
+    "items": [
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "storage"
+          }
+        ],
+        "name": "Disks total",
+        "uuid": "d3c04d611cd24284b26065a35629d330",
+        "key": "hpe.primera.disks.total",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get CPGs data",
+        "uuid": "48b336c2089240feab6540c2121c1c4f",
+        "key": "hpe.primera.get.cpgs",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get data",
+        "uuid": "c3af8ed6b7d84ca8a1f9599d34b7a04e",
+        "key": "hpe.primera.get.data",
+        "type": "SCRIPT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get disks data",
+        "uuid": "690a6b53fbdb4a0bb466899a090d2b62",
+        "key": "hpe.primera.get.disks",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get errors",
+        "uuid": "7149e1d6a7ac43e7a7148775e6e5d742",
+        "key": "hpe.primera.get.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "HPE Primera: There are errors in requests to WSAPI",
+            "uuid": "e1511e1dbe704a69a4488e5466f1477b",
+            "expression": "length(last(/HPE Primera by HTTP/hpe.primera.get.errors))>0",
+            "priority": "AVERAGE",
+            "description": "Zabbix has received errors in requests to WSAPI."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get hosts data",
+        "uuid": "670750a1186f4b9fbe7af72903896cf5",
+        "key": "hpe.primera.get.hosts",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get ports data",
+        "uuid": "57f985e3001545b4954bb5ba7bd225ca",
+        "key": "hpe.primera.get.ports",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get system data",
+        "uuid": "ac7c991f63f142a28f9f784dcda78770",
+        "key": "hpe.primera.get.system",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get tasks data",
+        "uuid": "009402325a6144a0b60dc6e04bdc4d42",
+        "key": "hpe.primera.get.tasks",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get volumes data",
+        "uuid": "16059c4fe9bb49478e92a3f2e65453b4",
+        "key": "hpe.primera.get.volumes",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Capacity allocated",
+        "uuid": "b462b500a18f4e8aa54066f82ca8c9fc",
+        "key": "hpe.primera.system.capacity.allocated",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Capacity failed",
+        "uuid": "7d9c3cff22c04000a0f20504feff9163",
+        "key": "hpe.primera.system.capacity.failed",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Capacity free",
+        "uuid": "b43783d50508447e9d24072db01b7331",
+        "key": "hpe.primera.system.capacity.free",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Capacity total",
+        "uuid": "051b07e2294c4d4ebba243bcf6ac5232",
+        "key": "hpe.primera.system.capacity.total",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Chunklet size",
+        "uuid": "29df106808414f46b272e086c3484c7f",
+        "key": "hpe.primera.system.chunklet.size",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System contact",
+        "uuid": "36c68845f8a84bfeb6b58c72beb94e51",
+        "key": "hpe.primera.system.contact",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "CONTACT"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System location",
+        "uuid": "e64f39f660ca400085cc79f32cbd344d",
+        "key": "hpe.primera.system.location",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "LOCATION"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Model",
+        "uuid": "0adc267b5a224d8faf3a56a98a8a7357",
+        "key": "hpe.primera.system.model",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "MODEL"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System name",
+        "uuid": "69a15ddebfc543509acb2bff45fd3206",
+        "key": "hpe.primera.system.name",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "NAME"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Nodes online",
+        "uuid": "f65924e6e14e46c7b016be7abc40865c",
+        "key": "hpe.primera.system.nodes.online",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Nodes total",
+        "uuid": "390625ed69594992b3b655bb2acbab64",
+        "key": "hpe.primera.system.nodes.total",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Serial number",
+        "uuid": "4ec9ad75c0a2496e9f339446ee784110",
+        "key": "hpe.primera.system.serial_number",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "SERIALNO_A"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Software version number",
+        "uuid": "ad8f686cdf0f44eeae6d861b664921ed",
+        "key": "hpe.primera.system.sw_version",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "Service ping",
+        "uuid": "d1b413f7218b42b69463233131ce066a",
+        "key": "net.tcp.service[\"{$HPE.PRIMERA.API.SCHEME}\",\"{$HPE.PRIMERA.API.HOST}\",\"{$HPE.PRIMERA.API.PORT}\"]",
+        "type": "SIMPLE",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "HPE Primera: Service is unavailable",
+            "uuid": "495ff16566694a75af38f51bd9876082",
+            "expression": "max(/HPE Primera by HTTP/net.tcp.service[\"{$HPE.PRIMERA.API.SCHEME}\",\"{$HPE.PRIMERA.API.HOST}\",\"{$HPE.PRIMERA.API.PORT}\"],5m)=0",
+            "priority": "HIGH"
+          }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "name": "Templates/SAN"
+      }
+    ],
+    "macros": [
+      {
+        "macro": "{$HPE.PRIMERA.API.HOST}",
+        "type": "TEXT",
+        "value": "<SET API HOST>",
+        "description": "The hostname or IP address of the API host."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.API.PASSWORD}",
+        "type": "SECRET_TEXT",
+        "value": "",
+        "description": "Specify password for WSAPI."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.API.PORT}",
+        "type": "TEXT",
+        "value": "443",
+        "description": "The WSAPI port."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.API.SCHEME}",
+        "type": "TEXT",
+        "value": "https",
+        "description": "The WSAPI scheme (http/https)."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.API.USERNAME}",
+        "type": "TEXT",
+        "value": "zabbix",
+        "description": "Specify user name for WSAPI."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.CPG.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "This macro is used in filters of CPGs discovery rule."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.CPG.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "This macro is used in filters of CPGs discovery rule."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.DATA.TIMEOUT}",
+        "type": "TEXT",
+        "value": "15s",
+        "description": "Response timeout for WSAPI."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.LLD.FILTER.TASK.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter of discoverable tasks by name."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.LLD.FILTER.TASK.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter to exclude discovered tasks by name."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.LLD.FILTER.TASK.TYPE.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable tasks by type."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.LLD.FILTER.TASK.TYPE.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discovered tasks by type."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.VOLUME.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "This macro is used in filters of volume discovery rule."
+      },
+      {
+        "macro": "{$HPE.PRIMERA.VOLUME.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "^(admin|.srdata|.mgmtdata)$",
+        "description": "This macro is used in filters of volume discovery rule."
+      }
+    ],
+    "tags": [
+      {
+        "tag": "class",
+        "value": "storage"
+      },
+      {
+        "tag": "target",
+        "value": "primera"
+      }
+    ],
+    "name": "HPE Primera by HTTP",
+    "uuid": "cbdbd264c7534baab2d9de3bf8145abf",
+    "template": "HPE Primera by HTTP"
+  },
+  {
+    "items": [
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Status",
+        "uuid": "6b6209543daf46649a48525d5d41a687",
+        "key": "huawei.5300.v5[status]",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "storage"
+          }
+        ],
+        "name": "Capacity total",
+        "uuid": "2bce7cc248044aee9881f1bc76011c67",
+        "key": "huawei.5300.v5[totalCapacity]",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "storage"
+          }
+        ],
+        "name": "Capacity used",
+        "uuid": "658d09c182a04f758b6ed334902760e3",
+        "key": "huawei.5300.v5[usedCapacity]",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Version",
+        "uuid": "57783e047f5947d2aa38cfb00869beec",
+        "key": "huawei.5300.v5[version]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "Huawei OceanStor 5300 V5: Storage version has been changed",
+            "uuid": "8c30aa427b76404a8259c2849866e5ba",
+            "expression": "last(/Huawei OceanStor 5300 V5 by SNMP/huawei.5300.v5[version],#1)<>last(/Huawei OceanStor 5300 V5 by SNMP/huawei.5300.v5[version],#2) and length(last(/Huawei OceanStor 5300 V5 by SNMP/huawei.5300.v5[version]))>0",
+            "priority": "INFO",
+            "description": "OceanStor 5300 V5 version has changed. Acknowledge to close the problem manually."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "ICMP ping",
+        "uuid": "a4dcac3119184c17a6eccc5f9592fc15",
+        "key": "icmpping",
+        "type": "SIMPLE",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Huawei OceanStor 5300 V5: Unavailable by ICMP ping",
+            "uuid": "a30a20a09623458ea732ba57461dbabd",
+            "expression": "max(/Huawei OceanStor 5300 V5 by SNMP/icmpping,#3)=0",
+            "priority": "HIGH",
+            "description": "Last three attempts returned timeout. Please check device connectivity."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "ICMP loss",
+        "uuid": "1ccaa26e3fe44bfaa251abc5ecbc5352",
+        "key": "icmppingloss",
+        "type": "SIMPLE",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "Huawei OceanStor 5300 V5: High ICMP ping loss",
+            "uuid": "7a9b62c643bb4254990321e6ac0de716",
+            "expression": "min(/Huawei OceanStor 5300 V5 by SNMP/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/Huawei OceanStor 5300 V5 by SNMP/icmppingloss,5m)<100",
+            "priority": "WARNING",
+            "description": "ICMP packets loss detected."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "ICMP response time",
+        "uuid": "b83bfb341a1641279173efef32cea658",
+        "key": "icmppingsec",
+        "type": "SIMPLE",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "Huawei OceanStor 5300 V5: High ICMP ping response time",
+            "uuid": "3eb8c50e181e4137825a2bb46ee0c8b7",
+            "expression": "avg(/Huawei OceanStor 5300 V5 by SNMP/icmppingsec,5m)>{$ICMP_RESPONSE_TIME_WARN}",
+            "priority": "WARNING",
+            "description": "Average ICMP response time is too high."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "SNMP traps (fallback)",
+        "uuid": "91ab18f60d4847858d4efb076997219a",
+        "key": "snmptrap.fallback",
+        "type": "SNMP_TRAP",
+        "value_type": "LOG",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System contact details",
+        "uuid": "084e3a838b8c4999a0399a340adb8546",
+        "key": "system.contact[sysContact.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "CONTACT"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System description",
+        "uuid": "8588f300766e45b090ba894f473d3c74",
+        "key": "system.descr[sysDescr.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Uptime (hardware)",
+        "uuid": "c23d6679bc3e4005a999ae56d4bff124",
+        "key": "system.hw.uptime[hrSystemUptime.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "0"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System location",
+        "uuid": "d55fecb8b5dd4734afc3dc553fffebfe",
+        "key": "system.location[sysLocation.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "LOCATION"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System name",
+        "uuid": "1814af29a8424d1e9a8a25e0e88bf124",
+        "key": "system.name",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "security"
+              }
+            ],
+            "name": "Huawei OceanStor 5300 V5: System name has changed",
+            "uuid": "b019fd59851545278a35eafe60338f76",
+            "expression": "last(/Huawei OceanStor 5300 V5 by SNMP/system.name,#1)<>last(/Huawei OceanStor 5300 V5 by SNMP/system.name,#2) and length(last(/Huawei OceanStor 5300 V5 by SNMP/system.name))>0",
+            "priority": "INFO",
+            "description": "The name of the system has changed. Acknowledge to close the problem manually."
+          }
+        ],
+        "inventory_link": "NAME"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Uptime (network)",
+        "uuid": "62000dc3805149d7a44423d9bc851863",
+        "key": "system.net.uptime[sysUpTime.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "0"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System object ID",
+        "uuid": "a9de0be38dc646f7b7554663722f2ee4",
+        "key": "system.objectid[sysObjectID.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "SNMP agent availability",
+        "uuid": "a18e4ed5a06e41a4a3363b7f2818c3f8",
+        "key": "zabbix[host,snmp,available]",
+        "type": "INTERNAL",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Huawei OceanStor 5300 V5: No SNMP data collection",
+            "uuid": "cdcd16dd86344132a76b91b0a1738936",
+            "expression": "max(/Huawei OceanStor 5300 V5 by SNMP/zabbix[host,snmp,available],{$SNMP.TIMEOUT})=0",
+            "priority": "WARNING",
+            "description": "SNMP is not available for polling. Please check device connectivity and SNMP settings."
+          }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "name": "Templates/SAN"
+      }
+    ],
+    "macros": [
+      {
+        "macro": "{$CPU.UTIL.CRIT}",
+        "type": "TEXT",
+        "value": "90",
+        "description": "The critical threshold of the CPU utilization expressed in %."
+      },
+      {
+        "macro": "{$HUAWEI.5300.DISK.TEMP.MAX.TIME}",
+        "type": "TEXT",
+        "value": "5m",
+        "description": "The time during which temperature of disk may exceed the threshold."
+      },
+      {
+        "macro": "{$HUAWEI.5300.DISK.TEMP.MAX.WARN}",
+        "type": "TEXT",
+        "value": "45",
+        "description": "Maximum temperature of disk. Can be used with {#MODEL} as context."
+      },
+      {
+        "macro": "{$HUAWEI.5300.LUN.IO.TIME.MAX.TIME}",
+        "type": "TEXT",
+        "value": "5m",
+        "description": "The time during which average I/O response time of LUN may exceed the threshold."
+      },
+      {
+        "macro": "{$HUAWEI.5300.LUN.IO.TIME.MAX.WARN}",
+        "type": "TEXT",
+        "value": "100",
+        "description": "Maximum average I/O response time of LUN in milliseconds."
+      },
+      {
+        "macro": "{$HUAWEI.5300.MEM.MAX.TIME}",
+        "type": "TEXT",
+        "value": "5m",
+        "description": "The time during which memory usage may exceed the threshold."
+      },
+      {
+        "macro": "{$HUAWEI.5300.MEM.MAX.WARN}",
+        "type": "TEXT",
+        "value": "90",
+        "description": "Maximum percentage of memory used"
+      },
+      {
+        "macro": "{$HUAWEI.5300.NODE.IO.DELAY.MAX.TIME}",
+        "type": "TEXT",
+        "value": "5m",
+        "description": "The time during which average I/O latency of node may exceed the threshold."
+      },
+      {
+        "macro": "{$HUAWEI.5300.NODE.IO.DELAY.MAX.WARN}",
+        "type": "TEXT",
+        "value": "20",
+        "description": "Maximum average I/O latency of node in milliseconds."
+      },
+      {
+        "macro": "{$HUAWEI.5300.POOL.CAPACITY.THRESH.TIME}",
+        "type": "TEXT",
+        "value": "5m",
+        "description": "The time during which free capacity may exceed the {#THRESHOLD} from hwInfoStoragePoolFullThreshold."
+      },
+      {
+        "macro": "{$HUAWEI.5300.TEMP.MAX.TIME}",
+        "type": "TEXT",
+        "value": "3m",
+        "description": "The time during which temperature of enclosure may exceed the threshold."
+      },
+      {
+        "macro": "{$HUAWEI.5300.TEMP.MAX.WARN}",
+        "type": "TEXT",
+        "value": "35",
+        "description": "Maximum temperature of enclosure"
+      },
+      {
+        "macro": "{$ICMP_LOSS_WARN}",
+        "type": "TEXT",
+        "value": "20",
+        "description": "Warning threshold of ICMP packet loss in %."
+      },
+      {
+        "macro": "{$ICMP_RESPONSE_TIME_WARN}",
+        "type": "TEXT",
+        "value": "0.15",
+        "description": "Warning threshold of the average ICMP response time in seconds."
+      },
+      {
+        "macro": "{$SNMP.TIMEOUT}",
+        "type": "TEXT",
+        "value": "5m",
+        "description": "Time interval for the SNMP availability trigger."
+      }
+    ],
+    "tags": [
+      {
+        "tag": "class",
+        "value": "storage"
+      },
+      {
+        "tag": "target",
+        "value": "huawei-oceanstor-5300-v5"
+      }
+    ],
+    "name": "Huawei OceanStor 5300 V5 by SNMP",
+    "uuid": "b1519b83678647f095706c0fc5f6fb35",
+    "template": "Huawei OceanStor 5300 V5 by SNMP"
+  },
+  {
+    "items": [
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "BBU SNMP walk",
+        "uuid": "8a8aa36759b64628b89bb17439f2fa82",
+        "key": "huawei.dorado.bbu.snmp.walk",
+        "type": "SNMP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "storage"
+          }
+        ],
+        "name": "Capacity total",
+        "uuid": "12596444f96948bb8d37e2824101f6fc",
+        "key": "huawei.dorado.capacity.total",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "storage"
+          }
+        ],
+        "name": "Capacity used",
+        "uuid": "b4aaee2980bb448f86130236a9fe516e",
+        "key": "huawei.dorado.capacity.used",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Controller SNMP walk",
+        "uuid": "23ad6318419f4c97a7138f3d9e03a334",
+        "key": "huawei.dorado.controller.snmp.walk",
+        "type": "SNMP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Disk SNMP walk",
+        "uuid": "b24fa7b315304983a4f5f544cde2b900",
+        "key": "huawei.dorado.disk.snmp.walk",
+        "type": "SNMP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Enclosure SNMP walk",
+        "uuid": "505b1c5089a44f34be1ceedec37c51f1",
+        "key": "huawei.dorado.enclosure.snmp.walk",
+        "type": "SNMP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Fan SNMP walk",
+        "uuid": "7d325927eb6e4b6b8554a9a2b3df4f08",
+        "key": "huawei.dorado.fan.snmp.walk",
+        "type": "SNMP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "LUN SNMP walk",
+        "uuid": "912cd83230a54bb8955553c90db077e9",
+        "key": "huawei.dorado.lun.snmp.walk",
+        "type": "SNMP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Node SNMP walk",
+        "uuid": "09d2672b8ae841a68fd1a90189dcbbc4",
+        "key": "huawei.dorado.node.snmp.walk",
+        "type": "SNMP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Storage pool SNMP walk",
+        "uuid": "1304c15c36284e0588dc8efb48bdf1de",
+        "key": "huawei.dorado.pool.snmp.walk",
+        "type": "SNMP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Status",
+        "uuid": "374bd8eaa285446389cf1df7918446e3",
+        "key": "huawei.dorado.status",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Version",
+        "uuid": "d42e1fff496141769e498e57f1dca4ef",
+        "key": "huawei.dorado.version",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "Huawei Dorado: Storage version has changed",
+            "uuid": "47e55d956ff24927a02a6c2254ee3575",
+            "expression": "last(/Huawei OceanStor Dorado by SNMP/huawei.dorado.version,#1)<>last(/Huawei OceanStor Dorado by SNMP/huawei.dorado.version,#2) and length(last(/Huawei OceanStor Dorado by SNMP/huawei.dorado.version))>0",
+            "priority": "INFO"
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "ICMP ping",
+        "uuid": "a4dcac3119184c17a6eccc5f9592fc15",
+        "key": "icmpping",
+        "type": "SIMPLE",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Huawei Dorado: Unavailable by ICMP ping",
+            "uuid": "539cb876ecf94a95b3daabd13e095e9e",
+            "expression": "max(/Huawei OceanStor Dorado by SNMP/icmpping,#3)=0",
+            "priority": "HIGH",
+            "description": "Last three attempts returned timeout. Please check device connectivity."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "ICMP loss",
+        "uuid": "1ccaa26e3fe44bfaa251abc5ecbc5352",
+        "key": "icmppingloss",
+        "type": "SIMPLE",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "Huawei Dorado: High ICMP ping loss",
+            "uuid": "79d9b0edc61c4ef0bab2b9678e097c29",
+            "expression": "min(/Huawei OceanStor Dorado by SNMP/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/Huawei OceanStor Dorado by SNMP/icmppingloss,5m)<100",
+            "priority": "WARNING",
+            "description": "ICMP packets loss detected."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "ICMP response time",
+        "uuid": "b83bfb341a1641279173efef32cea658",
+        "key": "icmppingsec",
+        "type": "SIMPLE",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "Huawei Dorado: High ICMP ping response time",
+            "uuid": "993753d12dbd41c881b3c90672316394",
+            "expression": "avg(/Huawei OceanStor Dorado by SNMP/icmppingsec,5m)>{$ICMP_RESPONSE_TIME_WARN}",
+            "priority": "WARNING",
+            "description": "Average ICMP response time is too high."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "SNMP traps (fallback)",
+        "uuid": "91ab18f60d4847858d4efb076997219a",
+        "key": "snmptrap.fallback",
+        "type": "SNMP_TRAP",
+        "value_type": "LOG",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System contact details",
+        "uuid": "084e3a838b8c4999a0399a340adb8546",
+        "key": "system.contact[sysContact.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "CONTACT"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System description",
+        "uuid": "8588f300766e45b090ba894f473d3c74",
+        "key": "system.descr[sysDescr.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Uptime (hardware)",
+        "uuid": "c23d6679bc3e4005a999ae56d4bff124",
+        "key": "system.hw.uptime[hrSystemUptime.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "0"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System location",
+        "uuid": "d55fecb8b5dd4734afc3dc553fffebfe",
+        "key": "system.location[sysLocation.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "LOCATION"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System name",
+        "uuid": "1814af29a8424d1e9a8a25e0e88bf124",
+        "key": "system.name",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "security"
+              }
+            ],
+            "name": "Huawei Dorado: System name has changed",
+            "uuid": "44c7978f9ace4c7da869b32208b3454a",
+            "expression": "last(/Huawei OceanStor Dorado by SNMP/system.name,#1)<>last(/Huawei OceanStor Dorado by SNMP/system.name,#2) and length(last(/Huawei OceanStor Dorado by SNMP/system.name))>0",
+            "priority": "INFO",
+            "description": "The name of the system has changed. Acknowledge to close the problem manually."
+          }
+        ],
+        "inventory_link": "NAME"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Uptime (network)",
+        "uuid": "62000dc3805149d7a44423d9bc851863",
+        "key": "system.net.uptime[sysUpTime.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "0"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System object ID",
+        "uuid": "a9de0be38dc646f7b7554663722f2ee4",
+        "key": "system.objectid[sysObjectID.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "SNMP agent availability",
+        "uuid": "a18e4ed5a06e41a4a3363b7f2818c3f8",
+        "key": "zabbix[host,snmp,available]",
+        "type": "INTERNAL",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Huawei Dorado: No SNMP data collection",
+            "uuid": "3bfe3898e6f0441fa7975efa85c70dfe",
+            "expression": "max(/Huawei OceanStor Dorado by SNMP/zabbix[host,snmp,available],{$SNMP.TIMEOUT})=0",
+            "priority": "WARNING",
+            "description": "SNMP is not available for polling. Please check device connectivity and SNMP settings."
+          }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "name": "Templates/SAN"
+      }
+    ],
+    "macros": [
+      {
+        "macro": "{$CPU.UTIL.CRIT}",
+        "type": "TEXT",
+        "value": "90",
+        "description": "The critical threshold of CPU utilization expressed in %."
+      },
+      {
+        "macro": "{$HUAWEI.DORADO.DISK.TEMP.MAX.TIME}",
+        "type": "TEXT",
+        "value": "5m",
+        "description": "The time during which the disk temperature may exceed the threshold."
+      },
+      {
+        "macro": "{$HUAWEI.DORADO.DISK.TEMP.MAX.WARN}",
+        "type": "TEXT",
+        "value": "45",
+        "description": "Maximum disk temperature. Can be used with `{#MODEL}` as context."
+      },
+      {
+        "macro": "{$HUAWEI.DORADO.LUN.IO.TIME.MAX.TIME}",
+        "type": "TEXT",
+        "value": "5m",
+        "description": "The time during which the average I/O response time of a LUN may exceed the threshold."
+      },
+      {
+        "macro": "{$HUAWEI.DORADO.LUN.IO.TIME.MAX.WARN}",
+        "type": "TEXT",
+        "value": "0.0001",
+        "description": "Maximum average I/O response time of a LUN in seconds."
+      },
+      {
+        "macro": "{$HUAWEI.DORADO.MEM.MAX.TIME}",
+        "type": "TEXT",
+        "value": "5m",
+        "description": "The time during which memory usage may exceed the threshold."
+      },
+      {
+        "macro": "{$HUAWEI.DORADO.MEM.MAX.WARN}",
+        "type": "TEXT",
+        "value": "90",
+        "description": "Maximum percentage of memory used."
+      },
+      {
+        "macro": "{$HUAWEI.DORADO.TEMP.MAX.TIME}",
+        "type": "TEXT",
+        "value": "3m",
+        "description": "The time during which the enclosure temperature may exceed the threshold."
+      },
+      {
+        "macro": "{$HUAWEI.DORADO.TEMP.MAX.WARN}",
+        "type": "TEXT",
+        "value": "35",
+        "description": "Maximum enclosure temperature."
+      },
+      {
+        "macro": "{$ICMP_LOSS_WARN}",
+        "type": "TEXT",
+        "value": "20",
+        "description": "Warning threshold of ICMP packet loss in %."
+      },
+      {
+        "macro": "{$ICMP_RESPONSE_TIME_WARN}",
+        "type": "TEXT",
+        "value": "0.15",
+        "description": "Warning threshold of the average ICMP response time in seconds."
+      },
+      {
+        "macro": "{$SNMP.TIMEOUT}",
+        "type": "TEXT",
+        "value": "5m",
+        "description": "Time interval for the SNMP availability trigger."
+      }
+    ],
+    "tags": [
+      {
+        "tag": "class",
+        "value": "storage"
+      },
+      {
+        "tag": "subclass",
+        "value": "server"
+      },
+      {
+        "tag": "target",
+        "value": "huawei-oceanstor-dorado"
+      }
+    ],
+    "name": "Huawei OceanStor Dorado by SNMP",
+    "uuid": "5788ccf367ec4aefbed422d1c0a7cb63",
+    "template": "Huawei OceanStor Dorado by SNMP"
+  },
+  {
+    "items": [
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get chassis",
+        "uuid": "57e962c727274f5d9629f49797c41094",
+        "key": "netapp.chassis.get",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get cluster",
+        "uuid": "522a5092f0b94d908fc575b654a666b0",
+        "key": "netapp.cluster.get",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "cluster"
+          }
+        ],
+        "name": "Cluster location",
+        "uuid": "2c405f3325b540288642267682f8d9b3",
+        "key": "netapp.cluster.location",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "cluster"
+          }
+        ],
+        "name": "Cluster name",
+        "uuid": "d1fccfba0fc14c17ab908885785b450f",
+        "key": "netapp.cluster.name",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "iops"
+          }
+        ],
+        "name": "Cluster IOPS, other rate",
+        "uuid": "933671cd4be8460bb657488b9a741dce",
+        "key": "netapp.cluster.statistics.iops.other.rate",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "iops"
+          }
+        ],
+        "name": "Cluster IOPS, read rate",
+        "uuid": "b20547a79bfa458b9edbdb63027e553f",
+        "key": "netapp.cluster.statistics.iops.read.rate",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "iops"
+          }
+        ],
+        "name": "Cluster IOPS, total rate",
+        "uuid": "145c648c49fd4da8972e187a999b1a20",
+        "key": "netapp.cluster.statistics.iops.total.rate",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "iops"
+          }
+        ],
+        "name": "Cluster IOPS, write rate",
+        "uuid": "1c83da3853a945a88334597bd20ec7e2",
+        "key": "netapp.cluster.statistics.iops.write.rate",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "iops"
+          }
+        ],
+        "name": "Cluster IOPS raw, other",
+        "uuid": "23ff4a31198842afb6720e51f616281c",
+        "key": "netapp.cluster.statistics.iops_raw.other",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "iops"
+          }
+        ],
+        "name": "Cluster IOPS raw, read",
+        "uuid": "b85737e8b9104602b88ef9ee7e96001b",
+        "key": "netapp.cluster.statistics.iops_raw.read",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "iops"
+          }
+        ],
+        "name": "Cluster IOPS raw, total",
+        "uuid": "7f1842804de34c5492856eac0e41591f",
+        "key": "netapp.cluster.statistics.iops_raw.total",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "iops"
+          }
+        ],
+        "name": "Cluster IOPS raw, write",
+        "uuid": "b4803c0f6529468c9fc80e486ffbd0bd",
+        "key": "netapp.cluster.statistics.iops_raw.write",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "latency"
+          }
+        ],
+        "name": "Cluster latency, other",
+        "uuid": "62f2c16ccc3d45ca8164c1a5c8fd9294",
+        "key": "netapp.cluster.statistics.latency.other",
+        "type": "CALCULATED",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "latency"
+          }
+        ],
+        "name": "Cluster latency, read",
+        "uuid": "8176a974a32d435b96c15ac2ab9a7d6e",
+        "key": "netapp.cluster.statistics.latency.read",
+        "type": "CALCULATED",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "latency"
+          }
+        ],
+        "name": "Cluster latency, total",
+        "uuid": "42c09d59030d47b99d89c12399024e44",
+        "key": "netapp.cluster.statistics.latency.total",
+        "type": "CALCULATED",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "latency"
+          }
+        ],
+        "name": "Cluster latency, write",
+        "uuid": "877a07a3fb744c4d9be650f6d98ae1f7",
+        "key": "netapp.cluster.statistics.latency.write",
+        "type": "CALCULATED",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "latency"
+          }
+        ],
+        "name": "Cluster latency raw, other",
+        "uuid": "13cbff1aaf75495dbca26cb81fb23add",
+        "key": "netapp.cluster.statistics.latency_raw.other",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "latency"
+          }
+        ],
+        "name": "Cluster latency raw, read",
+        "uuid": "a20533492b5240fb882fd75005072b57",
+        "key": "netapp.cluster.statistics.latency_raw.read",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "latency"
+          }
+        ],
+        "name": "Cluster latency raw, total",
+        "uuid": "9b8fa386c0c845bca0c0727b81b8d0dc",
+        "key": "netapp.cluster.statistics.latency_raw.total",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "latency"
+          }
+        ],
+        "name": "Cluster latency raw, write",
+        "uuid": "c65c1d45e95c438faea29e100ec11045",
+        "key": "netapp.cluster.statistics.latency_raw.write",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "throughput"
+          }
+        ],
+        "name": "Cluster throughput, other rate",
+        "uuid": "c7acba060f7c4146b1eb18a08509cc45",
+        "key": "netapp.cluster.statistics.throughput.other.rate",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "throughput"
+          }
+        ],
+        "name": "Cluster throughput, read rate",
+        "uuid": "4f0188bacbdd4b3f864611a90bb922d8",
+        "key": "netapp.cluster.statistics.throughput.read.rate",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "throughput"
+          }
+        ],
+        "name": "Cluster throughput, total rate",
+        "uuid": "023d5a60335d4ffa98b2f66d4cbd411d",
+        "key": "netapp.cluster.statistics.throughput.total.rate",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "throughput"
+          }
+        ],
+        "name": "Cluster throughput, write rate",
+        "uuid": "8220ef4c456e4edc80995f18f41972ba",
+        "key": "netapp.cluster.statistics.throughput.write.rate",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "cluster"
+          }
+        ],
+        "name": "Cluster status",
+        "uuid": "437e966921464de3b36704633e7997a8",
+        "key": "netapp.cluster.status",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "NetApp AFF A700: Cluster status is abnormal",
+            "uuid": "479ce6df59ab47aa8f3e299be321c2f1",
+            "expression": "(last(/NetApp AFF A700 by HTTP/netapp.cluster.status)<>\"ok\")",
+            "priority": "AVERAGE",
+            "description": "Any errors associated with the sample. For example, if the aggregation of data over multiple nodes fails then any of the partial errors might be returned, “ok” on success, or “error” on any internal uncategorized failure. Whenever a sample collection is missed but done at a later time, it is back filled to the previous 15 second timestamp and tagged with \"backfilled_data\". “Inconsistent_ delta_time” is encountered when the time between two collections is not the same for all nodes. Therefore, the aggregated value might be over or under inflated. “Negative_delta” is returned when an expected monotonically increasing value has decreased in value. “Inconsistent_old_data” is returned when one or more nodes do not have the latest data."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Cluster software version",
+        "uuid": "dbf9fef7e70d4fc584a8e5fc7d08af49",
+        "key": "netapp.cluster.version",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "NetApp AFF A700: Version has changed",
+            "uuid": "b7e699d1db7f4c2b83e4cbf5dbf79a67",
+            "expression": "last(/NetApp AFF A700 by HTTP/netapp.cluster.version,#1)<>last(/NetApp AFF A700 by HTTP/netapp.cluster.version,#2) and length(last(/NetApp AFF A700 by HTTP/netapp.cluster.version))>0",
+            "priority": "INFO",
+            "description": "The NetApp AFF A700 version has changed. Acknowledge to close the problem manually."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get disks",
+        "uuid": "b6bc31d60daf4138a642d3e76f9b714b",
+        "key": "netapp.disks.get",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get FRUs",
+        "uuid": "3550d23bd90044b1a3b396702a48aa5d",
+        "key": "netapp.frus.get",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get LUNs",
+        "uuid": "05f07e2ce17b43399e0b3585979ae0ce",
+        "key": "netapp.luns.get",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get nodes",
+        "uuid": "0a06857e7bec4daab396c95ae3804bd5",
+        "key": "netapp.nodes.get",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get ethernet ports",
+        "uuid": "6489c4954eff4c6d8c6c961c85c68e8c",
+        "key": "netapp.ports.eth.get",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get FC ports",
+        "uuid": "1a8ee74a1046487aabec5237afaf8f18",
+        "key": "netapp.ports.fc.get",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get SVMs",
+        "uuid": "2c8c679fef5c430288bad45b978dda3d",
+        "key": "netapp.svms.get",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get volumes",
+        "uuid": "707044b31def4ec7b73a87454f5ba146",
+        "key": "netapp.volumes.get",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Templates/SAN"
+      }
+    ],
+    "macros": [
+      {
+        "macro": "{$NETAPP.HTTP.AGENT.TIMEOUT}",
+        "type": "TEXT",
+        "value": "5s",
+        "description": "The HTTP agent timeout to wait for a response from AFF700."
+      },
+      {
+        "macro": "{$NETAPP.PASSWORD}",
+        "type": "TEXT",
+        "value": "",
+        "description": "AFF700 user password."
+      },
+      {
+        "macro": "{$NETAPP.URL}",
+        "type": "TEXT",
+        "value": "",
+        "description": "AFF700 cluster URL address."
+      },
+      {
+        "macro": "{$NETAPP.USERNAME}",
+        "type": "TEXT",
+        "value": "",
+        "description": "AFF700 user name."
+      }
+    ],
+    "tags": [
+      {
+        "tag": "class",
+        "value": "network"
+      },
+      {
+        "tag": "target",
+        "value": "netapp-aff-a700"
+      }
+    ],
+    "name": "NetApp AFF A700 by HTTP",
+    "uuid": "4a0fcdd7105b451ebca7e563a3d8d30a",
+    "template": "NetApp AFF A700 by HTTP"
+  },
+  {
+    "items": [
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "storage"
+          }
+        ],
+        "name": "Failed disks count",
+        "uuid": "23e8866b490046ddb9800e080e1ee6c2",
+        "key": "fas3220.disk[diskFailedCount]",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "storage"
+          }
+        ],
+        "name": "Failed disks message",
+        "uuid": "4227f6a4e4cd4416a50223a950c9c999",
+        "key": "fas3220.disk[diskFailedMessage]",
+        "type": "SNMP_AGENT",
+        "value_type": "TEXT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Product firmware version",
+        "uuid": "bfea3eae970b4b3882d8412d0770aa19",
+        "key": "fas3220.inventory[productFirmwareVersion]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Product version",
+        "uuid": "2ef8ac363d794a15a95ca82b5711d562",
+        "key": "fas3220.inventory[productVersion]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "ICMP ping",
+        "uuid": "a4dcac3119184c17a6eccc5f9592fc15",
+        "key": "icmpping",
+        "type": "SIMPLE",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "NetApp FAS3220: Unavailable by ICMP ping",
+            "uuid": "d833e222af914d1aafe2a2b5e97b74f1",
+            "expression": "max(/NetApp FAS3220 by SNMP/icmpping,#3)=0",
+            "priority": "HIGH",
+            "description": "Last three attempts returned timeout. Please check device connectivity."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "ICMP loss",
+        "uuid": "1ccaa26e3fe44bfaa251abc5ecbc5352",
+        "key": "icmppingloss",
+        "type": "SIMPLE",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "NetApp FAS3220: High ICMP ping loss",
+            "uuid": "44388d9c2c124d8e8bb651e3b55d87eb",
+            "expression": "min(/NetApp FAS3220 by SNMP/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/NetApp FAS3220 by SNMP/icmppingloss,5m)<100",
+            "priority": "WARNING",
+            "description": "ICMP packets loss detected."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "ICMP response time",
+        "uuid": "b83bfb341a1641279173efef32cea658",
+        "key": "icmppingsec",
+        "type": "SIMPLE",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "NetApp FAS3220: High ICMP ping response time",
+            "uuid": "a8d8502e9ba94414879fdffbd5d88138",
+            "expression": "avg(/NetApp FAS3220 by SNMP/icmppingsec,5m)>{$ICMP_RESPONSE_TIME_WARN}",
+            "priority": "WARNING",
+            "description": "Average ICMP response time is too high."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "SNMP traps (fallback)",
+        "uuid": "91ab18f60d4847858d4efb076997219a",
+        "key": "snmptrap.fallback",
+        "type": "SNMP_TRAP",
+        "value_type": "LOG",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System contact details",
+        "uuid": "084e3a838b8c4999a0399a340adb8546",
+        "key": "system.contact[sysContact.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "CONTACT"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System description",
+        "uuid": "8588f300766e45b090ba894f473d3c74",
+        "key": "system.descr[sysDescr.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Uptime (hardware)",
+        "uuid": "c23d6679bc3e4005a999ae56d4bff124",
+        "key": "system.hw.uptime[hrSystemUptime.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "0"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System location",
+        "uuid": "d55fecb8b5dd4734afc3dc553fffebfe",
+        "key": "system.location[sysLocation.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "inventory_link": "LOCATION"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System name",
+        "uuid": "1814af29a8424d1e9a8a25e0e88bf124",
+        "key": "system.name",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "security"
+              }
+            ],
+            "name": "NetApp FAS3220: System name has changed",
+            "uuid": "38a88f3163ff463c847d39f017d1975c",
+            "expression": "last(/NetApp FAS3220 by SNMP/system.name,#1)<>last(/NetApp FAS3220 by SNMP/system.name,#2) and length(last(/NetApp FAS3220 by SNMP/system.name))>0",
+            "priority": "INFO",
+            "description": "The name of the system has changed. Acknowledge to close the problem manually."
+          }
+        ],
+        "inventory_link": "NAME"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Uptime (network)",
+        "uuid": "62000dc3805149d7a44423d9bc851863",
+        "key": "system.net.uptime[sysUpTime.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "0"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "System object ID",
+        "uuid": "a9de0be38dc646f7b7554663722f2ee4",
+        "key": "system.objectid[sysObjectID.0]",
+        "type": "SNMP_AGENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "SNMP agent availability",
+        "uuid": "a18e4ed5a06e41a4a3363b7f2818c3f8",
+        "key": "zabbix[host,snmp,available]",
+        "type": "INTERNAL",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "NetApp FAS3220: No SNMP data collection",
+            "uuid": "91f4744edac84b02a296f1a03646c5d6",
+            "expression": "max(/NetApp FAS3220 by SNMP/zabbix[host,snmp,available],{$SNMP.TIMEOUT})=0",
+            "priority": "WARNING",
+            "description": "SNMP is not available for polling. Please check device connectivity and SNMP settings."
+          }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "name": "Templates/SAN"
+      }
+    ],
+    "macros": [
+      {
+        "macro": "{$CPU.UTIL.CRIT}",
+        "type": "TEXT",
+        "value": "90",
+        "description": "The critical threshold of the CPU utilization expressed in %."
+      },
+      {
+        "macro": "{$FAS3220.FS.AVAIL.MIN.CRIT}",
+        "type": "TEXT",
+        "value": "10G",
+        "description": "Minimum available space on the disk. Can be used with {#FSNAME} as context."
+      },
+      {
+        "macro": "{$FAS3220.FS.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "This macro is used in filesystems discovery. Can be overridden on the host or linked template level."
+      },
+      {
+        "macro": "{$FAS3220.FS.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "snapshot",
+        "description": "This macro is used in filesystems discovery. Can be overridden on the host or linked template level."
+      },
+      {
+        "macro": "{$FAS3220.FS.PUSED.MAX.CRIT}",
+        "type": "TEXT",
+        "value": "90",
+        "description": "Maximum percentage of disk used. Can be used with {#FSNAME} as context."
+      },
+      {
+        "macro": "{$FAS3220.FS.TIME}",
+        "type": "TEXT",
+        "value": "10m",
+        "description": "The time during which disk usage may exceed the threshold. Can be used with {#FSNAME} as context."
+      },
+      {
+        "macro": "{$FAS3220.FS.TYPE.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "This macro is used in filesystems discovery. Can be overridden on the host or linked template level.\nValue should be integer:\n  2 - flexibleVolume,\n  3 - aggregate,\n  4 - stripedAggregate,\n  5 - stripedVolume."
+      },
+      {
+        "macro": "{$FAS3220.FS.TYPE.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "This macro is used in filesystems discovery. Can be overridden on the host or linked template level.\nValue should be integer:\n  2 - flexibleVolume,\n  3 - aggregate,\n  4 - stripedAggregate,\n  5 - stripedVolume."
+      },
+      {
+        "macro": "{$FAS3220.FS.USE.PCT}",
+        "type": "TEXT",
+        "value": "1",
+        "description": "Macro define what threshold will be used for disk space trigger:\n  0 - use Bytes ({$FAS3220.FS.AVAIL.MIN.CRIT})\n  1 - use percents ({$FAS3220.FS.PUSED.MAX.CRIT})\nCan be used with {#FSNAME} as context."
+      },
+      {
+        "macro": "{$FAS3220.NET.PORT.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "This macro is used in net ports discovery. Can be overridden on the host or linked template level."
+      },
+      {
+        "macro": "{$FAS3220.NET.PORT.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "This macro is used in net ports discovery. Can be overridden on the host or linked template level."
+      },
+      {
+        "macro": "{$FAS3220.NET.PORT.ROLE.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "This macro is used in net ports discovery. Can be overridden on the host or linked template level.\n{#ROLE} is integer. Possible values:\n  0 - undef\n  1 - cluster\n  2 - data\n  3 - node-mgmt\n  4 - intercluster\n  5 - cluster-mgmt"
+      },
+      {
+        "macro": "{$FAS3220.NET.PORT.ROLE.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "This macro is used in net ports discovery. Can be overridden on the host or linked template level.\n{#ROLE} is integer. Possible values:\n  0 - undef\n  1 - cluster\n  2 - data\n  3 - node-mgmt\n  4 - intercluster\n  5 - cluster-mgmt"
+      },
+      {
+        "macro": "{$FAS3220.NET.PORT.TYPE.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "This macro is used in net ports discovery. Can be overridden on the host or linked template level.\n{#TYPE} is integer. Possible values: physical, if-group, vlan, undef."
+      },
+      {
+        "macro": "{$FAS3220.NET.PORT.TYPE.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "This macro is used in net ports discovery. Can be overridden on the host or linked template level.\n{#TYPE} is integer. Possible values: physical, if-group, vlan, undef."
+      },
+      {
+        "macro": "{$ICMP_LOSS_WARN}",
+        "type": "TEXT",
+        "value": "20",
+        "description": "Warning threshold of ICMP packet loss in %."
+      },
+      {
+        "macro": "{$ICMP_RESPONSE_TIME_WARN}",
+        "type": "TEXT",
+        "value": "0.15",
+        "description": "Warning threshold of the average ICMP response time in seconds."
+      },
+      {
+        "macro": "{$IF.ERRORS.WARN}",
+        "type": "TEXT",
+        "value": ""
+      },
+      {
+        "macro": "{$IF.UTIL.MAX}",
+        "type": "TEXT",
+        "value": "95"
+      },
+      {
+        "macro": "{$SNMP.TIMEOUT}",
+        "type": "TEXT",
+        "value": "5m",
+        "description": "Time interval for the SNMP availability trigger."
+      }
+    ],
+    "tags": [
+      {
+        "tag": "class",
+        "value": "hardware"
+      },
+      {
+        "tag": "target",
+        "value": "netapp-fas3220"
+      }
+    ],
+    "name": "NetApp FAS3220 by SNMP",
+    "uuid": "67a554c5999c4e2197861460c690d881",
+    "template": "NetApp FAS3220 by SNMP"
+  },
+  {
+    "items": [
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array capacity",
+        "uuid": "1b5593b39b9e450b81cbe5f5df95ab6f",
+        "key": "purestorage.flasharray.array.capacity",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array data reduction",
+        "uuid": "af8bff8ce3e94aeeb2f1cb93500a17b6",
+        "key": "purestorage.flasharray.array.drr",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Storage array item errors",
+        "uuid": "832c9d3dbf7747b585b7b1f6b8e10895",
+        "key": "purestorage.flasharray.array.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get storage array data' metric",
+            "uuid": "d667b1e7b2eb4034842d80b424497a20",
+            "expression": "length(last(/Pure Storage FlashArray v1 by HTTP/purestorage.flasharray.array.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get array data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get array data",
+        "uuid": "fbb0d015d0d14a67afa843963cd4ab7c",
+        "key": "purestorage.flasharray.array.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array hostname",
+        "uuid": "7ae10945b8184e8a8b2776fe903656d3",
+        "key": "purestorage.flasharray.array.hostname",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array parity",
+        "uuid": "b88c9d0a66a345f9877e64147b89b5f4",
+        "key": "purestorage.flasharray.array.parity",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array bytes read per second",
+        "uuid": "06b193fdd3a64f5fb50e369f37ef0fef",
+        "key": "purestorage.flasharray.array.read_bytes.rate",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array read requests per second",
+        "uuid": "2a31391d11e04fd6a0a06eab065b60a0",
+        "key": "purestorage.flasharray.array.read_requests.rate",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array shared space",
+        "uuid": "bed0354366d3418db1121bad438ef1b8",
+        "key": "purestorage.flasharray.array.shared_space",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array snapshots size",
+        "uuid": "83d24b9d6f7c49dd871c4b358e6ae41e",
+        "key": "purestorage.flasharray.array.snapshots_size",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array system size",
+        "uuid": "8dd8b51662294a4c864be8c3beb63910",
+        "key": "purestorage.flasharray.array.system_size",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array thin provisioning",
+        "uuid": "e6325096de364470b490c7fde221a2ea",
+        "key": "purestorage.flasharray.array.thin_provisioning",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array total data reduction",
+        "uuid": "19b2e650c96f4257ad5ddf3c83f24ef7",
+        "key": "purestorage.flasharray.array.total_drr",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array microseconds per operation",
+        "uuid": "7d164f5f8f164dc1a991cc128ae89439",
+        "key": "purestorage.flasharray.array.usec_per_op",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array microseconds per read",
+        "uuid": "b05b5d7cb95642f08dc9a3ba1dd9840a",
+        "key": "purestorage.flasharray.array.usec_per_read",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array microseconds per write",
+        "uuid": "17525f756e0e4095878c336fb98432c0",
+        "key": "purestorage.flasharray.array.usec_per_write",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array used space",
+        "uuid": "6a7353fd796c43d5832462ccee0ef4e6",
+        "key": "purestorage.flasharray.array.used_space",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array version",
+        "uuid": "693772bb2760414f83648a0db915154d",
+        "key": "purestorage.flasharray.array.version",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array volumes size",
+        "uuid": "3242b7eceb4045fcb08399d2779298bb",
+        "key": "purestorage.flasharray.array.volumes_size",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array write requests per second",
+        "uuid": "401e2ce54423497ab654a3cde638af85",
+        "key": "purestorage.flasharray.array.write_requests.rate",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array bytes written per second",
+        "uuid": "424b1294721245bbb2306f22ddb2c3f7",
+        "key": "purestorage.flasharray.array.written_bytes.rate",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Authentication",
+        "uuid": "4136e99a13df42718d430859aa735cde",
+        "key": "purestorage.flasharray.auth",
+        "type": "SCRIPT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Authentication item errors",
+        "uuid": "26cc0662b1db42bebd4de6d341f1b8aa",
+        "key": "purestorage.flasharray.auth.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: Authentication has failed",
+            "uuid": "8d26197da6b6489f9c6c96e0e93a6450",
+            "expression": "length(last(/Pure Storage FlashArray v1 by HTTP/purestorage.flasharray.auth.errors))>0",
+            "priority": "AVERAGE",
+            "description": "An error occurred when trying to perform authentication in the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Certificates item errors",
+        "uuid": "72ad6c44cc3a465ab4ec0de1a85c88cb",
+        "key": "purestorage.flasharray.certificates.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get certificates' metric",
+            "uuid": "936a861310cd495fa3bd04dd806677ab",
+            "expression": "length(last(/Pure Storage FlashArray v1 by HTTP/purestorage.flasharray.certificates.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get certificate data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get certificates",
+        "uuid": "48a9a7b9235e4d35a0e8d13c238f390d",
+        "key": "purestorage.flasharray.certificates.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Storage hardware item errors",
+        "uuid": "a01efddc2d244f099257966ff56ab703",
+        "key": "purestorage.flasharray.hardware.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get hardware data' metric",
+            "uuid": "a4be9121e63b4067910673ee5b1bd2f0",
+            "expression": "length(last(/Pure Storage FlashArray v1 by HTTP/purestorage.flasharray.hardware.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get hardware data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get hardware data",
+        "uuid": "25747549189e40d2b33e07ad1d9dcdac",
+        "key": "purestorage.flasharray.hardware.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Storage hosts item errors",
+        "uuid": "f5687508fc04489a854d4b69450d21f5",
+        "key": "purestorage.flasharray.hosts.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get hosts' metric",
+            "uuid": "f4209f0bc849459481885a5af147f556",
+            "expression": "length(last(/Pure Storage FlashArray v1 by HTTP/purestorage.flasharray.hosts.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get host data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get hosts",
+        "uuid": "10d8c9d7dd4443b386455df266a5e17c",
+        "key": "purestorage.flasharray.hosts.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Storage network interfaces item errors",
+        "uuid": "15cff18716c44a7ab72523b27a927494",
+        "key": "purestorage.flasharray.net_ifs.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get network interfaces' metric",
+            "uuid": "9b6a09c93828433586e338f0cd504c1c",
+            "expression": "length(last(/Pure Storage FlashArray v1 by HTTP/purestorage.flasharray.net_ifs.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get network interface data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get network interfaces",
+        "uuid": "8e7a9058d466429082f8246138191b03",
+        "key": "purestorage.flasharray.net_ifs.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Phone home status",
+        "uuid": "f3bd09e61c394d009a150e4fc124c73c",
+        "key": "purestorage.flasharray.phone_home.status",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "0",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: Phone Home has been disabled",
+            "uuid": "2803f1c66b7f4e2b8d62365281553edb",
+            "expression": "last(/Pure Storage FlashArray v1 by HTTP/purestorage.flasharray.phone_home.status)=0",
+            "priority": "WARNING",
+            "description": "Phone Home connects to the Pure1 service and uploads logs for continuous health monitoring."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Storage pods item errors",
+        "uuid": "79decf262837474a945271fadddeaf6f",
+        "key": "purestorage.flasharray.pods.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get pods' metric",
+            "uuid": "9a283b35c1ae4ec8af9b4c877b134e2c",
+            "expression": "length(last(/Pure Storage FlashArray v1 by HTTP/purestorage.flasharray.pods.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get pod data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get pods",
+        "uuid": "0fe7686c74674756b1d0f141e5d008ba",
+        "key": "purestorage.flasharray.pods.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Remote assist status",
+        "uuid": "4562bc014a9e4d0394ccf3b993a4dcfc",
+        "key": "purestorage.flasharray.remote_assist.status",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "0",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "security"
+              }
+            ],
+            "name": "Pure Storage FlashArray: RemoteAssist has been enabled",
+            "uuid": "66728d5d9e0a474484b4b5cfd3ee25a4",
+            "expression": "last(/Pure Storage FlashArray v1 by HTTP/purestorage.flasharray.remote_assist.status)=1",
+            "priority": "HIGH",
+            "description": "Purity's administrator-controlled RemoteAssist feature enables a Technical Support Engineer to communicate directly with the FlashArray via a secure link, effectively establishing an additional administrative session for the duration of the diagnosis and service."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Storage volumes item errors",
+        "uuid": "cad5bda91bfb482fae58055454c3be31",
+        "key": "purestorage.flasharray.volumes.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get volumes' metric",
+            "uuid": "18e714869ba04a1fa89fa0a89eeb50d4",
+            "expression": "length(last(/Pure Storage FlashArray v1 by HTTP/purestorage.flasharray.volumes.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get volume data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get volumes",
+        "uuid": "c53e2e2ccc7d415f803f76bd98922c03",
+        "key": "purestorage.flasharray.volumes.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Templates/SAN"
+      }
+    ],
+    "macros": [
+      {
+        "macro": "{$PURE.FLASHARRAY.API.PASSWORD}",
+        "type": "SECRET_TEXT",
+        "value": "",
+        "description": "Pure Storage FlashArray Web interface password."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.API.TOKEN}",
+        "type": "SECRET_TEXT",
+        "value": "",
+        "description": "Pure Storage FlashArray API token."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.API.URL}",
+        "type": "TEXT",
+        "value": "",
+        "description": "Pure Storage FlashArray Web interface URL."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.API.USERNAME}",
+        "type": "SECRET_TEXT",
+        "value": "",
+        "description": "Pure Storage FlashArray Web interface username."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.API.VERSION}",
+        "type": "TEXT",
+        "value": "1.19",
+        "description": "Pure Storage FlashArray API version."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.CERT.EXPIRY.WARN}",
+        "type": "TEXT",
+        "value": "7",
+        "description": "Number of days until the certificate expires."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.CERT.LLD.FILTER.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable certificates by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.CERT.LLD.FILTER.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable certificates by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.CTRL.LLD.FILTER.INDEX.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable controllers by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.CTRL.LLD.FILTER.INDEX.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable controllers by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.DATA.TIMEOUT}",
+        "type": "TEXT",
+        "value": "15s",
+        "description": "Response timeout for the API."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.DRIVE.LLD.FILTER.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable storage drives by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.DRIVE.LLD.FILTER.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable storage drives by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.FAN.LLD.FILTER.INDEX.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable fans by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.FAN.LLD.FILTER.INDEX.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable fans by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.HOST.LLD.FILTER.GROUP.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable hosts by group."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.HOST.LLD.FILTER.GROUP.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable hosts by group."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.HOST.LLD.FILTER.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable hosts by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.HOST.LLD.FILTER.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable hosts by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.HTTP_PROXY}",
+        "type": "TEXT",
+        "value": "",
+        "description": "HTTP proxy for API requests. You can specify it using the format [protocol://][username[:password]@]proxy.example.com[:port]. For more details, see the documentation at https://www.zabbix.com/documentation/7.4/manual/config/items/itemtypes/http"
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.NETIF.LLD.FILTER.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable network interfaces by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.NETIF.LLD.FILTER.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable network interfaces by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.POD.LLD.FILTER.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable storage pods by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.POD.LLD.FILTER.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable storage pods by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.POWER.LLD.FILTER.INDEX.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable power supply components by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.POWER.LLD.FILTER.INDEX.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable power supply components by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.TEMP.LLD.FILTER.INDEX.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable temperature sensors by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.TEMP.LLD.FILTER.INDEX.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable temperature sensors by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.VOLUME.LLD.FILTER.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable storage volumes by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.VOLUME.LLD.FILTER.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable storage volumes by name."
+      }
+    ],
+    "tags": [
+      {
+        "tag": "class",
+        "value": "storage"
+      },
+      {
+        "tag": "target",
+        "value": "pure-storage"
+      }
+    ],
+    "name": "Pure Storage FlashArray v1 by HTTP",
+    "uuid": "ea6c8d34f4864bb7b710d9d2903591d9",
+    "template": "Pure Storage FlashArray v1 by HTTP"
+  },
+  {
+    "items": [
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "alerts"
+          }
+        ],
+        "name": "Critical alerts",
+        "uuid": "de47bda65a2548beae3e6e9c49644853",
+        "key": "purestorage.flasharray.alert.critical",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "Pure Storage FlashArray: Critical alerts have been detected",
+            "uuid": "f5fc9974f3374649b7ecd275c3c4d66a",
+            "expression": "last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.alert.critical)>0",
+            "priority": "HIGH",
+            "description": "Recommended to refer to the Pure Storage FlashArray web interface to check the alert details."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Alerts data item errors",
+        "uuid": "73de8b367aca47af9e7fa897c34bc99b",
+        "key": "purestorage.flasharray.alert.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get alerts data' metric",
+            "uuid": "aaf89d0a16c24ad38d01bdc517ff1951",
+            "expression": "length(last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.alert.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get alert data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get alerts data",
+        "uuid": "6a188fb7e73b490d82e6f6ac5b7787ae",
+        "key": "purestorage.flasharray.alert.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "alerts"
+          }
+        ],
+        "name": "Warning alerts",
+        "uuid": "df34ee821ab440519888a63a52620b7c",
+        "key": "purestorage.flasharray.alert.warning",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "Pure Storage FlashArray: Warning alerts have been detected",
+            "uuid": "16d6ab845d5443bab6161bb9f5d75878",
+            "expression": "last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.alert.warning)>0",
+            "priority": "WARNING",
+            "description": "Recommended to refer to the Pure Storage FlashArray web interface to check the alert details."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array capacity",
+        "uuid": "1b5593b39b9e450b81cbe5f5df95ab6f",
+        "key": "purestorage.flasharray.array.capacity",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array data reduction",
+        "uuid": "af8bff8ce3e94aeeb2f1cb93500a17b6",
+        "key": "purestorage.flasharray.array.drr",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Storage array item errors",
+        "uuid": "832c9d3dbf7747b585b7b1f6b8e10895",
+        "key": "purestorage.flasharray.array.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get storage array data' metric",
+            "uuid": "d667b1e7b2eb4034842d80b424497a20",
+            "expression": "length(last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.array.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get array data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get array data",
+        "uuid": "fbb0d015d0d14a67afa843963cd4ab7c",
+        "key": "purestorage.flasharray.array.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array hostname",
+        "uuid": "7ae10945b8184e8a8b2776fe903656d3",
+        "key": "purestorage.flasharray.array.hostname",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array OS",
+        "uuid": "a2ace5eda53c45a692b09d41e5b09c32",
+        "key": "purestorage.flasharray.array.os",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array parity",
+        "uuid": "b88c9d0a66a345f9877e64147b89b5f4",
+        "key": "purestorage.flasharray.array.parity",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array physical size",
+        "uuid": "2f202ee8bb3b4cf4982dda689c703697",
+        "key": "purestorage.flasharray.array.physical_size",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array bytes read per second",
+        "uuid": "06b193fdd3a64f5fb50e369f37ef0fef",
+        "key": "purestorage.flasharray.array.read_bytes.rate",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array read requests per second",
+        "uuid": "2a31391d11e04fd6a0a06eab065b60a0",
+        "key": "purestorage.flasharray.array.read_requests.rate",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array shared space",
+        "uuid": "bed0354366d3418db1121bad438ef1b8",
+        "key": "purestorage.flasharray.array.shared_space",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array snapshots size",
+        "uuid": "83d24b9d6f7c49dd871c4b358e6ae41e",
+        "key": "purestorage.flasharray.array.snapshots_size",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array system size",
+        "uuid": "8dd8b51662294a4c864be8c3beb63910",
+        "key": "purestorage.flasharray.array.system_size",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array thin provisioning",
+        "uuid": "e6325096de364470b490c7fde221a2ea",
+        "key": "purestorage.flasharray.array.thin_provisioning",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array total data reduction",
+        "uuid": "19b2e650c96f4257ad5ddf3c83f24ef7",
+        "key": "purestorage.flasharray.array.total_drr",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array microseconds per operation",
+        "uuid": "7d164f5f8f164dc1a991cc128ae89439",
+        "key": "purestorage.flasharray.array.usec_per_op",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array microseconds per read",
+        "uuid": "b05b5d7cb95642f08dc9a3ba1dd9840a",
+        "key": "purestorage.flasharray.array.usec_per_read",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array microseconds per write",
+        "uuid": "17525f756e0e4095878c336fb98432c0",
+        "key": "purestorage.flasharray.array.usec_per_write",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array used space",
+        "uuid": "6a7353fd796c43d5832462ccee0ef4e6",
+        "key": "purestorage.flasharray.array.used_space",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array version",
+        "uuid": "693772bb2760414f83648a0db915154d",
+        "key": "purestorage.flasharray.array.version",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array write requests per second",
+        "uuid": "401e2ce54423497ab654a3cde638af85",
+        "key": "purestorage.flasharray.array.write_requests.rate",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "array"
+          }
+        ],
+        "name": "Array bytes written per second",
+        "uuid": "424b1294721245bbb2306f22ddb2c3f7",
+        "key": "purestorage.flasharray.array.written_bytes.rate",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Authentication",
+        "uuid": "4136e99a13df42718d430859aa735cde",
+        "key": "purestorage.flasharray.auth",
+        "type": "SCRIPT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Authentication item errors",
+        "uuid": "26cc0662b1db42bebd4de6d341f1b8aa",
+        "key": "purestorage.flasharray.auth.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: Authentication has failed",
+            "uuid": "8d26197da6b6489f9c6c96e0e93a6450",
+            "expression": "length(last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.auth.errors))>0",
+            "priority": "AVERAGE",
+            "description": "An error occurred when trying to perform authentication in the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Certificates item errors",
+        "uuid": "72ad6c44cc3a465ab4ec0de1a85c88cb",
+        "key": "purestorage.flasharray.certificates.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get certificates' metric",
+            "uuid": "936a861310cd495fa3bd04dd806677ab",
+            "expression": "length(last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.certificates.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get certificate data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get certificates",
+        "uuid": "48a9a7b9235e4d35a0e8d13c238f390d",
+        "key": "purestorage.flasharray.certificates.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Storage hardware item errors",
+        "uuid": "a01efddc2d244f099257966ff56ab703",
+        "key": "purestorage.flasharray.hardware.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get hardware data' metric",
+            "uuid": "a4be9121e63b4067910673ee5b1bd2f0",
+            "expression": "length(last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.hardware.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get hardware data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get hardware data",
+        "uuid": "25747549189e40d2b33e07ad1d9dcdac",
+        "key": "purestorage.flasharray.hardware.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Storage hosts item errors",
+        "uuid": "f5687508fc04489a854d4b69450d21f5",
+        "key": "purestorage.flasharray.hosts.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get hosts' metric",
+            "uuid": "f4209f0bc849459481885a5af147f556",
+            "expression": "length(last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.hosts.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get host data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get hosts",
+        "uuid": "10d8c9d7dd4443b386455df266a5e17c",
+        "key": "purestorage.flasharray.hosts.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Storage network interfaces item errors",
+        "uuid": "15cff18716c44a7ab72523b27a927494",
+        "key": "purestorage.flasharray.net_ifs.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get network interfaces' metric",
+            "uuid": "9b6a09c93828433586e338f0cd504c1c",
+            "expression": "length(last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.net_ifs.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get network interface data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get network interfaces",
+        "uuid": "8e7a9058d466429082f8246138191b03",
+        "key": "purestorage.flasharray.net_ifs.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "support"
+          }
+        ],
+        "name": "Phone home status",
+        "uuid": "f3bd09e61c394d009a150e4fc124c73c",
+        "key": "purestorage.flasharray.phone_home.status",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "0",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: Phone Home has been disabled",
+            "uuid": "2803f1c66b7f4e2b8d62365281553edb",
+            "expression": "last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.phone_home.status)=0",
+            "priority": "WARNING",
+            "description": "Phone Home connects to the Pure1 service and uploads logs for continuous health monitoring."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Storage pods item errors",
+        "uuid": "79decf262837474a945271fadddeaf6f",
+        "key": "purestorage.flasharray.pods.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get pods' metric",
+            "uuid": "9a283b35c1ae4ec8af9b4c877b134e2c",
+            "expression": "length(last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.pods.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get pod data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get pods",
+        "uuid": "0fe7686c74674756b1d0f141e5d008ba",
+        "key": "purestorage.flasharray.pods.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "support"
+          }
+        ],
+        "name": "Remote assist status",
+        "uuid": "4562bc014a9e4d0394ccf3b993a4dcfc",
+        "key": "purestorage.flasharray.remote_assist.status",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "0",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "security"
+              }
+            ],
+            "name": "Pure Storage FlashArray: RemoteAssist has been enabled",
+            "uuid": "66728d5d9e0a474484b4b5cfd3ee25a4",
+            "expression": "last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.remote_assist.status)=1",
+            "priority": "HIGH",
+            "description": "Purity's administrator-controlled RemoteAssist feature enables a Technical Support Engineer to communicate directly with the FlashArray via a secure link, effectively establishing an additional administrative session for the duration of the diagnosis and service."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Support information item errors",
+        "uuid": "2ac568a613204cf18eb47f65706df966",
+        "key": "purestorage.flasharray.support.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get support information' metric",
+            "uuid": "630adb3bf4ae4f7eaf1bf42cef00010a",
+            "expression": "length(last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.support.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get support information from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get support information",
+        "uuid": "e91ac1e519874196bcf83752767218fd",
+        "key": "purestorage.flasharray.support.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "error"
+          }
+        ],
+        "name": "Storage volumes item errors",
+        "uuid": "cad5bda91bfb482fae58055454c3be31",
+        "key": "purestorage.flasharray.volumes.errors",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "1h",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Pure Storage FlashArray: There are errors in the 'Get volumes' metric",
+            "uuid": "18e714869ba04a1fa89fa0a89eeb50d4",
+            "expression": "length(last(/Pure Storage FlashArray v2 by HTTP/purestorage.flasharray.volumes.errors))>0",
+            "priority": "WARNING",
+            "description": "An error occurred when trying to get volume data from the Pure Storage FlashArray API."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get volumes",
+        "uuid": "c53e2e2ccc7d415f803f76bd98922c03",
+        "key": "purestorage.flasharray.volumes.get",
+        "type": "DEPENDENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      }
+    ],
+    "groups": [
+      {
+        "name": "Templates/SAN"
+      }
+    ],
+    "macros": [
+      {
+        "macro": "{$PURE.FLASHARRAY.API.TOKEN}",
+        "type": "SECRET_TEXT",
+        "value": "",
+        "description": "Pure Storage FlashArray API token."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.API.URL}",
+        "type": "TEXT",
+        "value": "",
+        "description": "Pure Storage FlashArray Web interface URL."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.API.VERSION}",
+        "type": "TEXT",
+        "value": "2.36",
+        "description": "Pure Storage FlashArray API version."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.CERT.EXPIRY.WARN}",
+        "type": "TEXT",
+        "value": "7",
+        "description": "Number of days until the certificate expires."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.CERT.LLD.FILTER.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable certificates by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.CERT.LLD.FILTER.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable certificates by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.CTRL.LLD.FILTER.INDEX.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable controllers by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.CTRL.LLD.FILTER.INDEX.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable controllers by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.DATA.TIMEOUT}",
+        "type": "TEXT",
+        "value": "15s",
+        "description": "Response timeout for the API."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.DRIVE.LLD.FILTER.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable storage drives by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.DRIVE.LLD.FILTER.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable storage drives by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.FAN.LLD.FILTER.INDEX.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable fans by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.FAN.LLD.FILTER.INDEX.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable fans by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.HOST.LLD.FILTER.GROUP.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable hosts by group."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.HOST.LLD.FILTER.GROUP.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable hosts by group."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.HOST.LLD.FILTER.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable hosts by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.HOST.LLD.FILTER.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable hosts by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.HTTP_PROXY}",
+        "type": "TEXT",
+        "value": "",
+        "description": "HTTP proxy for API requests. You can specify it using the format [protocol://][username[:password]@]proxy.example.com[:port]. For more details, see the documentation at https://www.zabbix.com/documentation/7.4/manual/config/items/itemtypes/http"
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.NETIF.LLD.FILTER.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable network interfaces by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.NETIF.LLD.FILTER.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable network interfaces by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.POD.LLD.FILTER.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable storage pods by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.POD.LLD.FILTER.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable storage pods by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.POWER.LLD.FILTER.INDEX.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable power supply components by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.POWER.LLD.FILTER.INDEX.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable power supply components by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.TEMP.LLD.FILTER.INDEX.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable temperature sensors by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.TEMP.LLD.FILTER.INDEX.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable temperature sensors by index."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.VOLUME.LLD.FILTER.NAME.MATCHES}",
+        "type": "TEXT",
+        "value": ".*",
+        "description": "Filter of discoverable storage volumes by name."
+      },
+      {
+        "macro": "{$PURE.FLASHARRAY.VOLUME.LLD.FILTER.NAME.NOT_MATCHES}",
+        "type": "TEXT",
+        "value": "CHANGE_IF_NEEDED",
+        "description": "Filter to exclude discoverable storage volumes by name."
+      }
+    ],
+    "tags": [
+      {
+        "tag": "class",
+        "value": "storage"
+      },
+      {
+        "tag": "target",
+        "value": "pure-storage"
+      }
+    ],
+    "name": "Pure Storage FlashArray v2 by HTTP",
+    "uuid": "a6decea0b05941ffad41f3e9a14f044e",
+    "template": "Pure Storage FlashArray v2 by HTTP"
+  }
+]

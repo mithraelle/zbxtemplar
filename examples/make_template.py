@@ -10,6 +10,7 @@ from zbxtemplar.zabbix import TemplateGroup, HostGroup, AgentInterface
 from zbxtemplar.zabbix.Template import ValueMapType
 from zbxtemplar.catalog.zabbix_7_4 import functions, InventoryField
 from zbxtemplar.zabbix.Inventory import InventoryMode
+from zbxtemplar.catalog.zabbix_7_4 import templates
 
 
 class SampleTemplate(TemplarModule):
@@ -81,6 +82,7 @@ class SampleTemplate(TemplarModule):
         second_page.link_widget(SimpleGraph(item=item2, x=36, y=0, width=36, height=5))
 
         host = self.add_host("Templar Host", groups=[host_group])
+        host.link_template(templates.OperatingSystems.Linux_by_Zabbix_agent)
         host.set_inventory_mode(InventoryMode.MANUAL).set_inventory(InventoryField.OS, "Linux").set_inventory(InventoryField.NAME, "Templar Test")
 
         host_macro = host.add_macro("MY_HOST_MACRO", 1, "Testing The Host Macro")

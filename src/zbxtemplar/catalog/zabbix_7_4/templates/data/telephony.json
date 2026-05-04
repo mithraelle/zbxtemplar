@@ -1,0 +1,619 @@
+[
+  {
+    "items": [
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "calls"
+          }
+        ],
+        "name": "Active calls",
+        "uuid": "9ef3ce67770d43c68862c48bb7d7106c",
+        "key": "asterisk.active_calls",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "channels"
+          }
+        ],
+        "name": "Active channels",
+        "uuid": "44e1ab9ab00646af8b89cced1dde3781",
+        "key": "asterisk.active_channels",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "calls"
+          }
+        ],
+        "name": "Calls processed",
+        "uuid": "c8b47ab2c61e4cd8880d0e37abf0dcb4",
+        "key": "asterisk.calls_processed",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "calls"
+          }
+        ],
+        "name": "Calls processed per second",
+        "uuid": "714968fc584e437fa85a90eb33bb8605",
+        "key": "asterisk.calls_processed.rate",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "raw"
+          }
+        ],
+        "name": "Get stats",
+        "uuid": "0d8c4a8dc6f141418f27b428b3d2e97a",
+        "key": "asterisk.get_stats",
+        "type": "HTTP_AGENT",
+        "value_type": "TEXT",
+        "history": "0",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "channels"
+          }
+        ],
+        "name": "IAX trunks active channels",
+        "uuid": "00c56776eba74343b131903e4dd1d85a",
+        "key": "asterisk.iax.active_channels",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "Asterisk: Total number of active channels of IAX trunks is too high",
+            "uuid": "1d4d358c853649938d48cc475faebc51",
+            "expression": "min(/Asterisk by HTTP/asterisk.iax.active_channels,10m)>={$AMI.TRUNK_ACTIVE_CHANNELS_TOTAL.MAX.WARN:\"IAX\"}",
+            "priority": "WARNING",
+            "description": "The IAX trunks may not be able to process new calls."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "peers"
+          }
+        ],
+        "name": "IAX offline peers",
+        "uuid": "95026d1391bf42a4bf107793a151e2e3",
+        "key": "asterisk.iax.offline",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "peers"
+          }
+        ],
+        "name": "IAX online peers",
+        "uuid": "81fab9b3e2094b76b620cd55789d206a",
+        "key": "asterisk.iax.online",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "peers"
+          }
+        ],
+        "name": "IAX peers",
+        "uuid": "ca52df2c1d5e4d80a9fee4f4bd24ebb2",
+        "key": "asterisk.iax.total",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "peers"
+          }
+        ],
+        "name": "IAX unmonitored peers",
+        "uuid": "f59eb7ecc4fa4909abb3b2bad539e3e3",
+        "key": "asterisk.iax.unmonitored",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "channels"
+          }
+        ],
+        "name": "PJSIP trunks active channels",
+        "uuid": "649818462bef4df18645479ceb60daf0",
+        "key": "asterisk.pjsip.active_channels",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "Asterisk: Total number of active channels of PJSIP trunks is too high",
+            "uuid": "dc04c037e7984c829b9d99d797569d16",
+            "expression": "min(/Asterisk by HTTP/asterisk.pjsip.active_channels,10m)>={$AMI.TRUNK_ACTIVE_CHANNELS_TOTAL.MAX.WARN:\"PJSIP\"}",
+            "priority": "WARNING",
+            "description": "The PJSIP trunks may not be able to process new calls."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "peers"
+          }
+        ],
+        "name": "PJSIP available endpoints",
+        "uuid": "4cc436988494486d9123412073875ef0",
+        "key": "asterisk.pjsip.available",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "peers"
+          }
+        ],
+        "name": "PJSIP endpoints",
+        "uuid": "284d0b335703467393f8ffb0f2cd5d76",
+        "key": "asterisk.pjsip.total",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "peers"
+          }
+        ],
+        "name": "PJSIP unavailable endpoints",
+        "uuid": "39503b875b8e4c419687fa936a05b9ea",
+        "key": "asterisk.pjsip.unavailable",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "channels"
+          }
+        ],
+        "name": "SIP trunks active channels",
+        "uuid": "19e0e0536f7548aaa6e5b985bc9788aa",
+        "key": "asterisk.sip.active_channels",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "Asterisk: Total number of active channels of SIP trunks is too high",
+            "uuid": "dd63b28933044f79902a765acc9a20e0",
+            "expression": "min(/Asterisk by HTTP/asterisk.sip.active_channels,10m)>={$AMI.TRUNK_ACTIVE_CHANNELS_TOTAL.MAX.WARN:\"SIP\"}",
+            "priority": "WARNING",
+            "description": "The SIP trunks may not be able to process new calls."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "peers"
+          }
+        ],
+        "name": "SIP monitored offline",
+        "uuid": "7b908ba6a12342d58c03a67254b1a463",
+        "key": "asterisk.sip.monitored_offline",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "peers"
+          }
+        ],
+        "name": "SIP monitored online",
+        "uuid": "11967fb1c0434feb9fe81ec87137ea18",
+        "key": "asterisk.sip.monitored_online",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "peers"
+          }
+        ],
+        "name": "SIP peers",
+        "uuid": "1ab44a7729d14766af0105ad78762f18",
+        "key": "asterisk.sip.total",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "peers"
+          }
+        ],
+        "name": "SIP unmonitored offline",
+        "uuid": "3578852a8f73421a855d175ea840b905",
+        "key": "asterisk.sip.unmonitored_offline",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "peers"
+          }
+        ],
+        "name": "SIP unmonitored online",
+        "uuid": "254ec9432b38423fa25fed0f26f1778d",
+        "key": "asterisk.sip.unmonitored_online",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "queues"
+          }
+        ],
+        "name": "Total queues",
+        "uuid": "056b266049f242c1aea0085bdf27fe77",
+        "key": "asterisk.total_queues",
+        "type": "DEPENDENT",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d"
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Uptime",
+        "uuid": "e7ef072ba0b64427bc5fdd78d6eaaa1d",
+        "key": "asterisk.uptime",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Asterisk: Failed to fetch AMI page",
+            "uuid": "9953e43acaa6429bb8515d1e211a867c",
+            "expression": "nodata(/Asterisk by HTTP/asterisk.uptime,30m)=1",
+            "priority": "WARNING",
+            "description": "Zabbix has not received any data for items for the last 30 minutes."
+          },
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "Asterisk: Service has been restarted",
+            "uuid": "fe01f5919b424b5d85fb7ec7c5c39625",
+            "expression": "last(/Asterisk by HTTP/asterisk.uptime)<10m",
+            "priority": "INFO",
+            "description": "Uptime is less than 10 minutes."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "system"
+          }
+        ],
+        "name": "Uptime after reload",
+        "uuid": "bce11cf87cfa4b6aa129be0d3c668e09",
+        "key": "asterisk.uptime_reload",
+        "type": "DEPENDENT",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "Asterisk: Configuration has been reloaded",
+            "uuid": "830998987f7a48d893e2e8bc325d8483",
+            "expression": "last(/Asterisk by HTTP/asterisk.uptime_reload)<10m",
+            "priority": "INFO",
+            "description": "Uptime is less than 10 minutes."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "application"
+          }
+        ],
+        "name": "Version",
+        "uuid": "f2695a25f2ab412fb3112e3c27ce3cf0",
+        "key": "asterisk.version",
+        "type": "DEPENDENT",
+        "value_type": "CHAR",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "notice"
+              }
+            ],
+            "name": "Asterisk: Version has changed",
+            "uuid": "b6bc3dbc0c19426aa078830b81e0a24a",
+            "expression": "last(/Asterisk by HTTP/asterisk.version,#1)<>last(/Asterisk by HTTP/asterisk.version,#2) and length(last(/Asterisk by HTTP/asterisk.version))>0",
+            "priority": "INFO",
+            "description": "The Asterisk version has changed. Acknowledge to close the problem manually."
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "Service response time",
+        "uuid": "6d623489d2b747b8b5d3211cb2a99cb7",
+        "key": "net.tcp.service.perf[\"tcp\",\"{$AMI.HOST}\",\"{$AMI.PORT}\"]",
+        "type": "SIMPLE",
+        "value_type": "FLOAT",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "performance"
+              }
+            ],
+            "name": "Asterisk: Service response time is too high",
+            "uuid": "c04cc187737a4d5b9cac88e1f8b2ceae",
+            "expression": "min(/Asterisk by HTTP/net.tcp.service.perf[\"tcp\",\"{$AMI.HOST}\",\"{$AMI.PORT}\"],5m)>{$AMI.RESPONSE_TIME.MAX.WARN}",
+            "priority": "WARNING"
+          }
+        ]
+      },
+      {
+        "tags": [
+          {
+            "tag": "component",
+            "value": "network"
+          }
+        ],
+        "name": "Service status",
+        "uuid": "eaf752423be3411ba2b1e30ab6c636f5",
+        "key": "net.tcp.service[\"tcp\",\"{$AMI.HOST}\",\"{$AMI.PORT}\"]",
+        "type": "SIMPLE",
+        "value_type": "UNSIGNED",
+        "history": "90d",
+        "trends": "365d",
+        "triggers": [
+          {
+            "tags": [
+              {
+                "tag": "scope",
+                "value": "availability"
+              }
+            ],
+            "name": "Asterisk: Service is down",
+            "uuid": "3de157caa4f34f288bfa42008338b618",
+            "expression": "last(/Asterisk by HTTP/net.tcp.service[\"tcp\",\"{$AMI.HOST}\",\"{$AMI.PORT}\"])=0",
+            "priority": "AVERAGE"
+          }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "name": "Templates/Telephony"
+      }
+    ],
+    "macros": [
+      {
+        "macro": "{$AMI.HOST}",
+        "type": "TEXT",
+        "value": "<SET AMI HOST>",
+        "description": "The hostname or IP address of the Asterisk Manager API host."
+      },
+      {
+        "macro": "{$AMI.PORT}",
+        "type": "TEXT",
+        "value": "5038",
+        "description": "AMI port number for checking service availability."
+      },
+      {
+        "macro": "{$AMI.QUEUE_CALLERS.MAX.WARN}",
+        "type": "TEXT",
+        "value": "10",
+        "description": "The maximum number of callers in a queue for trigger expression."
+      },
+      {
+        "macro": "{$AMI.RESPONSE_TIME.MAX.WARN}",
+        "type": "TEXT",
+        "value": "10s",
+        "description": "The Asterisk Manager API page maximum response time in seconds for trigger expression."
+      },
+      {
+        "macro": "{$AMI.SECRET}",
+        "type": "TEXT",
+        "value": "zabbix",
+        "description": "The Asterisk Manager secret."
+      },
+      {
+        "macro": "{$AMI.TRUNK_ACTIVE_CHANNELS.MAX.WARN}",
+        "type": "TEXT",
+        "value": "28",
+        "description": "The maximum number of busy channels of a trunk for trigger expression."
+      },
+      {
+        "macro": "{$AMI.TRUNK_ACTIVE_CHANNELS_TOTAL.MAX.WARN:\"IAX\"}",
+        "type": "TEXT",
+        "value": "28",
+        "description": "The total maximum number of busy channels of IAX trunks for trigger expression."
+      },
+      {
+        "macro": "{$AMI.TRUNK_ACTIVE_CHANNELS_TOTAL.MAX.WARN:\"PJSIP\"}",
+        "type": "TEXT",
+        "value": "28",
+        "description": "The total maximum number of busy channels of PJSIP trunks for trigger expression."
+      },
+      {
+        "macro": "{$AMI.TRUNK_ACTIVE_CHANNELS_TOTAL.MAX.WARN:\"SIP\"}",
+        "type": "TEXT",
+        "value": "28",
+        "description": "The total maximum number of busy channels of SIP trunks for trigger expression."
+      },
+      {
+        "macro": "{$AMI.TRUNK_REGEXP}",
+        "type": "TEXT",
+        "value": "trunk",
+        "description": "The regexp for the identification of trunk peers."
+      },
+      {
+        "macro": "{$AMI.URL}",
+        "type": "TEXT",
+        "value": "http://asterisk:8088/asterisk/rawman",
+        "description": "The Asterisk Manager API URL in the format `<scheme>://<host>:<port>/<prefix>/rawman`."
+      },
+      {
+        "macro": "{$AMI.USERNAME}",
+        "type": "TEXT",
+        "value": "zabbix",
+        "description": "The Asterisk Manager name."
+      }
+    ],
+    "tags": [
+      {
+        "tag": "class",
+        "value": "voip"
+      },
+      {
+        "tag": "target",
+        "value": "asterisk"
+      }
+    ],
+    "name": "Asterisk by HTTP",
+    "uuid": "0f1d7c44635f49ae82581f4d73d8865a",
+    "template": "Asterisk by HTTP"
+  }
+]

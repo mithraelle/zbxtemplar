@@ -1,3 +1,5 @@
+import json
+
 from zbxtemplar.decree.Action import (
     Action, AutoregistrationAction, CONDITION_RESOLVERS, OP_LIST_TARGETS, OP_DICT_TARGETS,
 )
@@ -6,7 +8,9 @@ from zbxtemplar.decree.saml import SamlProvider
 from zbxtemplar.decree.Token import Token
 from zbxtemplar.decree.User import User
 from zbxtemplar.decree.UserGroup import UserGroup
+from zbxtemplar.dicts.ZabbixExport import ZabbixExport
 from zbxtemplar.modules import Context
+from zbxtemplar.zabbix.Template import Template
 from zbxtemplar.zabbix.ZbxEntity import YesNo
 
 
@@ -23,6 +27,7 @@ class APIContext:
         self._saml: SamlProvider | None = None
         self._host_encryptions: dict[str, HostEncryption] = {}
         self._actions: dict[str, Action] = {}
+        self._templates: dict[str, Template] = {}
 
         self._api_id_name: dict[tuple, dict[str, str]] = {}
 
@@ -289,3 +294,28 @@ class APIContext:
         if name not in self._actions:
             raise ValueError(f"Action '{name}' not found in API context")
         return self._actions[name]
+
+    _EXPORT_BATCH = 50
+
+    def pull_templates(self, templates: list[str] | None = None):
+        params: dict = {"output": ["templateid"]}
+        if templates is not None:
+            params["filter"] = {"host": templates}
+        rows = self._api.template.get(**params)
+        template_ids = [r["templateid"] for r in rows]
+        for i in range(0, len(template_ids), self._EXPORT_BATCH):
+            batch = template_ids[i:i + self._EXPORT_BATCH]
+            raw = self._api.configuration.export(
+                format="json",
+                options={"templates": batch},
+            )
+            data = json.loads(raw)
+            zx = ZabbixExport.from_data(data)
+            for t in zx.templates or []:
+                self._templates[t.name] = t
+        return self
+
+    def get_template(self, name: str) -> Template:
+        if name not in self._templates:
+            raise ValueError(f"Template '{name}' not found in API context")
+        return self._templates[name]
