@@ -1,5 +1,4 @@
 import os
-import re
 
 import yaml
 
@@ -111,15 +110,6 @@ class Context:
             h.groups = [self._host_groups.setdefault(g.name, g) for g in h.groups]
             h.templates = [self._templates.setdefault(tpl.name, tpl) for tpl in h.templates]
             self._upsert(self._hosts, h.name, h)
-        for tr in zx.triggers or []:
-            owner = re.search(r'/([^/]+)/', tr.expression or "")
-            if not owner:
-                continue
-            name = owner.group(1)
-            if name in self._templates:
-                self._templates[name]._triggers.append(tr)
-            elif name in self._hosts:
-                self._hosts[name]._triggers.append(tr)
 
     def _merge_decree(self, decree: Decree):
         for ug in decree.user_group or []:

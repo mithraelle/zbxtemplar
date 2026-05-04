@@ -1,3 +1,4 @@
+import re
 from typing import Self
 
 from zbxtemplar.dicts.Schema import Schema, SchemaField
@@ -30,4 +31,19 @@ class ZabbixExport(Schema):
     def from_data(cls, data: dict) -> Self:
         if set(data) == {"zabbix_export"}:
             data = data["zabbix_export"]
-        return cls.from_dict(data)
+        zx = cls.from_dict(data)
+        zx._assign_triggers()
+        return zx
+
+    def _assign_triggers(self):
+        templates = {t.name: t for t in self.templates or []}
+        hosts = {h.name: h for h in self.hosts or []}
+        for tr in self.triggers or []:
+            owner = re.search(r'/([^/]+)/', tr.expression or "")
+            if not owner:
+                continue
+            name = owner.group(1)
+            if name in templates:
+                templates[name]._triggers.append(tr)
+            elif name in hosts:
+                hosts[name]._triggers.append(tr)
