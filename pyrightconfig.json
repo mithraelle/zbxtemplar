@@ -1,0 +1,6 @@
+{
+  "include": ["src", "tests", "examples"],
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "standard",
+  "extraPaths": ["src"]
+}
