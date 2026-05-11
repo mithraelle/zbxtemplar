@@ -135,11 +135,27 @@ class Schema:
                 sf.type = _strip_none(anno)
             own[name] = sf
             delattr(cls, name)
-        if not own:
-            return
-        merged = [own.pop(f.key, f) for f in cls._SCHEMA]
-        merged.extend(own.values())
-        cls._SCHEMA = merged
+
+        explicit = cls.__dict__.get("_SCHEMA")
+        if explicit is not None and not own:
+            return  # class-body _SCHEMA = [...] stands as-is, no annotation fields to merge
+
+        merged: dict[str, SchemaField] = {}
+        if explicit is not None:
+            for f in explicit:
+                merged[f.key] = f
+        else:
+            # Collect fragments from all bases via reverse MRO so closer bases
+            # override more distant ones. Use each base's *own* __dict__ entry
+            # (not inherited via lookup) to gather contributions from every
+            # Schema base — supports multi-mixin composition.
+            for base in reversed(cls.__mro__[1:]):
+                fragment = base.__dict__.get("_SCHEMA")
+                if fragment:
+                    for f in fragment:
+                        merged[f.key] = f
+        merged.update(own)
+        cls._SCHEMA = list(merged.values())
 
     def to_dict(self) -> dict:
         self._check()
