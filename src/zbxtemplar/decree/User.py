@@ -56,7 +56,8 @@ class UserMedia(DecreeEntity):
     )
 
     def __init__(self, media_type: str, sendto: str):
-        super()._wire_up(type=media_type, sendto=sendto)
+        self.type = media_type
+        self.sendto = sendto
 
     def set_severity(self, severity: list):
         """Set which trigger severities activate this media. Pass a list of Severity constants."""
@@ -111,7 +112,8 @@ class User(DecreeEntity):
     )
 
     def __init__(self, username: str, role: str):
-        super()._wire_up(username=username, role=role)
+        self.username = username
+        self.role = role
 
     def set_password(self, password: str):
         """Set the login password. Supports env-var placeholder syntax, e.g. ``"${ZBX_PASSWORD}"``."""

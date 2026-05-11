@@ -42,11 +42,6 @@ class Encryption(Schema):
         self.connect = [EncryptionMode.UNENCRYPTED] if connect_unencrypted else []
         self.accept = [EncryptionMode.UNENCRYPTED] if accept_unencrypted else []
 
-        self.psk_identity = None
-        self.psk = None
-        self.issuer = None
-        self.subject = None
-
     def _enable_mode(self, mode, connect, accept):
         if connect and mode not in self.connect:
             self.connect.append(mode)

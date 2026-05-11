@@ -107,6 +107,18 @@ class Schema:
     _base_dir: str | None = None
     _resolve_envs: bool = False
 
+    def __new__(cls, *args, **kwargs):
+        obj = super().__new__(cls)
+        # Frozen dataclasses (e.g. Macro) manage their own field initialization
+        # and reject setattr; let their generated __init__ handle defaults.
+        params = getattr(cls, "__dataclass_params__", None)
+        if params is not None and params.frozen:
+            return obj
+        for f in cls._SCHEMA:
+            prop = f.property or f.key
+            setattr(obj, prop, copy.copy(f.init) if f.init is not NO_INIT else None)
+        return obj
+
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         # PEP 649 (Python 3.14): annotations are lazy and not in cls.__dict__.
@@ -296,18 +308,16 @@ class Schema:
         obj = cls.__new__(cls)
 
         for field in cls._SCHEMA:
+            if field.key not in data:
+                continue
             property_name = field.property if field.property else field.key
-            if field.key in data:
-                field_data = data[field.key]
-                if field.type:
-                    try:
-                        field_data = cls._resolve_type(field.type, field_data)
-                    except (TypeError, ValueError) as e:
-                        raise ValueError(f"{cls.__name__}.{field.key}: {e}") from e
-
-                setattr(obj, property_name, field_data)
-            else:
-                setattr(obj, property_name, None)
+            field_data = data[field.key]
+            if field.type:
+                try:
+                    field_data = cls._resolve_type(field.type, field_data)
+                except (TypeError, ValueError) as e:
+                    raise ValueError(f"{cls.__name__}.{field.key}: {e}") from e
+            setattr(obj, property_name, field_data)
 
         obj._wire_up()
         obj._check()
@@ -317,14 +327,7 @@ class Schema:
         pass
 
     def _wire_up(self, **kwargs) -> None:
-        for field in self._SCHEMA:
-            prop = field.property or field.key
-            if getattr(self, prop, None) is not None:
-                continue
-            if field.key in kwargs:
-                setattr(self, prop, kwargs[field.key])
-            elif field.init is not NO_INIT:
-                setattr(self, prop, copy.copy(field.init))
+        pass
 
     @classmethod
     def from_data(cls, data: dict | list | str) -> Self:

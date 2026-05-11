@@ -37,7 +37,8 @@ class SamlProvisionGroup(DecreeEntity):
     )
 
     def __init__(self, name: str, role: str, user_groups: list[UserGroup] | None = None):
-        super()._wire_up(name=name, role=role)
+        self.name = name
+        self.role = role
         for group in user_groups or []:
             self.link_user_group(group)
         self._check()
@@ -77,7 +78,9 @@ class SamlProvisionMedia(UserMedia):
     attribute: str
 
     def __init__(self, name: str, media_type: str, attribute: str):
-        super()._wire_up(name=name, type=media_type, attribute=attribute)
+        self.name = name
+        self.type = media_type
+        self.attribute = attribute
 
 
 class SamlProvider(DecreeEntity):
@@ -200,13 +203,11 @@ class SamlProvider(DecreeEntity):
         username_attribute: str,
         slo_url: str | None = None,
     ):
-        super()._wire_up(
-            idp_entityid=idp_entityid,
-            sp_entityid=sp_entityid,
-            sso_url=sso_url,
-            username_attribute=username_attribute,
-            slo_url=slo_url,
-        )
+        self.idp_entityid = idp_entityid
+        self.sp_entityid = sp_entityid
+        self.sso_url = sso_url
+        self.username_attribute = username_attribute
+        self.slo_url = slo_url
         self._check()
 
     def set_nameid(self, format: str, encrypt: bool = False) -> Self:

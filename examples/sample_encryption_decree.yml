@@ -2,8 +2,8 @@ encryption:
   host_defaults:
     connect: UNENCRYPTED
   hosts:
-  - host: Templar Host
-    connect: PSK
+  - connect: PSK
     accept: UNENCRYPTED, PSK
     psk_identity: zbxtemplar_psk
     psk: ${ZBX_ENCRYPTED_PSK}
+    host: Templar Host

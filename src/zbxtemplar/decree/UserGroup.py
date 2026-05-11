@@ -75,7 +75,9 @@ class UserGroup(DecreeEntity):
     )
 
     def __init__(self, name: str, gui_access: GuiAccess | None = None, users_status: UsersStatus | None = None):
-        super()._wire_up(name=name, gui_access=gui_access, users_status=users_status)
+        self.name = name
+        self.gui_access = gui_access
+        self.users_status = users_status
 
     def set_gui_access(self, gui_access: GuiAccess):
         """Set GUI access mode. Use GuiAccess constants: DEFAULT, INTERNAL, LDAP, DISABLED."""

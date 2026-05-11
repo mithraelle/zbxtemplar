@@ -26,11 +26,13 @@ class Token(DecreeEntity):
     )
 
     def __init__(self, name: str, store_at: str, expires_at: int | str | None = None):
-        self._wire_up(name=name, store_at=store_at, expires_at=expires_at)
+        self.name = name
+        self.store_at = store_at
+        self.expires_at = expires_at
+        self._wire_up()
         self._check()
 
     def _wire_up(self, **kwargs) -> None:
-        super()._wire_up(**kwargs)
         self.expires_at = self._normalize_expires_at(self.expires_at)
 
     def _check(self) -> None:
