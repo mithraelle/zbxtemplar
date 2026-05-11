@@ -50,9 +50,11 @@ class ApiStrEnum(StrEnum):
 
     @classmethod
     def _missing_(cls, value):
+        if not isinstance(value, (str, int)):
+            return None
         try:
             api_int = int(value)
-        except (TypeError, ValueError):
+        except ValueError:
             return None
         for member in cls:
             if member.api == api_int:
@@ -256,7 +258,7 @@ class Schema:
                 value = [v.strip() for v in value.split(",") if v.strip()]
             if not isinstance(value, list):
                 raise ValueError(f"expected list, got {type(value).__name__}")
-            if not args:
+            if item_type is None:
                 return value
             return [cls._resolve_type(item_type, item) for item in value]
 
@@ -298,9 +300,9 @@ class Schema:
             return value_type.from_data(value)
         if hasattr(value_type, "from_dict") and isinstance(value, dict):
             return value_type.from_dict(value)
-        if isinstance(value, value_type):
+        if isinstance(value_type, type) and isinstance(value, value_type):
             return value
-        raise ValueError(f"expected {value_type.__name__}, got {type(value).__name__}")
+        raise ValueError(f"expected {value_type}, got {type(value).__name__}")
 
     @classmethod
     def from_dict(cls, data: dict) -> Self:

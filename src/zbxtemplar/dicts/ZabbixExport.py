@@ -41,9 +41,11 @@ class ZabbixExport(Schema):
     _OMIT_FROM_SCHEMA_DOCS = True
 
     @classmethod
-    def from_data(cls, data: dict) -> Self:
-        if set(data) == {"zabbix_export"}:
+    def from_data(cls, data: dict | list | str) -> Self:
+        if isinstance(data, dict) and set(data) == {"zabbix_export"}:
             data = data["zabbix_export"]
+        if not isinstance(data, dict):
+            raise ValueError(f"{cls.__name__}: expected a mapping, got {type(data).__name__}")
         zx = cls.from_dict(data)
         zx._assign_triggers()
         return zx
