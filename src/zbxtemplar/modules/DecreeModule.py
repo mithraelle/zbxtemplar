@@ -2,7 +2,7 @@ from zbxtemplar.decree.Action import Action, AutoregistrationAction, TriggerActi
 from zbxtemplar.decree.Encryption import Encryption, HostEncryption
 from zbxtemplar.decree.saml import SamlProvider
 from zbxtemplar.decree.User import User
-from zbxtemplar.decree.UserGroup import UserGroup
+from zbxtemplar.decree.UserGroup import GuiAccess, UserGroup, UsersStatus
 from zbxtemplar.modules.BaseModule import BaseModule
 from zbxtemplar.zabbix.Host import Host
 
@@ -29,8 +29,8 @@ class DecreeModule(BaseModule):
     def add_user_group(
         self,
         name: str,
-        gui_access: str | None = None,
-        users_status: str | None = None,
+        gui_access: GuiAccess | None = None,
+        users_status: UsersStatus | None = None,
     ) -> UserGroup:
         """Create and register a user group. Raises ValueError on duplicate name.
 

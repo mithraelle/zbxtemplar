@@ -3,7 +3,7 @@ from zbxtemplar.zabbix.macro import WithMacros
 
 
 class BaseModule(WithMacros):
-    context: Context | None = None
+    context: Context = Context()
 
     def __init__(self, **kwargs):
         super().__init__()
