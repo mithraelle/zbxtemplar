@@ -1,4 +1,4 @@
-from zbxtemplar.dicts.Schema import ApiStrEnum, SchemaField, SubsetBy, FieldPolicy
+from zbxtemplar.dicts.Schema import ApiStrEnum, field, SubsetBy, FieldPolicy
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.decree.Token import Token
 
@@ -31,16 +31,29 @@ from zbxtemplar.decree.UserGroup import UserGroup
 class UserMedia(DecreeEntity):
     """Notification media configuration for a managed user."""
 
-    _SCHEMA = [
-        SchemaField("type", optional=False, type=str, api_key="mediatypeid",
-                    description="Zabbix media type name."),
-        SchemaField("sendto", optional=False, type=str, description="Recipient address or target for the media type."),
-        SchemaField("active", str_type="ENABLED or DISABLED", type=ActiveStatus,
-                    description="Whether the media is enabled.", api_default="ENABLED"),
-        SchemaField("severity", type=list[Severity], str_type="list[Severity]",
-                    description="Enabled trigger severities.", api_default=["NOT_CLASSIFIED", "INFORMATION", "WARNING", "AVERAGE", "HIGH", "DISASTER"]),
-        SchemaField("period", type=str, description="Zabbix media active time period, for example 1-7,00:00-24:00.", api_default="1-7,00:00-24:00"),
-    ]
+    type: str = field(
+        optional=False,
+        api_key="mediatypeid",
+        description="Zabbix media type name.",
+    )
+    sendto: str = field(
+        optional=False,
+        description="Recipient address or target for the media type.",
+    )
+    active: ActiveStatus | None = field(
+        str_type="ENABLED or DISABLED",
+        description="Whether the media is enabled.",
+        api_default="ENABLED",
+    )
+    severity: list[Severity] | None = field(
+        str_type="list[Severity]",
+        description="Enabled trigger severities.",
+        api_default=["NOT_CLASSIFIED", "INFORMATION", "WARNING", "AVERAGE", "HIGH", "DISASTER"],
+    )
+    period: str | None = field(
+        description="Zabbix media active time period, for example 1-7,00:00-24:00.",
+        api_default="1-7,00:00-24:00",
+    )
 
     def __init__(self, media_type: str, sendto: str):
         super()._wire_up(type=media_type, sendto=sendto)
@@ -62,19 +75,40 @@ class UserMedia(DecreeEntity):
 class User(DecreeEntity):
     """Zabbix user account managed by decree YAML."""
 
-    _SCHEMA = [
-        SchemaField("username", optional=False, type=str, description="Zabbix username."),
-        SchemaField("role", optional=False, type=str, api_key="roleid",
-                    description="Zabbix role name assigned to the user."),
-        SchemaField("password", type=str, description="Password to set when creating or updating the user.", policy=FieldPolicy.IGNORE),
-        SchemaField("groups", type=list[str], str_type="list[str]", api_key="usrgrps", init=[],
-                    description="User group names to attach to the user."),
-        SchemaField("medias", type=list[UserMedia], str_type="list[UserMedia]", init=[],
-                    policy=SubsetBy("type"),
-                    description="Media definitions for the user."),
-        SchemaField("token", type=Token, str_type="Token", description="API token provisioning configuration for the user."),
-        SchemaField("force_token", type=bool, str_type="bool", description="Update and re-generate an existing token with the same name.", policy=FieldPolicy.IGNORE),
-    ]
+    username: str = field(
+        optional=False,
+        description="Zabbix username.",
+    )
+    role: str = field(
+        optional=False,
+        api_key="roleid",
+        description="Zabbix role name assigned to the user.",
+    )
+    password: str | None = field(
+        description="Password to set when creating or updating the user.",
+        policy=FieldPolicy.IGNORE,
+    )
+    groups: list[str] = field(
+        str_type="list[str]",
+        api_key="usrgrps",
+        default=[],
+        description="User group names to attach to the user.",
+    )
+    medias: list[UserMedia] = field(
+        str_type="list[UserMedia]",
+        default=[],
+        policy=SubsetBy("type"),
+        description="Media definitions for the user.",
+    )
+    token: Token | None = field(
+        str_type="Token",
+        description="API token provisioning configuration for the user.",
+    )
+    force_token: bool | None = field(
+        str_type="bool",
+        description="Update and re-generate an existing token with the same name.",
+        policy=FieldPolicy.IGNORE,
+    )
 
     def __init__(self, username: str, role: str):
         super()._wire_up(username=username, role=role)

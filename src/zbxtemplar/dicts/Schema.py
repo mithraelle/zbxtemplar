@@ -1,18 +1,28 @@
 import copy
 import difflib
+import inspect
 import builtins
 import os
 import re
 from dataclasses import dataclass
 from enum import Enum, StrEnum
 from types import GenericAlias, UnionType
-from typing import Self, TypeAlias, get_args, get_origin
+from typing import Any, Self, TypeAlias, dataclass_transform, get_args, get_origin
 
 import yaml
 
 SchemaRuntimeType: TypeAlias = builtins.type | GenericAlias | UnionType
 
 NO_INIT = object()
+
+
+def _strip_none(anno):
+    """Drop ``None`` from a ``T | None`` union so runtime type-checking treats it as ``T``."""
+    if isinstance(anno, UnionType):
+        non_none = [a for a in get_args(anno) if a is not type(None)]
+        if len(non_none) == 1:
+            return non_none[0]
+    return anno
 
 
 class FieldPolicy(Enum):
@@ -64,11 +74,58 @@ class SchemaField:
     api_default: str | list[str] | None = None
 
 
+def field(
+    *,
+    default: Any = NO_INIT,
+    type: SchemaRuntimeType | None = None,
+    str_type: str = "str",
+    description: str = "",
+    optional: bool = True,
+    property: str | None = None,
+    api_key: str | None = None,
+    policy: FieldPolicy | SubsetBy = FieldPolicy.STRICT,
+    api_default: str | list[str] | None = None,
+) -> Any:
+    """Declare a Schema field. ``key`` is filled from the attribute name and ``type`` from the annotation by ``Schema.__init_subclass__``."""
+    return SchemaField(
+        key="",
+        optional=optional,
+        str_type=str_type,
+        description=description,
+        type=type,
+        property=property,
+        api_key=api_key,
+        init=default,
+        policy=policy,
+        api_default=api_default,
+    )
+
+
 class Schema:
     _SCHEMA: list[SchemaField] = []
 
-    _base_dir: str = None
+    _base_dir: str | None = None
     _resolve_envs: bool = False
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # PEP 649 (Python 3.14): annotations are lazy and not in cls.__dict__.
+        annotations = inspect.get_annotations(cls, eval_str=True)
+        own: dict[str, SchemaField] = {}
+        for name, anno in annotations.items():
+            sf = cls.__dict__.get(name)
+            if not isinstance(sf, SchemaField):
+                continue
+            sf.key = name
+            if sf.type is None:
+                sf.type = _strip_none(anno)
+            own[name] = sf
+            delattr(cls, name)
+        if not own:
+            return
+        merged = [own.pop(f.key, f) for f in cls._SCHEMA]
+        merged.extend(own.values())
+        cls._SCHEMA = merged
 
     def to_dict(self) -> dict:
         self._check()

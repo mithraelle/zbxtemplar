@@ -1,29 +1,42 @@
 import re
 from typing import Self
 
-from zbxtemplar.dicts.Schema import Schema, SchemaField
+from zbxtemplar.dicts.Schema import Schema, field
 from zbxtemplar.zabbix.Template import Template, TemplateGroup
 from zbxtemplar.zabbix.Host import Host, HostGroup
 from zbxtemplar.zabbix.Trigger import Trigger
 
 
 class ZabbixExport(Schema):
-    _SCHEMA = [
-        SchemaField("version", str_type="str", type=str,
-                    description="Zabbix export format version (e.g. '7.4')."),
-        SchemaField("template_groups", str_type="list[TemplateGroup]", type=list[TemplateGroup],
-                    description="Template group definitions."),
-        SchemaField("host_groups", str_type="list[HostGroup]", type=list[HostGroup],
-                    description="Host group definitions."),
-        SchemaField("templates", str_type="list[Template]", type=list[Template],
-                    description="Template definitions."),
-        SchemaField("hosts", str_type="list[Host]", type=list[Host],
-                    description="Host definitions."),
-        SchemaField("triggers", str_type="list[Trigger]", type=list[Trigger],
-                    description="Standalone triggers."),
-        SchemaField("graphs", str_type="list[dict]", type=list,
-                    description="Graph definitions (raw dicts; typed deserialization pending)."),
-    ]
+    version: str | None = field(
+        str_type="str",
+        description="Zabbix export format version (e.g. '7.4').",
+    )
+    template_groups: list[TemplateGroup] | None = field(
+        str_type="list[TemplateGroup]",
+        description="Template group definitions.",
+    )
+    host_groups: list[HostGroup] | None = field(
+        str_type="list[HostGroup]",
+        description="Host group definitions.",
+    )
+    templates: list[Template] | None = field(
+        str_type="list[Template]",
+        description="Template definitions.",
+    )
+    hosts: list[Host] | None = field(
+        str_type="list[Host]",
+        description="Host definitions.",
+    )
+    triggers: list[Trigger] | None = field(
+        str_type="list[Trigger]",
+        description="Standalone triggers.",
+    )
+    graphs: list[dict] | None = field(
+        str_type="list[dict]",
+        type=list,
+        description="Graph definitions (raw dicts; typed deserialization pending).",
+    )
 
     _OMIT_FROM_SCHEMA_DOCS = True
 

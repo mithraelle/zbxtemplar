@@ -1,4 +1,4 @@
-from zbxtemplar.dicts.Schema import ApiStrEnum, SchemaField, SubsetBy
+from zbxtemplar.dicts.Schema import ApiStrEnum, field, SubsetBy
 from zbxtemplar.decree.DecreeEntity import DecreeEntity
 from zbxtemplar.zabbix.Host import HostGroup
 from zbxtemplar.zabbix.Template import TemplateGroup
@@ -28,11 +28,15 @@ class Permission(ApiStrEnum):
 class PermissionGroup(DecreeEntity):
     """Host or template group permission entry on a UserGroup."""
 
-    _SCHEMA = [
-        SchemaField("name", optional=False, type=str, description="Host or template group name."),
-        SchemaField("permission", optional=False, type=Permission, str_type="Permission",
-                    description="Permission level: NONE, READ, or READ_WRITE."),
-    ]
+    name: str = field(
+        optional=False,
+        description="Host or template group name.",
+    )
+    permission: Permission = field(
+        optional=False,
+        str_type="Permission",
+        description="Permission level: NONE, READ, or READ_WRITE.",
+    )
 
     def __init__(self, name: str, permission: Permission):
         self.name = name
@@ -42,19 +46,33 @@ class PermissionGroup(DecreeEntity):
 class UserGroup(DecreeEntity):
     """Zabbix user group and permission mapping managed by decree YAML."""
 
-    _SCHEMA = [
-        SchemaField("name", optional=False, type=str, description="Zabbix user group name."),
-        SchemaField("gui_access", type=GuiAccess, str_type="GuiAccess",
-                    description="GUI access mode: DEFAULT, INTERNAL, LDAP, or DISABLED."),
-        SchemaField("users_status", type=UsersStatus, str_type="UsersStatus",
-                    description="Member users status: ENABLED or DISABLED.", api_default="ENABLED"),
-        SchemaField("host_groups", type=list[PermissionGroup], str_type="list[PermissionGroup]",
-                    api_key="hostgroup_rights", init=[], policy=SubsetBy("name"),
-                    description="Host group permission entries with name and permission."),
-        SchemaField("template_groups", type=list[PermissionGroup], str_type="list[PermissionGroup]",
-                    api_key="templategroup_rights", init=[], policy=SubsetBy("name"),
-                    description="Template group permission entries with name and permission."),
-    ]
+    name: str = field(
+        optional=False,
+        description="Zabbix user group name.",
+    )
+    gui_access: GuiAccess | None = field(
+        str_type="GuiAccess",
+        description="GUI access mode: DEFAULT, INTERNAL, LDAP, or DISABLED.",
+    )
+    users_status: UsersStatus | None = field(
+        str_type="UsersStatus",
+        description="Member users status: ENABLED or DISABLED.",
+        api_default="ENABLED",
+    )
+    host_groups: list[PermissionGroup] = field(
+        str_type="list[PermissionGroup]",
+        api_key="hostgroup_rights",
+        default=[],
+        policy=SubsetBy("name"),
+        description="Host group permission entries with name and permission.",
+    )
+    template_groups: list[PermissionGroup] = field(
+        str_type="list[PermissionGroup]",
+        api_key="templategroup_rights",
+        default=[],
+        policy=SubsetBy("name"),
+        description="Template group permission entries with name and permission.",
+    )
 
     def __init__(self, name: str, gui_access: GuiAccess | None = None, users_status: UsersStatus | None = None):
         super()._wire_up(name=name, gui_access=gui_access, users_status=users_status)

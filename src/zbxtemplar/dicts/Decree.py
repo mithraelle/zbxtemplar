@@ -4,41 +4,46 @@ from zbxtemplar.decree import UserGroup, User
 from zbxtemplar.decree.Action import Action
 from zbxtemplar.decree.Encryption import Encryption, HostEncryption
 from zbxtemplar.decree.saml import SamlProvider
-from zbxtemplar.dicts.Schema import Schema, SchemaField
+from zbxtemplar.dicts.Schema import Schema, field
 
 
 class EncryptionDecree(Schema):
     """Host encryption block: shared host_defaults plus per-host entries."""
 
-    _SCHEMA = [
-        SchemaField("host_defaults", str_type="Encryption",
-                    description="Default encryption settings merged into each host entry.",
-                    type=Encryption),
-        SchemaField("hosts", optional=False, str_type="list[HostEncryption]",
-                    description="Per-host encryption settings to apply.",
-                    type=list[HostEncryption]),
-    ]
+    host_defaults: Encryption | None = field(
+        str_type="Encryption",
+        description="Default encryption settings merged into each host entry.",
+    )
+    hosts: list[HostEncryption] = field(
+        optional=False,
+        str_type="list[HostEncryption]",
+        description="Per-host encryption settings to apply.",
+    )
+
 
 class Decree(Schema):
     """Decree YAML contents: user groups, SAML, users, actions, and host encryption."""
 
-    _SCHEMA = [
-        SchemaField("user_group", str_type="list[UserGroup]",
-                    description="User group definitions to create or update before users.",
-                    type=list[UserGroup]),
-        SchemaField("saml", str_type="SamlProvider",
-                    description="SAML userdirectory definition to create or update after user groups.",
-                    type=SamlProvider),
-        SchemaField("add_user", str_type="list[User]",
-                    description="User definitions to create or update.",
-                    type=list[User]),
-        SchemaField("actions", str_type="list[dict]",
-                    description="Zabbix action definitions to create or update.",
-                    type=list[Action]),
-        SchemaField("encryption", str_type="EncryptionDecree | list[EncryptionDecree]",
-                    description="Host encryption settings with host_defaults and hosts entries.",
-                    type=list[EncryptionDecree]),
-    ]
+    user_group: list[UserGroup] | None = field(
+        str_type="list[UserGroup]",
+        description="User group definitions to create or update before users.",
+    )
+    saml: SamlProvider | None = field(
+        str_type="SamlProvider",
+        description="SAML userdirectory definition to create or update after user groups.",
+    )
+    add_user: list[User] | None = field(
+        str_type="list[User]",
+        description="User definitions to create or update.",
+    )
+    actions: list[Action] | None = field(
+        str_type="list[dict]",
+        description="Zabbix action definitions to create or update.",
+    )
+    encryption: list[EncryptionDecree] | None = field(
+        str_type="EncryptionDecree | list[EncryptionDecree]",
+        description="Host encryption settings with host_defaults and hosts entries.",
+    )
 
     @classmethod
     def _merge_decree(cls, sources):
