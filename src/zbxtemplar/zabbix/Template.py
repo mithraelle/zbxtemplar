@@ -49,6 +49,8 @@ class ValueMap(ZbxEntity):
         return self
 
 class WithValueMaps:
+    name: str
+
     def __init__(self):
         super().__init__()
         self.valuemaps: list[ValueMap] = []
@@ -65,6 +67,8 @@ class WithValueMaps:
 
 
 class WithTemplates:
+    name: str
+
     def __init__(self):
         super().__init__()
         self.templates: list["Template"] = []
@@ -72,7 +76,7 @@ class WithTemplates:
     def link_template(self, template: "Template"):
         if any(t.name == template.name for t in self.templates):
             raise ValueError(
-                f"Duplicate template '{template.name}' on host '{self.name}'"
+                f"Duplicate template '{template.name}' on {type(self).__name__.lower()} '{self.name}'"
             )
         self.templates.append(template)
         return self

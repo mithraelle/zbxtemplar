@@ -10,7 +10,7 @@ class YesNo(StrEnum):
     YES = "YES"
 
 
-MacroType._API_VALUES = {"TEXT": 0, "SECRET_TEXT": 1, "VAULT": 2}
+MacroType._API_VALUES = {"TEXT": 0, "SECRET_TEXT": 1, "VAULT": 2} # type: ignore[attr-defined]
 
 ZBX_TEMPLAR_NAMESPACE = "Zbx Templar"
 _NAMESPACE_UUID = uuid.uuid5(uuid.NAMESPACE_DNS, ZBX_TEMPLAR_NAMESPACE)
@@ -104,7 +104,7 @@ class WithTags():
 class WithGroups():
     def __init__(self):
         super().__init__()
-        self.groups: list[ZbxEntity] = []
+        self.groups: list[Any] = []
 
     def link_group(self, group: ZbxEntity):
         if any(g.name == group.name for g in self.groups):
