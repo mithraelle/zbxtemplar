@@ -14,6 +14,7 @@ class Comparator:
             ("user",        ctx._users,             api_ctx._users),
             ("encryption",  ctx._host_encryptions,  api_ctx._host_encryptions),
             ("action",      ctx._actions,           api_ctx._actions),
+            ("template",    ctx._templates,         api_ctx._templates),
         ]
 
     def compare(self, ctx: Context, api_ctx: APIContext) -> list[Diff]:

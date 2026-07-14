@@ -44,6 +44,8 @@ class APIContext:
             api_ctx.pull_host_encryption(list(ctx._host_encryptions))
         if ctx._actions:
             api_ctx.pull_actions(list(ctx._actions))
+        if ctx._templates:
+            api_ctx.pull_templates(list(ctx._templates))
         return api_ctx
 
     def _id_name_map(self, api_name: str, id_field: str, name_field: str = "name") -> dict[str, str]:

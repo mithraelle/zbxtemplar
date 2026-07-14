@@ -115,7 +115,7 @@ def inquest():
         "--url", ZBX_URL,
         "--user", "TemplarAdmin",
         "--password", os.environ["ZBX_ADMIN_PASSWORD"],
-        "schema", str(EXAMPLES / "sample_decree.yml"),
+        "schema", str(EXAMPLES / "sample_decree.yml"), str(EXAMPLES / "sample_templates.yml"),
         label="Inquest (schema)")
 
 

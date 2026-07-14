@@ -4,6 +4,7 @@ import pytest
 
 from zbxtemplar.decree.UserGroup import GuiAccess, Permission, PermissionGroup, UsersStatus
 from zbxtemplar.inquest import Diff, RawDiff, SchemaDiff, render
+from zbxtemplar.zabbix import TriggerPriority
 from zbxtemplar.modules import APIContext, Context
 
 from tests.paths import FIXTURES_DIR
@@ -225,6 +226,67 @@ def test_ignore_policy(show):
              ".secrets/monitoring-ro.token", "/tmp/different.token"),
     ]
     assert schema == []
+
+
+def _template(history="90d", dashboard=False):
+    from zbxtemplar.catalog.zabbix_7_4 import functions
+    from zbxtemplar.zabbix.Template import Template, TemplateGroup
+
+    t = Template("Linux by Zabbix agent", [TemplateGroup("Templates/OS")])
+    cpu = t.add_item("CPU load", "system.cpu.load")
+    mem = t.add_item("Memory", "vm.memory.size", history=history)
+    # Single-item expressions inline onto item.triggers; multi-item ones stay on
+    # the template. Cover both -- each is a list of entities to compare.
+    t.add_trigger("high load", functions.history.Last(cpu) > "5")
+    t.add_trigger("low load", functions.history.Last(cpu) < "1")
+    t.add_trigger("both busy",
+                  (functions.history.Last(cpu) > "5") & (functions.history.Last(mem) < "1"))
+    if dashboard:
+        t.add_dashboard("Overview")
+    return t
+
+
+def _templates(local_tpl, remote_tpl):
+    local, remote = Context(), APIContext(api=None)
+    local._templates = {local_tpl.name: local_tpl}
+    remote._templates = {remote_tpl.name: remote_tpl}
+    return local, remote
+
+
+def test_template_identical():
+    """Lists of entities compare by key, not object identity."""
+    local, remote = _templates(_template(), _template())
+    assert SchemaDiff().compare(local, remote) == []
+
+
+def test_template_unparsed_field_is_not_drift():
+    """Template.from_dict never parses dashboards, so the remote side is always
+    empty; IGNORE keeps that gap from surfacing as drift."""
+    local, remote = _templates(_template(dashboard=True), _template())
+    assert SchemaDiff().compare(local, remote) == []
+
+
+def test_template_item_drift(show):
+    local, remote = _templates(_template(history="7d"), _template())
+    diffs = SchemaDiff().compare(local, remote)
+    show(_render(diffs, "schema"))
+    assert diffs == [
+        Diff("template.Linux by Zabbix agent.items[vm.memory.size].history", "7d", "90d"),
+    ]
+
+
+def test_template_multi_item_trigger_drift(show):
+    """Multi-item triggers live on the template, not the item, and reach the
+    comparator through the WithTriggers property."""
+    local_tpl, remote_tpl = _template(), _template()
+    remote_tpl._triggers[0].priority = TriggerPriority.DISASTER
+    local, remote = _templates(local_tpl, remote_tpl)
+    diffs = SchemaDiff().compare(local, remote)
+    show(_render(diffs, "schema"))
+    assert diffs == [
+        Diff("template.Linux by Zabbix agent.triggers[both busy].priority",
+             TriggerPriority.NOT_CLASSIFIED, TriggerPriority.DISASTER),
+    ]
 
 
 def test_action_filter_equal_all_shapes():

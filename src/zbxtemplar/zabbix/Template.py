@@ -1,5 +1,6 @@
 from enum import StrEnum
 
+from zbxtemplar.dicts.Schema import FieldPolicy, SchemaField, SubsetBy
 from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags, WithGroups, YesNo
 from zbxtemplar.zabbix.macro import Macro, WithMacros
 from zbxtemplar.zabbix.Trigger import WithTriggers
@@ -87,6 +88,26 @@ class WithTemplates:
 
 class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGraphs, WithTemplates, WithItems, WithValueMaps):
     """Zabbix template: container for items, triggers, graphs, dashboards, macros, and value maps."""
+
+    # Drives Comparator only; serialization stays with ZbxEntity.to_dict.
+    # IGNORE marks fields from_dict() does not parse: the API side is always
+    # empty, so comparing them would report drift that isn't there. Teach
+    # from_dict() to read one and drop its IGNORE to switch comparison on.
+    _SCHEMA = [
+        SchemaField("name", type=str),
+        SchemaField("template", type=str),
+        SchemaField("uuid", type=str),
+        SchemaField("groups", policy=SubsetBy("name")),
+        SchemaField("items", policy=SubsetBy("key")),
+        # Multi-item triggers only: add_trigger() inlines single-item ones onto
+        # the item. Reaches the WithTriggers property, which vars() cannot see.
+        SchemaField("triggers", policy=SubsetBy("name")),
+        SchemaField("macros"),
+        SchemaField("tags"),
+        SchemaField("dashboards", policy=FieldPolicy.IGNORE),
+        SchemaField("valuemaps", policy=FieldPolicy.IGNORE),
+        SchemaField("templates", policy=FieldPolicy.IGNORE),
+    ]
 
     def __init__(self, name: str, groups: list[TemplateGroup]):
         super().__init__(name)

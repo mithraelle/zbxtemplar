@@ -3,6 +3,7 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Self, TYPE_CHECKING
 
+from zbxtemplar.dicts.Schema import FieldPolicy, SchemaField, SubsetBy
 from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags
 from zbxtemplar.zabbix.Trigger import Trigger, TriggerPriority
 from zbxtemplar.zabbix.Inventory import InventoryField
@@ -52,6 +53,22 @@ class Item(ZbxEntity, WithTags):
     The host is set automatically when the item is registered via
     ``Template.add_item()`` or ``Host.add_item()``.
     """
+
+    # Drives Comparator only; see Template._SCHEMA for the IGNORE convention.
+    _SCHEMA = [
+        SchemaField("name", type=str),
+        SchemaField("key", type=str),
+        SchemaField("uuid", type=str),
+        SchemaField("type", type=ItemType),
+        SchemaField("value_type", type=ValueType),
+        SchemaField("history", type=str),
+        SchemaField("trends", type=str),
+        SchemaField("inventory_link", type=str),
+        SchemaField("tags"),
+        SchemaField("triggers", policy=SubsetBy("name")),
+        SchemaField("valuemap", policy=FieldPolicy.IGNORE),
+        SchemaField("interface_ref", policy=FieldPolicy.IGNORE),
+    ]
 
     def __init__(self, name: str, key: str, host: str = "",
                  type: ItemType = ItemType.ZABBIX_PASSIVE,
