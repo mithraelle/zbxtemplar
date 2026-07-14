@@ -128,7 +128,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--no-docker", action="store_true",
-                        help="Generate only, skip Docker steps")
+                        help="Round-trip against an already-running Zabbix at ZBX_URL; "
+                             "do not bring the test environment up or down")
     parser.add_argument("--down", action="store_true",
                         help="Tear down the test environment and exit")
     parser.add_argument("--keep", action="store_true",
@@ -147,7 +148,8 @@ def main():
         apply()
         inquest()
     finally:
-        if not args.keep:
+        # Never tear down an environment this run did not bring up.
+        if not args.keep and not args.no_docker:
             docker_down()
 
 
