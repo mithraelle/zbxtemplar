@@ -59,15 +59,24 @@ zbxtemplar-inquest --token "$ZABBIX_TOKEN" schema decree.yml
 
 ## What Is Compared
 
-`zbxtemplar-inquest` compares the same configuration that `zbxtemplar-exec` applies from decree files:
+`zbxtemplar-inquest` compares the configuration that `zbxtemplar-exec` applies:
 
 - user groups
 - users
 - actions
 - host encryption
 - SAML directory
+- templates
 
-Templates and hosts are not compared.
+For a template, the comparison covers its groups, macros, tags, and items —
+including each item's key, type, value type, history and trends, tags, and
+triggers. Triggers are compared by name, on their expression, severity, and
+description.
+
+Dashboards, graphs, and value maps are not compared, and neither are the
+templates a template links to. Declaring any of them is not reported as drift.
+
+Hosts are not compared.
 
 ## Output
 
