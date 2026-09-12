@@ -15,7 +15,7 @@ Version-dependent vocabularies (trigger functions, inventory fields, media type 
 | `items_triggers.md` | Add items and triggers to a template or host |
 | `trigger_functions_glossary.md` | Look up trigger function wrappers for the expression builder |
 | `graphs.md` | Add classic (template-level) graphs |
-| `dashboards.md` | Add dashboards and widgets (ClassicGraph, SimpleGraph, ItemHistory, SVG graph) |
+| `dashboards.md` | Add dashboards and widgets (ClassicGraph, SimpleGraph, ItemHistory, SVG graph, PatternGraph) |
 | `decree.md` | Define user groups, users, media, API tokens |
 | `actions.md` | Configure trigger/autoregistration actions, conditions, operations |
 | `saml_encryption.md` | Configure SAML provisioning or host PSK/cert encryption |

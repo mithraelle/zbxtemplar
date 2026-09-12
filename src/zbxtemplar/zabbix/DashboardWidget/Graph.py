@@ -281,3 +281,31 @@ class Graph(Widget):
             elif isinstance(value, str) and value != "":
                 fields.append(WidgetField(WidgetFieldType.STRING, attr, value))
         return fields
+
+
+class PatternGraph(Graph):
+    """SVG graph whose series are selected by item pattern — one line per matching item.
+
+    Each pattern becomes its own data set with its own palette, so the groups stay
+    visually distinct and new matching items appear without editing the widget.
+    """
+
+    def __init__(self, *patterns: str, x: int = 0, y: int = 0,
+                 width: int = 12, height: int = 5, name: str = ""):
+        super().__init__(x, y, width, height, name)
+        for pattern in patterns:
+            self.add_pattern(pattern)
+
+    def add_pattern(self, pattern: str, palette: int | None = None, label: str = "") -> Self:
+        """Add one pattern as a data set. Palette defaults to the next one in order.
+
+        Args:
+            pattern: Item pattern, ``*`` wildcard allowed.
+            label: Data set label; defaults to the pattern itself.
+        """
+        if palette is None:
+            palette = len(self._data_sets) % 12
+        data_set = ItemPatternSet(label=label or pattern, palette=palette)
+        data_set.add_pattern(pattern)
+        self.link_data_set(data_set)
+        return self

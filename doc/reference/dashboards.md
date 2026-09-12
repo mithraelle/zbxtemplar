@@ -74,7 +74,7 @@ ds.link_item(item1, "1A7C11")   # hex color, no #
 ds.link_item(item2, "274482")
 ```
 
-**ItemPatternSet** — wildcard key matching; specify either `color` or `palette` (not both):
+**ItemPatternSet** — wildcard matching on item **name** (not key); specify either `color` or `palette` (not both):
 
 ```python
 ds = dashGraph.ItemPatternSet(label="CPU items", palette=3)   # palette: 0–11
@@ -130,3 +130,34 @@ g.set_legend(
 
 page.link_widget(g)
 ```
+
+## PatternGraph (dashGraph.PatternGraph)
+
+A `Graph` that builds one `ItemPatternSet` per pattern, each taking the next palette in
+order — the "draw every matching item" case in a single call. Every matching item becomes
+its own line, so items added later appear without editing the widget.
+
+```python
+g = dashGraph.PatternGraph(
+    "Queue time min *", "Queue time avg *", "Queue time max *",
+    name="Queue time", x=0, y=0, width=36, height=5,
+)
+page.link_widget(g)
+```
+
+`add_pattern()` appends one more data set; `palette` defaults to the next one, `label`
+defaults to the pattern itself:
+
+```python
+g.add_pattern("Queue time count *", palette=7, label="counts")
+```
+
+It is a plain `Graph` subclass, so `set_legend()`, `set_display_options()` and
+`link_data_set()` all still apply — mix explicit `ItemListSet`s in if needed.
+
+Two things to know about the matching, both from the Zabbix side:
+
+- Patterns match the item **name**, not the key, with `*` as the wildcard. Watch for names
+  that only nearly share a shape: `RMQ * queue size` misses `RMQ other queues size`.
+- On a **template** dashboard Zabbix offers no host pattern, so none is emitted. The widget
+  matches items of the template it lives on, including ones inherited from linked templates.
