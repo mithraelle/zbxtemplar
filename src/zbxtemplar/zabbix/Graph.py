@@ -126,6 +126,11 @@ class Graph(ZbxEntity):
         self.graph_items.append(GraphItem(item, color, order, drawtype, calc_fnc, type, yaxisside))
         return self
 
+    @classmethod
+    def from_dict(cls, data: dict):
+        """Name-only: consumers reference a loaded graph by name (see ClassicGraph)."""
+        return cls(data["name"])
+
 
 class WithGraphs:
     def __init__(self):
