@@ -178,7 +178,7 @@ Python's `and`/`or`/`not` are short-circuit boolean operators that call `__bool_
 
 ### Single-item vs. multi-item triggers
 
-Triggers whose expression references exactly one item are attached under that item in the Zabbix export. Triggers that reference two or more items stay on the owning template or host:
+Triggers whose expression references exactly one item are attached under that item in the Zabbix export. Triggers that reference two or more items stay on the owning template or host. Either way `add_trigger()` returns the `Trigger`, so capture it when you need to tag it:
 
 ```python
 expr = ((functions.history.Last(cpu) > 100)

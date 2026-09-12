@@ -45,12 +45,13 @@ class WithTriggers:
 
     def add_trigger(self, name: str, expression: TriggerExpr,
                     priority: TriggerPriority = TriggerPriority.NOT_CLASSIFIED,
-                    description: str | None = None):
-        """Attach a trigger. Raises on duplicate name.
+                    description: str | None = None) -> Trigger:
+        """Create, register and return a Trigger. Raises on duplicate name.
 
         Single-item expressions are inlined on the referenced item (Zabbix expects
         host-item triggers under ``items[].triggers[]``); multi-item expressions
-        stay on the owning entity and are emitted at the top level.
+        stay on the owning entity and are emitted at the top level. The returned
+        Trigger is the same object either way — capture it to add tags.
         """
         owner = getattr(self, "name", type(self).__name__)
         own_items = getattr(self, "items", [])
@@ -71,7 +72,7 @@ class WithTriggers:
             refs[0].triggers.append(trigger)
         else:
             self._triggers.append(trigger)
-        return self
+        return trigger
 
     @property
     def triggers(self):

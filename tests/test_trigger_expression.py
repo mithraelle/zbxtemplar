@@ -146,7 +146,19 @@ def test_duplicate_name_raises(item_a):
         owner.add_trigger("t1", Last(item_a) < 80)
 
 
-def test_add_trigger_returns_owner(item_a):
+def test_add_trigger_returns_inlined_trigger(item_a):
     owner = FakeOwner("myhost", [item_a])
     result = owner.add_trigger("t", Last(item_a) > 90)
-    assert result is owner
+    assert result is item_a.triggers[0]
+
+
+def test_add_trigger_returns_owned_trigger(item_a, item_b):
+    owner = FakeOwner("myhost", [item_a, item_b])
+    result = owner.add_trigger("t", (Last(item_a) > 90) & (Last(item_b) < 100))
+    assert result is owner._triggers[0]
+
+
+def test_returned_trigger_is_taggable(item_a):
+    owner = FakeOwner("myhost", [item_a])
+    owner.add_trigger("t", Last(item_a) > 90).add_tag("scope", "availability")
+    assert item_a.triggers[0].to_dict()["tags"] == [{"tag": "scope", "value": "availability"}]

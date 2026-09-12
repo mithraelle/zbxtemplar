@@ -99,6 +99,9 @@ template.add_trigger(
 
 **TriggerPriority:** NOT_CLASSIFIED, INFO, WARNING, AVERAGE, HIGH, DISASTER
 
+`add_trigger()` returns the `Trigger` regardless of where it is emitted — capture it to
+add tags.
+
 ## Multi-item trigger
 
 Expressions referencing multiple items stay on the owning template or host.
