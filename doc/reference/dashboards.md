@@ -82,8 +82,19 @@ ds.link_item(item2, "274482")
 ```python
 ds = dashGraph.ItemPatternSet(label="CPU items", palette=3)   # palette: 0–11
 ds = dashGraph.ItemPatternSet(label="CPU items", color="1A7C11")
-ds.add_pattern("cpu")
-ds.add_pattern("system.cpu*")
+ds.add_pattern(template.get_item_pattern("CPU load"))
+ds.add_pattern(template.get_item_pattern("CPU core * load"))
+```
+
+`template.get_item_pattern()` checks the pattern against the item names of the
+template and its linked templates at generation time (`*` wildcard, full-name
+match) and raises `ValueError` when nothing matches — a typo dies at generation
+instead of rendering an empty graph. For a pattern that is *supposed* to match
+nothing yet (items appearing later), construct it directly:
+
+```python
+from zbxtemplar.zabbix.Dashboard import ItemPattern
+ds.add_pattern(ItemPattern("Future item *"))
 ```
 
 ### Draw style (set on data set)
@@ -142,8 +153,10 @@ its own line, so items added later appear without editing the widget.
 
 ```python
 g = PatternGraph(
-    "Queue time min *", "Queue time avg *", "Queue time max *",
-    name="Queue time", x=0, y=0, width=36, height=5,
+    template.get_item_pattern("Response time min *"),
+    template.get_item_pattern("Response time avg *"),
+    template.get_item_pattern("Response time max *"),
+    name="Response time", x=0, y=0, width=36, height=5,
 )
 page.link_widget(g)
 ```
@@ -152,7 +165,7 @@ page.link_widget(g)
 defaults to the pattern itself:
 
 ```python
-g.add_pattern("Queue time count *", palette=7, label="counts")
+g.add_pattern(template.get_item_pattern("Response time count *"), palette=7, label="counts")
 ```
 
 It is a plain `Graph` subclass, so `set_legend()`, `set_display_options()` and
@@ -161,6 +174,6 @@ It is a plain `Graph` subclass, so `set_legend()`, `set_display_options()` and
 Two things to know about the matching, both from the Zabbix side:
 
 - Patterns match the item **name**, not the key, with `*` as the wildcard. Watch for names
-  that only nearly share a shape: `RMQ * queue size` misses `RMQ other queues size`.
+  that only nearly share a shape: `CPU core * load` misses `CPU cores load`.
 - On a **template** dashboard Zabbix offers no host pattern, so none is emitted. The widget
   matches items of the template it lives on, including ones inherited from linked templates.

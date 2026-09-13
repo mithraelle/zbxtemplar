@@ -1,3 +1,4 @@
+import re
 from enum import StrEnum
 
 from zbxtemplar.dicts.Schema import FieldPolicy, SchemaField, SubsetBy
@@ -5,7 +6,7 @@ from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags, WithGroups, YesNo
 from zbxtemplar.zabbix.macro import Macro, WithMacros
 from zbxtemplar.zabbix.Trigger import WithTriggers
 from zbxtemplar.zabbix.Graph import WithGraphs
-from zbxtemplar.zabbix.Dashboard import Dashboard
+from zbxtemplar.zabbix.Dashboard import Dashboard, ItemPattern
 from zbxtemplar.zabbix.Item import Item, WithItems
 
 
@@ -126,6 +127,26 @@ class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGr
         dashboard._host = self.name
         self.dashboards.append(dashboard)
         return dashboard
+
+    def get_item_pattern(self, pattern: str) -> ItemPattern:
+        """Return the pattern checked against item names of this template and its
+        linked templates (``*`` wildcard, full-name match). Raises ValueError when
+        nothing matches. Construct ItemPattern directly for patterns meant to
+        match items that don't exist yet.
+        """
+        regex = re.compile(".*".join(re.escape(part) for part in pattern.split("*")))
+        stack, seen = [self], set()
+        while stack:
+            template = stack.pop()
+            if template.name in seen:
+                continue
+            seen.add(template.name)
+            if any(regex.fullmatch(item.name) for item in template.items):
+                return ItemPattern(pattern)
+            stack.extend(template.templates)
+        raise ValueError(
+            f"Pattern '{pattern}' matches no item name on '{self.name}' or its linked templates"
+        )
 
     @classmethod
     def from_dict(cls, data: dict):

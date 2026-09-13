@@ -3,7 +3,7 @@ from enum import IntEnum
 from typing import Self
 
 from zbxtemplar.zabbix import Item
-from zbxtemplar.zabbix.Dashboard import Widget, WidgetField, WidgetFieldType
+from zbxtemplar.zabbix.Dashboard import ItemPattern, Widget, WidgetField, WidgetFieldType
 
 
 class AggregateFunc(IntEnum):
@@ -214,17 +214,17 @@ class ItemPatternSet(DataSet):
         self.color = color
         if palette is not None:
             self.color_palette = palette
-        self._patterns: list[str] = []
+        self._patterns: list[ItemPattern] = []
         self.dataset_type = 1
 
-    def add_pattern(self, *patterns: str) -> Self:
+    def add_pattern(self, *patterns: ItemPattern) -> Self:
         self._patterns.extend(patterns)
         return self
 
     def _list_fields(self, prefix: str) -> list[WidgetField]:
         fields = []
         for i, pattern in enumerate(self._patterns):
-            fields.append(WidgetField(WidgetFieldType.STRING, f"{prefix}items.{i}", pattern))
+            fields.append(WidgetField(WidgetFieldType.STRING, f"{prefix}items.{i}", pattern.pattern))
         return fields
 
 
@@ -295,22 +295,22 @@ class PatternGraph(Graph):
     visually distinct and new matching items appear without editing the widget.
     """
 
-    def __init__(self, *patterns: str, x: int = 0, y: int = 0,
+    def __init__(self, *patterns: ItemPattern, x: int = 0, y: int = 0,
                  width: int = 12, height: int = 5, name: str = ""):
         super().__init__(x, y, width, height, name)
         for pattern in patterns:
             self.add_pattern(pattern)
 
-    def add_pattern(self, pattern: str, palette: int | None = None, label: str = "") -> Self:
+    def add_pattern(self, pattern: ItemPattern, palette: int | None = None, label: str = "") -> Self:
         """Add one pattern as a data set. Palette defaults to the next one in order.
 
         Args:
-            pattern: Item pattern, ``*`` wildcard allowed.
+            pattern: Item pattern (``Template.get_item_pattern()``), ``*`` wildcard allowed.
             label: Data set label; defaults to the pattern itself.
         """
         if palette is None:
             palette = len(self._data_sets) % 12
-        data_set = ItemPatternSet(label=label or pattern, palette=palette)
+        data_set = ItemPatternSet(label=label or pattern.pattern, palette=palette)
         data_set.add_pattern(pattern)
         self.link_data_set(data_set)
         return self

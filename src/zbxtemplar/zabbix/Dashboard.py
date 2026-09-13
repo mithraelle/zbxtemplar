@@ -23,6 +23,18 @@ class _WidgetRefCounter:
         cls._counter = 0
 
 
+class ItemPattern:
+    """Item-name pattern for pattern-based dashboard graph data sets.
+
+    Obtain via ``Template.get_item_pattern()`` to check the pattern against the
+    template's item names at generation time; construct directly for patterns
+    meant to match items that don't exist yet.
+    """
+
+    def __init__(self, pattern: str):
+        self.pattern = pattern
+
+
 class WidgetFieldType(StrEnum):
     INTEGER = "INTEGER"
     STRING = "STRING"

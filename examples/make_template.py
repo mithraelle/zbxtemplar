@@ -1,5 +1,6 @@
 from zbxtemplar.modules import TemplarModule
 from zbxtemplar.zabbix.ZbxEntity import YesNo
+from zbxtemplar.zabbix.Dashboard import ItemPattern
 from zbxtemplar.zabbix import TriggerPriority, YAxisType, YAxisSide, MacroType
 from zbxtemplar.zabbix.DashboardWidget import ClassicGraph
 from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph
@@ -59,7 +60,7 @@ class SampleTemplate(TemplarModule):
         graph_widget = dashGraph.Graph(name="Complex graph", y=5, x=0, width=18, height=8)
 
         pattern_data_set = dashGraph.ItemPatternSet(label="The Pattern", palette=0)
-        pattern_data_set.add_pattern("item")
+        pattern_data_set.add_pattern(ItemPattern("item"))
         pattern_draw_style = dashGraph.Bar()
         pattern_data_set.set_draw_style(pattern_draw_style)
         pattern_data_set.set_Y_axis(dashGraph.YAxis.RIGHT)

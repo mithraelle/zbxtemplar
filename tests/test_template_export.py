@@ -8,7 +8,7 @@ from zbxtemplar.zabbix import TriggerPriority, Graph, YAxisType, YAxisSide, Host
 from zbxtemplar.catalog.zabbix_7_4 import functions
 from zbxtemplar.zabbix.Host import AgentInterface
 from zbxtemplar.zabbix.Template import TemplateGroup
-from zbxtemplar.zabbix.Dashboard import _WidgetRefCounter
+from zbxtemplar.zabbix.Dashboard import ItemPattern, _WidgetRefCounter
 from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph
 from zbxtemplar.zabbix.DashboardWidget import ClassicGraph
 from zbxtemplar.zabbix.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
@@ -59,7 +59,7 @@ class SampleTemplate(TemplarModule):
         svgg_widget = dashGraph.Graph(name="Complex graph", y=5, x=0, width=18, height=8)
 
         pattern_data_set = dashGraph.ItemPatternSet(label="The Pattern", palette=0)
-        pattern_data_set.add_pattern("item")
+        pattern_data_set.add_pattern(ItemPattern("item"))
         pattern_draw_style = dashGraph.Bar()
         pattern_data_set.set_draw_style(pattern_draw_style)
         pattern_data_set.set_Y_axis(dashGraph.YAxis.RIGHT)
@@ -147,7 +147,7 @@ def test_add_host_rejects_duplicate_name():
 
 def test_item_pattern_set_color_form():
     ds = dashGraph.ItemPatternSet(label="Colored", color="1A7C11")
-    ds.add_pattern("item")
+    ds.add_pattern(ItemPattern("item"))
 
     fields = {f.name: f.value for f in ds.to_dict(0)}
 
@@ -222,6 +222,27 @@ def test_unlinked_widget_keeps_item_host():
 
     item_field = next(f for f in widget.to_dict()["fields"] if f["name"] == "itemid.0")
     assert item_field["value"]["host"] == "Origin Template"
+
+
+def test_get_item_pattern_matches_own_and_linked_items():
+    module = EmptyTemplar()
+    linked = module.add_template("Linked Template", groups=[TemplateGroup("Templar Templates")])
+    linked.add_item("Linked Item", "item.linked")
+    template = module.add_template("Own Template", groups=[TemplateGroup("Templar Templates")])
+    template.add_item("Own Item", "item.own")
+    template.link_template(linked)
+
+    assert template.get_item_pattern("Own *").pattern == "Own *"
+    assert template.get_item_pattern("Linked Item").pattern == "Linked Item"
+
+
+def test_get_item_pattern_rejects_unmatched():
+    module = EmptyTemplar()
+    template = module.add_template("Own Template", groups=[TemplateGroup("Templar Templates")])
+    template.add_item("Own Item", "item.own")
+
+    with pytest.raises(ValueError, match="matches no item name"):
+        template.get_item_pattern("Own")
 
 
 def test_combined_export_matches_reference(module):
