@@ -144,6 +144,16 @@ def test_add_host_rejects_duplicate_name():
         module.add_host("Duplicate Host", groups=[HostGroup("Other Hosts")])
 
 
+def test_item_pattern_set_color_form():
+    ds = dashGraph.ItemPatternSet(label="Colored", color="1A7C11")
+    ds.add_pattern("item")
+
+    fields = {f.name: f.value for f in ds.to_dict(0)}
+
+    assert fields["ds.0.color"] == "1A7C11"
+    assert "ds.0.color_palette" not in fields
+
+
 def test_combined_export_matches_reference(module):
     generated = module.to_export()
 

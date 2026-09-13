@@ -209,7 +209,8 @@ class ItemPatternSet(DataSet):
         if (color is None) == (palette is None):
             raise ValueError("Specify exactly one of color or palette")
         self.color = color
-        self.color_palette = palette
+        if palette is not None:
+            self.color_palette = palette
         self._patterns: list[str] = []
         self.dataset_type = 1
 
