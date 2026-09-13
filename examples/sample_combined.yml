@@ -162,21 +162,6 @@ zabbix_export:
           - type: INTEGER
             name: ds.1.dataset_type
             value: '0'
-          - type: STRING
-            name: name
-            value: Complex graph
-          - type: INTEGER
-            name: x
-            value: '0'
-          - type: INTEGER
-            name: y
-            value: '5'
-          - type: INTEGER
-            name: width
-            value: '18'
-          - type: INTEGER
-            name: height
-            value: '8'
           - type: INTEGER
             name: legend
             value: '1'

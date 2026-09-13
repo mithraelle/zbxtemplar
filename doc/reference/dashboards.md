@@ -4,10 +4,8 @@
 
 ```python
 from zbxtemplar.zabbix.ZbxEntity import YesNo
-from zbxtemplar.zabbix.DashboardWidget.ClassicGraph import ClassicGraph
-from zbxtemplar.zabbix.DashboardWidget.SimpleGraph import SimpleGraph
-from zbxtemplar.zabbix.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
-from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph
+from zbxtemplar.zabbix.DashboardWidget import ClassicGraph, SimpleGraph, ItemHistory, ItemHistoryHeader, PatternGraph
+from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph  # data sets, draw styles, enums
 ```
 
 ## Dashboard & pages
@@ -131,14 +129,14 @@ g.set_legend(
 page.link_widget(g)
 ```
 
-## PatternGraph (dashGraph.PatternGraph)
+## PatternGraph
 
 A `Graph` that builds one `ItemPatternSet` per pattern, each taking the next palette in
 order — the "draw every matching item" case in a single call. Every matching item becomes
 its own line, so items added later appear without editing the widget.
 
 ```python
-g = dashGraph.PatternGraph(
+g = PatternGraph(
     "Queue time min *", "Queue time avg *", "Queue time max *",
     name="Queue time", x=0, y=0, width=36, height=5,
 )
