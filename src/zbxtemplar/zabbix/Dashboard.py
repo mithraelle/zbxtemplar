@@ -51,11 +51,13 @@ class WidgetField:
 
 class Widget(ABC):
     def __init__(self, x: int, y: int, width: int, height: int, name: str = ""):
-        self.name = name
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
+        # Underscore-prefixed: serialized at widget level by to_dict, must stay
+        # invisible to subclass field reflection (see Graph.widget_fields)
+        self._name = name
+        self._x = x
+        self._y = y
+        self._width = width
+        self._height = height
         self.fields: list[WidgetField] = [
             WidgetField(WidgetFieldType.STRING, "reference", _WidgetRefCounter.next())
         ]
@@ -71,14 +73,14 @@ class Widget(ABC):
 
     def to_dict(self):
         result = {"type": self.type}
-        if self.name:
-            result["name"] = self.name
-        if self.x:
-            result["x"] = str(self.x)
-        if self.y:
-            result["y"] = str(self.y)
-        result["width"] = str(self.width)
-        result["height"] = str(self.height)
+        if self._name:
+            result["name"] = self._name
+        if self._x:
+            result["x"] = str(self._x)
+        if self._y:
+            result["y"] = str(self._y)
+        result["width"] = str(self._width)
+        result["height"] = str(self._height)
         all_fields = self.fields + self.widget_fields()
         result["fields"] = [f.to_dict() for f in all_fields]
         return result

@@ -8,6 +8,7 @@ from zbxtemplar.zabbix import TriggerPriority, Graph, YAxisType, YAxisSide, Host
 from zbxtemplar.catalog.zabbix_7_4 import functions
 from zbxtemplar.zabbix.Host import AgentInterface
 from zbxtemplar.zabbix.Template import TemplateGroup
+from zbxtemplar.zabbix.Dashboard import _WidgetRefCounter
 from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph
 from zbxtemplar.zabbix.DashboardWidget import ClassicGraph
 from zbxtemplar.zabbix.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
@@ -172,6 +173,24 @@ def test_dashboard_default_display_period_omitted():
     dashboard = template.add_dashboard("Plain Dashboard")
 
     assert "display_period" not in dashboard.to_dict()
+
+
+def test_svg_graph_layout_attrs_not_leaked_as_fields():
+    # Creating a Widget consumes a value from the process-global reference
+    # counter; restore it so the reference-YAML fixtures stay at AAAAA..
+    saved = _WidgetRefCounter._counter
+    widget = dashGraph.Graph(name="Layout", x=1, y=2, width=10, height=4)
+    _WidgetRefCounter._counter = saved
+
+    data = widget.to_dict()
+
+    assert data["name"] == "Layout"
+    assert data["x"] == "1"
+    assert data["y"] == "2"
+    assert data["width"] == "10"
+    assert data["height"] == "4"
+    field_names = {f["name"] for f in data["fields"]}
+    assert not field_names & {"name", "x", "y", "width", "height"}
 
 
 def test_combined_export_matches_reference(module):
