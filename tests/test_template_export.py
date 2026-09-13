@@ -165,6 +165,15 @@ def test_data_set_setters_chain():
     assert fields["ds.0.approximation"] == "4"
 
 
+def test_dashboard_default_display_period_omitted():
+    module = EmptyTemplar()
+    template = module.add_template("Dashboard Template", groups=[TemplateGroup("Templar Templates")])
+
+    dashboard = template.add_dashboard("Plain Dashboard")
+
+    assert "display_period" not in dashboard.to_dict()
+
+
 def test_combined_export_matches_reference(module):
     generated = module.to_export()
 

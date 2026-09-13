@@ -122,7 +122,7 @@ class Dashboard(ZbxEntity):
             auto_start: Start the slideshow automatically (YesNo.YES or YesNo.NO).
         """
         super().__init__(name)
-        self.display_period = str(display_period)
+        self.display_period = str(display_period) if display_period else None
         self.auto_start = auto_start
         self.pages: list[DashboardPage] = []
 
