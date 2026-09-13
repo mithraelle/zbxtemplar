@@ -1,1 +1,4 @@
 from zbxtemplar.zabbix.DashboardWidget.ClassicGraph import ClassicGraph
+from zbxtemplar.zabbix.DashboardWidget.Graph import PatternGraph
+from zbxtemplar.zabbix.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
+from zbxtemplar.zabbix.DashboardWidget.SimpleGraph import SimpleGraph
