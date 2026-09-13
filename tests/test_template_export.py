@@ -154,6 +154,17 @@ def test_item_pattern_set_color_form():
     assert "ds.0.color_palette" not in fields
 
 
+def test_data_set_setters_chain():
+    ds = dashGraph.ItemPatternSet(label="Chained", palette=0)
+
+    assert ds.set_Y_axis(dashGraph.YAxis.RIGHT) is ds
+    assert ds.set_approximation(dashGraph.Approximation.MAX) is ds
+
+    fields = {f.name: f.value for f in ds.to_dict(0)}
+    assert fields["ds.0.axisy"] == "1"
+    assert fields["ds.0.approximation"] == "4"
+
+
 def test_combined_export_matches_reference(module):
     generated = module.to_export()
 

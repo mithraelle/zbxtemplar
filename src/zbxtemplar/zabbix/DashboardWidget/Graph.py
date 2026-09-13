@@ -143,8 +143,9 @@ class DataSet(ABC):
     def __init__(self, label: str = ""):
         self.data_set_label = label
 
-    def set_Y_axis(self, yaxis: YAxis = YAxis.LEFT):
+    def set_Y_axis(self, yaxis: YAxis = YAxis.LEFT) -> Self:
         self.axisy = yaxis.value
+        return self
 
     def set_aggregate(self, func: AggregateFunc, interval: str = "1h",
                       aggregate_by: AggregateBy = AggregateBy.EACH_ITEM) -> Self:
@@ -154,7 +155,8 @@ class DataSet(ABC):
         return self
 
     def set_approximation(self, approximation: Approximation = Approximation.AVG) -> Self:
-        self.approximation = approximation
+        self.approximation = approximation.value
+        return self
 
     def set_draw_style(self, style: DrawStyle) -> Self:
         self._draw_style = style
