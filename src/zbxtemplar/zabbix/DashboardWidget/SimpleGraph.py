@@ -16,5 +16,5 @@ class SimpleGraph(Widget):
     def widget_fields(self) -> list:
         return [
             WidgetField(WidgetFieldType.INTEGER, "source_type", 1),
-            WidgetField(WidgetFieldType.ITEM, "itemid.0", {"host": self._item._host, "key": self._item.key}),
+            WidgetField(WidgetFieldType.ITEM, "itemid.0", {"host": self._host or self._item._host, "key": self._item.key}),
         ]

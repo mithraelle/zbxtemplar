@@ -27,7 +27,7 @@ class ItemHistory(Widget):
         fields = []
         for i, (item, col_name) in enumerate(self._items):
             prefix = f"columns.{i}."
-            fields.append(WidgetField(WidgetFieldType.ITEM, f"{prefix}itemid", {"host": item._host, "key": item.key}))
+            fields.append(WidgetField(WidgetFieldType.ITEM, f"{prefix}itemid", {"host": self._host or item._host, "key": item.key}))
             fields.append(WidgetField(WidgetFieldType.STRING, f"{prefix}name", col_name))
         if self._show_timestamp is not None:
             fields.append(WidgetField(WidgetFieldType.INTEGER, "show_timestamp", str(int(self._show_timestamp))))

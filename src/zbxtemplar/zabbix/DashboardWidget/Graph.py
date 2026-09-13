@@ -142,6 +142,7 @@ class Bar(DrawStyle):
 class DataSet(ABC):
     def __init__(self, label: str = ""):
         self.data_set_label = label
+        self._host: str | None = None
 
     def set_Y_axis(self, yaxis: YAxis = YAxis.LEFT) -> Self:
         self.axisy = yaxis.value
@@ -196,7 +197,7 @@ class ItemListSet(DataSet):
     def _list_fields(self, prefix: str) -> list[WidgetField]:
         fields = []
         for i, (item, color) in enumerate(self._items):
-            fields.append(WidgetField(WidgetFieldType.ITEM, f"{prefix}itemids.{i}", {"host": item._host, "key": item.key}))
+            fields.append(WidgetField(WidgetFieldType.ITEM, f"{prefix}itemids.{i}", {"host": self._host or item._host, "key": item.key}))
             fields.append(WidgetField(WidgetFieldType.STRING, f"{prefix}color.{i}", color))
         return fields
 
@@ -275,6 +276,7 @@ class Graph(Widget):
     def widget_fields(self) -> list:
         fields = []
         for ds_id, ds in enumerate(self._data_sets):
+            ds._host = self._host
             fields.extend(ds.to_dict(ds_id))
         for attr, value in vars(self).items():
             if attr.startswith("_") or value is None:

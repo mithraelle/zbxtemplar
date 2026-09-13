@@ -28,9 +28,14 @@ All widgets accept `x`, `y`, `width`, `height` (grid units). The dashboard grid 
 Displays a template/host `Graph` object (from `graphs.md`).
 
 ```python
-w = ClassicGraph(template=template.name, graph=graph, x=0, y=0, width=36, height=5)
+w = ClassicGraph(graph=graph, x=0, y=0, width=36, height=5)
 page.link_widget(w)
 ```
+
+`template` defaults to the template of the dashboard the widget is linked into —
+the only value Zabbix accepts on a template dashboard, including graphs inherited
+from linked templates. Pass it explicitly only when the widget is used outside
+that flow.
 
 ## SimpleGraph
 

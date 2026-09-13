@@ -123,6 +123,7 @@ class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGr
             raise ValueError(
                 f"Duplicate dashboard '{dashboard.name}' on template '{self.name}'"
             )
+        dashboard._host = self.name
         self.dashboards.append(dashboard)
         return dashboard
 

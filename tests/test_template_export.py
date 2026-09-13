@@ -13,7 +13,7 @@ from zbxtemplar.zabbix.DashboardWidget import Graph as dashGraph
 from zbxtemplar.zabbix.DashboardWidget import ClassicGraph
 from zbxtemplar.zabbix.DashboardWidget.ItemHistory import ItemHistory, ItemHistoryHeader
 from zbxtemplar.zabbix.DashboardWidget.SimpleGraph import SimpleGraph
-from zbxtemplar.zabbix.Item import ItemType
+from zbxtemplar.zabbix.Item import Item, ItemType
 from zbxtemplar.zabbix.Template import ValueMapType
 from tests.paths import REFERENCE_DIR
 
@@ -191,6 +191,37 @@ def test_svg_graph_layout_attrs_not_leaked_as_fields():
     assert data["height"] == "4"
     field_names = {f["name"] for f in data["fields"]}
     assert not field_names & {"name", "x", "y", "width", "height"}
+
+
+def test_dashboard_widgets_reference_owning_template():
+    saved = _WidgetRefCounter._counter
+    module = EmptyTemplar()
+    template = module.add_template("Owner Template", groups=[TemplateGroup("Templar Templates")])
+    foreign_item = Item("Foreign Item", "item.foreign", host="Origin Template")
+    foreign_graph = Graph("Foreign Graph")
+
+    page = template.add_dashboard("Owner Dashboard").add_page()
+    item_history = ItemHistory().link_item(foreign_item, "")
+    simple = SimpleGraph(item=foreign_item)
+    classic = ClassicGraph(graph=foreign_graph)
+    svgg = dashGraph.Graph()
+    svgg.link_data_set(dashGraph.ItemListSet().link_item(foreign_item, "1A7C11"))
+    for widget in (item_history, simple, classic, svgg):
+        page.link_widget(widget)
+    _WidgetRefCounter._counter = saved
+
+    hosts = [f["value"]["host"] for w in page.to_dict()["widgets"]
+             for f in w["fields"] if isinstance(f["value"], dict)]
+    assert hosts == ["Owner Template"] * 4
+
+
+def test_unlinked_widget_keeps_item_host():
+    saved = _WidgetRefCounter._counter
+    widget = SimpleGraph(item=Item("Foreign Item", "item.foreign", host="Origin Template"))
+    _WidgetRefCounter._counter = saved
+
+    item_field = next(f for f in widget.to_dict()["fields"] if f["name"] == "itemid.0")
+    assert item_field["value"]["host"] == "Origin Template"
 
 
 def test_combined_export_matches_reference(module):

@@ -58,6 +58,10 @@ class Widget(ABC):
         self._y = y
         self._width = width
         self._height = height
+        # Owning template, stamped when linked into a page. Widget item/graph
+        # references must name the dashboard's own template (Zabbix rejects the
+        # origin template of an inherited item); None falls back to item._host.
+        self._host: str | None = None
         self.fields: list[WidgetField] = [
             WidgetField(WidgetFieldType.STRING, "reference", _WidgetRefCounter.next())
         ]
@@ -97,9 +101,11 @@ class DashboardPage:
         self.name = name
         self.display_period = display_period
         self.widgets: list[Widget] = []
+        self._host: str | None = None
 
     def link_widget(self, widget: Widget):
         """Link an existing widget to this page."""
+        widget._host = self._host
         self.widgets.append(widget)
 
     def to_dict(self):
@@ -127,9 +133,11 @@ class Dashboard(ZbxEntity):
         self.display_period = str(display_period) if display_period else None
         self.auto_start = auto_start
         self.pages: list[DashboardPage] = []
+        self._host: str | None = None
 
     def add_page(self, name: str = "", display_period: int = 0) -> DashboardPage:
         """Create, register and return a new DashboardPage."""
         page = DashboardPage(name=name, display_period=display_period)
+        page._host = self._host
         self.pages.append(page)
         return page
