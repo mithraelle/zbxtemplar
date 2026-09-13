@@ -20,6 +20,27 @@ class TestZabbixExport:
         hg = ctx.get_host_group("Templar Hosts")
         assert hg.name == "Templar Hosts"
 
+    def test_get_item(self):
+        ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
+        item = ctx.get_item("Test Template", "item.test[1]")
+        assert item.name == "Item 1"
+        assert item._host == "Test Template"
+
+    def test_get_item_missing(self):
+        ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
+        with pytest.raises(ValueError, match="not found on template"):
+            ctx.get_item("Test Template", "item.nonexistent")
+
+    def test_get_graph(self):
+        ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
+        graph = ctx.get_graph("Test Template", "Test Graph")
+        assert graph.name == "Test Graph"
+
+    def test_get_graph_missing(self):
+        ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
+        with pytest.raises(ValueError, match="not found on template"):
+            ctx.get_graph("Test Template", "Nonexistent")
+
     def test_macros_from_templates(self):
         ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
         tmpl = ctx.get_template("Test Template")

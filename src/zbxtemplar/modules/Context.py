@@ -8,6 +8,8 @@ from zbxtemplar.decree.User import User
 from zbxtemplar.decree.Encryption import HostEncryption
 from zbxtemplar.decree.saml import SamlProvider
 from zbxtemplar.zabbix.macro import Macro
+from zbxtemplar.zabbix.Graph import Graph
+from zbxtemplar.zabbix.Item import Item
 from zbxtemplar.zabbix.Template import Template, TemplateGroup
 from zbxtemplar.zabbix.Host import Host, HostGroup
 from zbxtemplar.dicts.Schema import Schema
@@ -66,6 +68,20 @@ class Context:
         if name not in self._templates:
             raise ValueError(f"Template '{name}' not found in context")
         return self._templates[name]
+
+    def get_item(self, template: str, key: str) -> Item:
+        """Look up an item by key on a context template."""
+        for item in self.get_template(template).items:
+            if item.key == key:
+                return item
+        raise ValueError(f"Item '{key}' not found on template '{template}' in context")
+
+    def get_graph(self, template: str, name: str) -> Graph:
+        """Look up a graph by name on a context template."""
+        for graph in self.get_template(template).graphs:
+            if graph.name == name:
+                return graph
+        raise ValueError(f"Graph '{name}' not found on template '{template}' in context")
 
     def get_host(self, name: str) -> Host:
         """Look up a host by name."""
