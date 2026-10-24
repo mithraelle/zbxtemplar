@@ -19,7 +19,7 @@ zabbix_export:
       - tag: Service
         value: Testing 1
       name: Item 1
-      uuid: a88409bc1d004b0ca0fa8b6bfbcc43db
+      uuid: 5b70befb889a44f5a969888c768282a2
       key: item.test[1]
       type: ZABBIX_PASSIVE
       value_type: UNSIGNED
@@ -35,7 +35,7 @@ zabbix_export:
       - tag: Service
         value: Testing 2
       name: Item 2
-      uuid: ee20f6387ede4375a129d775c3e50598
+      uuid: 77a85ec64f3f47fa8339d8cbb38c7fce
       key: item.test[2]
       type: ZABBIX_ACTIVE
       value_type: UNSIGNED
@@ -47,7 +47,7 @@ zabbix_export:
       - tag: Service
         value: Testing 3
       name: Item 3
-      uuid: cb6cee2a72484a5f8df196db8cdb0ed0
+      uuid: 191de59931c545e68b0e952a13364a6d
       key: item.test[3]
       type: TRAP
       value_type: UNSIGNED
@@ -225,14 +225,14 @@ zabbix_export:
               key: item.test[2]
   - items:
     - name: Second Item 1
-      uuid: f987bb5ee4c84b018d26df39955f4e11
+      uuid: 4efffdec09a148498b365b32100764f3
       key: item.second[1]
       type: ZABBIX_PASSIVE
       value_type: UNSIGNED
       history: 90d
       trends: 365d
     - name: Second Item 2
-      uuid: d2555f064bad4da7ae2ceda80365bdd5
+      uuid: 21f7fd76fde348289fc4ab498d78c44c
       key: item.second[2]
       type: ZABBIX_PASSIVE
       value_type: UNSIGNED
@@ -390,7 +390,7 @@ zabbix_export:
     description: Trigger using two items
   graphs:
   - name: Test Graph
-    uuid: f9fdc63a12ef41599f3ef4bb954fa1ee
+    uuid: e16648c4e95c4c47a2a6141a3bd727a8
     type: NORMAL
     show_triggers: 'YES'
     show_legend: 'YES'
@@ -420,7 +420,7 @@ zabbix_export:
       type: SIMPLE
       yaxisside: RIGHT
   - name: Second Graph
-    uuid: 9181e7146e1745e1b5f6d0f8c4e99fb3
+    uuid: 00eac1f3aefd4341b86be95dbb1cdadc
     type: NORMAL
     show_triggers: 'YES'
     show_legend: 'YES'
@@ -446,7 +446,7 @@ zabbix_export:
       type: SIMPLE
       yaxisside: LEFT
   - name: Umbrella Graph
-    uuid: d693537b68454ef4be63e3048725b1c1
+    uuid: 914addd1d1094ca0b3930bd87ddc4ae6
     type: NORMAL
     show_triggers: 'YES'
     show_legend: 'YES'
@@ -472,7 +472,7 @@ zabbix_export:
       type: SIMPLE
       yaxisside: LEFT
   - name: Host Graph
-    uuid: a5f00437fc4f43e580e891b7a2e21edd
+    uuid: 71e9672b4fbf4ca99b78930f0991c9b2
     type: NORMAL
     show_triggers: 'YES'
     show_legend: 'YES'

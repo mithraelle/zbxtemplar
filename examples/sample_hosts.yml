@@ -84,7 +84,7 @@ zabbix_export:
       default: 'YES'
   graphs:
   - name: Host Graph
-    uuid: a5f00437fc4f43e580e891b7a2e21edd
+    uuid: 71e9672b4fbf4ca99b78930f0991c9b2
     type: NORMAL
     show_triggers: 'YES'
     show_legend: 'YES'

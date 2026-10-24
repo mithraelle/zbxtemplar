@@ -92,7 +92,7 @@ class Graph(ZbxEntity):
             host: Owner template or host technical name. Set automatically by add_graph().
                 Items are referenced on the owner, so items of linked templates resolve as inherited.
         """
-        super().__init__(name)
+        super().__init__(name, uuid_seed=f"{host}/{name}")
         self._host = host
         self.type = type
         self.show_triggers = show_triggers

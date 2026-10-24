@@ -77,14 +77,14 @@ class Item(ZbxEntity, WithTags):
         """
         Args:
             name: Display name.
-            key: Zabbix item key, e.g. ``system.cpu.util[,,avg1]``. Used as UUID seed.
+            key: Zabbix item key, e.g. ``system.cpu.util[,,avg1]``. Used with host as UUID seed.
             host: Owner template or host technical name. Set automatically by add_item().
             type: Collection method; defaults to ZABBIX_PASSIVE.
             value_type: Data type of collected value; defaults to UNSIGNED.
             history: History retention period, e.g. ``"90d"``.
             trends: Trend retention period, e.g. ``"365d"``.
         """
-        super().__init__(name, uuid_seed=key)
+        super().__init__(name, uuid_seed=f"{host}/{key}")
         self.key = key
         self._host = host
         self.type = type
