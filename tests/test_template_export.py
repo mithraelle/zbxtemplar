@@ -283,6 +283,18 @@ def test_owned_uuids_unique_per_template():
     assert build("First Template") == first
 
 
+def test_item_setters_export_fields():
+    template = EmptyTemplar().add_template("Owner Template", groups=[TemplateGroup("Templar Templates")])
+    disabled = (template.add_item("Load", "load")
+                .set_delay("30s").set_units("%").set_description("Load average").set_state(False))
+    enabled = template.add_item("Other", "other").set_state()
+
+    data = disabled.to_dict()
+
+    assert (data["delay"], data["units"], data["description"], data["status"]) == ("30s", "%", "Load average", "DISABLED")
+    assert enabled.to_dict()["status"] == "ENABLED"
+
+
 def test_get_item_pattern_matches_own_and_linked_items():
     module = EmptyTemplar()
     linked = module.add_template("Linked Template", groups=[TemplateGroup("Templar Templates")])

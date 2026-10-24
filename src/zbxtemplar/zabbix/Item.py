@@ -108,6 +108,26 @@ class Item(ZbxEntity, WithTags):
         self.inventory_link = str(field)
         return self
 
+    def set_delay(self, delay: str) -> Self:
+        """Set the update interval, e.g. ``"30s"``, ``"5m"`` or ``"{$POLL_INTERVAL}"``. Zabbix defaults to ``1m``."""
+        self.delay = delay
+        return self
+
+    def set_units(self, units: str) -> Self:
+        """Set the display units, e.g. ``"%"``, ``"B"`` or ``"bps"``."""
+        self.units = units
+        return self
+
+    def set_description(self, description: str) -> Self:
+        """Set the item description shown in the Zabbix UI."""
+        self.description = description
+        return self
+
+    def set_state(self, enabled: bool = True) -> Self:
+        """Enable or disable the item."""
+        self.status = "ENABLED" if enabled else "DISABLED"
+        return self
+
     @classmethod
     def from_dict(cls, data: dict, host: str = ""):
         item = cls(

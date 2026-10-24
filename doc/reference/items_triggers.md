@@ -31,6 +31,30 @@ ITEM_TYPE_SCRIPT, ITEM_TYPE_BROWSER
 
 **ValueType:** UNSIGNED (default), FLOAT, CHAR, LOG, TEXT, BINARY
 
+### Common settings
+
+```python
+item.set_delay("30s")              # update interval; Zabbix default is 1m; macros allowed
+item.set_units("%")
+item.set_description("Load average over 1 minute")
+item.set_state(enabled=False)      # disable the item
+```
+
+All setters return the item, so they chain.
+
+### Other item fields
+
+Fields without a setter can be set as plain attributes, using their Zabbix export names; they
+are written to the YAML unchanged:
+
+```python
+snmp = template.add_item("Load", "snmp.load", type=ItemType.SNMP_AGENT)
+snmp.snmp_oid = "1.3.6.1.4.1.2021.10.1.3.1"
+snmp.preprocessing = [{"type": "MULTIPLIER", "parameters": ["100"]}]
+```
+
+A misspelled field name is rejected by Zabbix on import.
+
 ### Value map
 
 ```python
