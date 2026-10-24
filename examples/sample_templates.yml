@@ -68,7 +68,7 @@ zabbix_export:
     template: Test Template
     dashboards:
     - name: Sample Dashboard
-      uuid: 10c5c90b123344db860fc35b39a9917c
+      uuid: b35870520a954f84b033d17c962ef81a
       display_period: '60'
       auto_start: 'NO'
       pages:
@@ -257,7 +257,7 @@ zabbix_export:
     template: Super Template
     dashboards:
     - name: Umbrella Dashboard
-      uuid: e4135d004b994a85b053d1bef324ff82
+      uuid: 3e19e0dd940d4ab6b30dc7602140a5f3
       auto_start: 'YES'
       pages:
       - widgets:

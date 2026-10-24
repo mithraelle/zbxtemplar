@@ -68,7 +68,7 @@ zabbix_export:
     template: Test Template
     dashboards:
     - name: Sample Dashboard
-      uuid: 10c5c90b123344db860fc35b39a9917c
+      uuid: b35870520a954f84b033d17c962ef81a
       display_period: '60'
       auto_start: 'NO'
       pages:

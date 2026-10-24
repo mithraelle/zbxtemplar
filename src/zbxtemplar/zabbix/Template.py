@@ -123,12 +123,12 @@ class Template(ZbxEntity, WithTags, WithMacros, WithGroups, WithTriggers, WithGr
     def add_dashboard(self, name: str, display_period: int = 0,
                       auto_start: YesNo = YesNo.YES) -> Dashboard:
         """Create, register and return a new Dashboard. Raises on duplicate name."""
-        dashboard = Dashboard(name=name, display_period=display_period, auto_start=auto_start)
+        dashboard = Dashboard(name=name, display_period=display_period, auto_start=auto_start,
+                              host=self.name)
         if any(d.name == dashboard.name for d in self.dashboards):
             raise ValueError(
                 f"Duplicate dashboard '{dashboard.name}' on template '{self.name}'"
             )
-        dashboard._host = self.name
         self.dashboards.append(dashboard)
         return dashboard
 

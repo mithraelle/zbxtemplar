@@ -135,17 +135,18 @@ class Dashboard(ZbxEntity):
     """Zabbix dashboard attached to a template."""
 
     def __init__(self, name: str, display_period: int = 0,
-                 auto_start: YesNo = YesNo.YES):
+                 auto_start: YesNo = YesNo.YES, host: str = ""):
         """
         Args:
             display_period: Default page slide interval in seconds.
             auto_start: Start the slideshow automatically (YesNo.YES or YesNo.NO).
+            host: Owner template technical name. Set automatically by add_dashboard().
         """
-        super().__init__(name)
+        super().__init__(name, uuid_seed=f"{host}/{name}")
         self.display_period = str(display_period) if display_period else None
         self.auto_start = auto_start
         self.pages: list[DashboardPage] = []
-        self._host: str | None = None
+        self._host = host
 
     def add_page(self, name: str = "", display_period: int = 0) -> DashboardPage:
         """Create, register and return a new DashboardPage."""
