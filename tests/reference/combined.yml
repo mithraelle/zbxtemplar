@@ -6,7 +6,7 @@ zabbix_export:
   templates:
   - valuemaps:
     - name: Test Map
-      uuid: 8f03d4d366a94523b6070c404ff377a9
+      uuid: df19c6877ec64f039e3229b3a9dcbebe
       mappings:
       - value: '1'
         newvalue: UP

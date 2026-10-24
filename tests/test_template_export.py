@@ -267,17 +267,17 @@ def test_standalone_graph_keeps_item_host():
     assert data["ymax_item_1"]["host"] == "Origin Template"
 
 
-def test_item_and_graph_uuids_unique_per_template():
+def test_owned_uuids_unique_per_template():
     def build(template_name):
         template = EmptyTemplar().add_template(template_name, groups=[TemplateGroup("Templar Templates")])
         item = template.add_item("Same Item", "item.same")
         graph = template.add_graph("Same Graph").link_item(item, "1A7C11")
-        return item.uuid, graph.uuid
+        value_map = template.add_value_map("Same Map")
+        return item.uuid, graph.uuid, value_map.uuid
 
     first, second = build("First Template"), build("Second Template")
 
-    assert first[0] != second[0]
-    assert first[1] != second[1]
+    assert all(a != b for a, b in zip(first, second))
     assert build("First Template") == first
 
 

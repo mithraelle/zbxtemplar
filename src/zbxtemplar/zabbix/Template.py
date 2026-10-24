@@ -35,8 +35,12 @@ class ValueMapType(StrEnum):
 class ValueMap(ZbxEntity):
     """Named mapping from raw collected values to human-readable display strings."""
 
-    def __init__(self, name: str):
-        super().__init__(name)
+    def __init__(self, name: str, host: str = ""):
+        """
+        Args:
+            host: Owner template or host technical name. Set automatically by add_value_map().
+        """
+        super().__init__(name, uuid_seed=f"{host}/{name}")
         self.mappings: list[dict[str, str]] = []
 
     def add_mapping(self, value: str, newvalue: str, type: ValueMapType = ValueMapType.EQUAL):
@@ -63,7 +67,7 @@ class WithValueMaps:
             raise ValueError(
                 f"Duplicate value map '{name}' on '{self.name}'"
             )
-        value_map = ValueMap(name)
+        value_map = ValueMap(name, host=self.name)
         self.valuemaps.append(value_map)
         return value_map
 
