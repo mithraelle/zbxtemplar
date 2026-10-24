@@ -166,6 +166,25 @@ def test_data_set_setters_chain():
     assert fields["ds.0.approximation"] == "4"
 
 
+def test_data_set_exports_draw_style():
+    connected = dashGraph.MissedData.CONNECTED
+    cases = [
+        (dashGraph.Line(stacked=True, width=2, transparency=4, fill=1, missed_data=connected),
+         {"type": "0", "stacked": "1", "width": "2", "transparency": "4", "fill": "1", "missingdatafunc": "1"}),
+        (dashGraph.Points(point_size=3, transparency=4),
+         {"type": "1", "pointsize": "3", "transparency": "4"}),
+        (dashGraph.Staircase(width=2, transparency=4, fill=1, missed_data=connected),
+         {"type": "2", "stacked": "0", "width": "2", "transparency": "4", "fill": "1", "missingdatafunc": "1"}),
+        (dashGraph.Bar(stacked=True, transparency=4),
+         {"type": "3", "stacked": "1", "transparency": "4"}),
+    ]
+    for style, expected in cases:
+        data_set = dashGraph.ItemListSet().set_draw_style(style)
+        fields = {f.name: f.to_dict()["value"] for f in data_set.to_dict(0)}
+
+        assert fields == {"ds.0.dataset_type": "0"} | {f"ds.0.{k}": v for k, v in expected.items()}
+
+
 def test_dashboard_default_display_period_omitted():
     module = EmptyTemplar()
     template = module.add_template("Dashboard Template", groups=[TemplateGroup("Templar Templates")])

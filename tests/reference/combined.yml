@@ -138,6 +138,15 @@ zabbix_export:
             name: ds.0.dataset_type
             value: '1'
           - type: INTEGER
+            name: ds.0.transparency
+            value: '5'
+          - type: INTEGER
+            name: ds.0.stacked
+            value: '0'
+          - type: INTEGER
+            name: ds.0.type
+            value: '3'
+          - type: INTEGER
             name: ds.0.axisy
             value: '1'
           - type: ITEM

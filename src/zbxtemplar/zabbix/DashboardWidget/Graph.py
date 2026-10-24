@@ -103,7 +103,7 @@ class Line(DrawStyle):
         self.stacked: int = 1 if stacked else 0
         self.width = width
         self.fill = fill
-        self.missed_data = missed_data.value
+        self.missingdatafunc = missed_data.value
 
 
 class Points(DrawStyle):
@@ -127,7 +127,7 @@ class Staircase(DrawStyle):
         self.stacked: int = 1 if stacked else 0
         self.width = width
         self.fill = fill
-        self.missed_data = missed_data.value
+        self.missingdatafunc = missed_data.value
 
 
 class Bar(DrawStyle):
@@ -160,7 +160,7 @@ class DataSet(ABC):
         return self
 
     def set_draw_style(self, style: DrawStyle) -> Self:
-        self._draw_style = style
+        self.draw_style = style
         return self
 
     def _list_fields(self, prefix: str) -> list[WidgetField]:
