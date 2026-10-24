@@ -16,6 +16,9 @@ from zbxtemplar.catalog.zabbix_7_4 import InventoryField
 `TemplateGroup` and `HostGroup` are created automatically if missing when the executor imports
 the YAML. All Zabbix-native objects (groups, templates, hosts, items, triggers, graphs,
 dashboards, value maps) follow the same rule: `createMissing: true, updateExisting: true`.
+Nothing is deleted on import: objects that exist in Zabbix but are missing from the file stay
+as they are (`zbxtemplar-inquest` reports them). Template links are the one exception — see
+[Linked templates](#linked-templates).
 
 ```python
 tg = TemplateGroup("My Templates")
@@ -57,6 +60,14 @@ vm.add_mapping("0", "DOWN", ValueMapType.EQUAL)
 ```python
 template.link_template(other_template)
 ```
+
+The links in the file are the complete list, for templates and hosts alike. On import, links
+that exist in Zabbix but are not in the file are removed — including links added by hand in
+the UI. A template or host with no links in the file loses all of its links.
+
+Removing a link keeps the data: the items, triggers and graphs the unlinked template brought
+stay on the template or host as its own copies, with their history; they just stop following
+the unlinked template. Linking it again takes those copies back over.
 
 ## Host
 
