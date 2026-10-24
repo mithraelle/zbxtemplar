@@ -118,13 +118,13 @@ def main():
                       "--user-groups-output, --users-output, --saml-output, --actions-output, "
                       "--encryption-output, or --macros-output")
 
-    if args.namespace:
-        set_uuid_namespace(args.namespace)
-
-    params = _parse_params(parser, args.param)
-    context = _build_context(args.context)
-
     try:
+        if args.namespace:
+            set_uuid_namespace(args.namespace)
+
+        params = _parse_params(parser, args.param)
+        context = _build_context(args.context)
+
         modules = load_module(args.module, params=params or None, context=context)
         if not modules:
             print(f"No TemplarModule/DecreeModule subclasses found in {args.module}")
@@ -160,7 +160,7 @@ def main():
                     _write_yaml(mod.export_macros(), args.macros_output, f"{name} [macros]")
                 elif mod.macros:
                     raise ValueError("Global macros are defined but --macros-output is not specified")
-    except (ValueError, TypeError, ImportError, KeyError, NotImplementedError) as e:
+    except (ValueError, TypeError, ImportError, KeyError, NotImplementedError, OSError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
 
