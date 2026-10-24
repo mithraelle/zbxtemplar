@@ -214,8 +214,29 @@ zabbix_export:
             value:
               host: Test Template
               key: item.test[2]
+  - items:
+    - name: Second Item 1
+      uuid: f987bb5ee4c84b018d26df39955f4e11
+      key: item.second[1]
+      type: ZABBIX_PASSIVE
+      value_type: UNSIGNED
+      history: 90d
+      trends: 365d
+    - name: Second Item 2
+      uuid: d2555f064bad4da7ae2ceda80365bdd5
+      key: item.second[2]
+      type: ZABBIX_PASSIVE
+      value_type: UNSIGNED
+      history: 90d
+      trends: 365d
+    groups:
+    - name: Templar Templates
+    name: Second Template
+    uuid: ced460f634e74204b803b242d81537fb
+    template: Second Template
   - templates:
     - name: Test Template
+    - name: Second Template
     groups:
     - name: Templar Templates
     macros:
@@ -225,6 +246,50 @@ zabbix_export:
     name: Super Template
     uuid: 81e85747cf6f4d0689ace169414abace
     template: Super Template
+    dashboards:
+    - name: Umbrella Dashboard
+      uuid: e4135d004b994a85b053d1bef324ff82
+      auto_start: 'YES'
+      pages:
+      - widgets:
+        - type: graph
+          width: '36'
+          height: '5'
+          fields:
+          - type: STRING
+            name: reference
+            value: AAAAF
+          - type: GRAPH
+            name: graphid.0
+            value:
+              host: Super Template
+              name: Test Graph
+        - type: graph
+          x: '36'
+          width: '36'
+          height: '5'
+          fields:
+          - type: STRING
+            name: reference
+            value: AAAAG
+          - type: GRAPH
+            name: graphid.0
+            value:
+              host: Super Template
+              name: Second Graph
+        - type: graph
+          y: '5'
+          width: '72'
+          height: '5'
+          fields:
+          - type: STRING
+            name: reference
+            value: AAAAH
+          - type: GRAPH
+            name: graphid.0
+            value:
+              host: Super Template
+              name: Umbrella Graph
   host_groups:
   - name: Templar Hosts
     uuid: 06fa0ec20ab54eb4843996f8589df4ea
@@ -345,6 +410,58 @@ zabbix_export:
       calc_fnc: AVG
       type: SIMPLE
       yaxisside: RIGHT
+  - name: Second Graph
+    uuid: 9181e7146e1745e1b5f6d0f8c4e99fb3
+    type: NORMAL
+    show_triggers: 'YES'
+    show_legend: 'YES'
+    ymin_type_1: CALCULATED
+    ymax_type_1: CALCULATED
+    graph_items:
+    - item:
+        host: Second Template
+        key: item.second[1]
+      color: 1A7C11
+      sortorder: '0'
+      drawtype: SINGLE_LINE
+      calc_fnc: AVG
+      type: SIMPLE
+      yaxisside: LEFT
+    - item:
+        host: Second Template
+        key: item.second[2]
+      color: '274482'
+      sortorder: '1'
+      drawtype: SINGLE_LINE
+      calc_fnc: AVG
+      type: SIMPLE
+      yaxisside: LEFT
+  - name: Umbrella Graph
+    uuid: d693537b68454ef4be63e3048725b1c1
+    type: NORMAL
+    show_triggers: 'YES'
+    show_legend: 'YES'
+    ymin_type_1: CALCULATED
+    ymax_type_1: CALCULATED
+    graph_items:
+    - item:
+        host: Super Template
+        key: item.test[1]
+      color: 1A7C11
+      sortorder: '0'
+      drawtype: SINGLE_LINE
+      calc_fnc: AVG
+      type: SIMPLE
+      yaxisside: LEFT
+    - item:
+        host: Super Template
+        key: item.second[1]
+      color: '274482'
+      sortorder: '1'
+      drawtype: SINGLE_LINE
+      calc_fnc: AVG
+      type: SIMPLE
+      yaxisside: LEFT
   - name: Host Graph
     uuid: a5f00437fc4f43e580e891b7a2e21edd
     type: NORMAL

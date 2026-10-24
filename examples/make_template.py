@@ -104,9 +104,25 @@ class SampleTemplate(TemplarModule):
                          priority=TriggerPriority.WARNING,
                          description="Host trigger using two items")
 
+        second_template = self.add_template("Second Template", groups=[template_group])
+        second_item1 = second_template.add_item("Second Item 1", "item.second[1]")
+        second_item2 = second_template.add_item("Second Item 2", "item.second[2]")
+        second_graph = second_template.add_graph("Second Graph")
+        second_graph.link_item(second_item1, "1A7C11").link_item(second_item2, "274482")
+
         super_template = self.add_template("Super Template", groups=[template_group])
         super_template.link_template(template)
+        super_template.link_template(second_template)
         super_template.add_macro("SUPER_TEMPLATE_MACRO", "SUPER TEMPLATE MACRO")
+
+        umbrella_graph = super_template.add_graph("Umbrella Graph")
+        umbrella_graph.link_item(item1, "1A7C11").link_item(second_item1, "274482")
+
+        umbrella_dashboard = super_template.add_dashboard("Umbrella Dashboard")
+        umbrella_page = umbrella_dashboard.add_page()
+        umbrella_page.link_widget(ClassicGraph(graph=graph, x=0, y=0, width=36, height=5))
+        umbrella_page.link_widget(ClassicGraph(graph=second_graph, x=36, y=0, width=36, height=5))
+        umbrella_page.link_widget(ClassicGraph(graph=umbrella_graph, x=0, y=5, width=72, height=5))
 
         super_host = self.add_host("Templar Super Host", groups=[host_group])
         super_host.link_template(super_template)
