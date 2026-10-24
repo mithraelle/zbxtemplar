@@ -224,6 +224,30 @@ def test_unlinked_widget_keeps_item_host():
     assert item_field["value"]["host"] == "Origin Template"
 
 
+def test_graph_references_owning_template():
+    module = EmptyTemplar()
+    linked = module.add_template("Linked Template", groups=[TemplateGroup("Templar Templates")])
+    linked_item = linked.add_item("Linked Item", "item.linked")
+    template = module.add_template("Owner Template", groups=[TemplateGroup("Templar Templates")])
+    template.link_template(linked)
+
+    graph = template.add_graph("Owner Graph", y_max_type=YAxisType.ITEM, y_max=linked_item)
+    graph.link_item(linked_item, "1A7C11")
+    data = graph.to_dict()
+
+    assert [gi["item"]["host"] for gi in data["graph_items"]] == ["Owner Template"]
+    assert data["ymax_item_1"]["host"] == "Owner Template"
+
+
+def test_standalone_graph_keeps_item_host():
+    item = Item("Foreign Item", "item.foreign", host="Origin Template")
+    graph = Graph("Foreign Graph", y_max_type=YAxisType.ITEM, y_max=item).link_item(item, "1A7C11")
+    data = graph.to_dict()
+
+    assert [gi["item"]["host"] for gi in data["graph_items"]] == ["Origin Template"]
+    assert data["ymax_item_1"]["host"] == "Origin Template"
+
+
 def test_get_item_pattern_matches_own_and_linked_items():
     module = EmptyTemplar()
     linked = module.add_template("Linked Template", groups=[TemplateGroup("Templar Templates")])

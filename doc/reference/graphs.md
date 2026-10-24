@@ -27,7 +27,8 @@ graph = template.add_graph(
 ```
 
 When `y_min_type` or `y_max_type` is `ITEM`, pass the corresponding `Item` object
-directly as `y_min` / `y_max`. The item must already be added to the same template or host.
+directly as `y_min` / `y_max`. The item must belong to the same template or host, or to a
+template linked to it.
 
 ## Linking items to a graph
 
@@ -45,3 +46,6 @@ graph.link_item(
 ```
 
 `GRAPH_SUM` marks the item as the "sum" reference in PIE / EXPLODED graphs.
+
+Items of linked templates can be used directly: the graph belongs to the template or host it
+was added to, so an umbrella template can combine items from several linked templates in one graph.

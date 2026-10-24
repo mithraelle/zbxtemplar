@@ -62,8 +62,8 @@ class GraphItem:
                  drawtype: DrawType = DrawType.SINGLE_LINE,
                  calc_fnc: CalcFnc = CalcFnc.AVG,
                  type: GraphItemType = GraphItemType.SIMPLE,
-                 yaxisside: YAxisSide = YAxisSide.LEFT):
-        self.item = {"host": item._host, "key": item.key}
+                 yaxisside: YAxisSide = YAxisSide.LEFT, host: str = ""):
+        self.item = {"host": host or item._host, "key": item.key}
         self.color = color
         self.sortorder = str(order)
         self.drawtype = drawtype
@@ -81,15 +81,19 @@ class Graph(ZbxEntity):
                  y_min_type: YAxisType = YAxisType.CALCULATED,
                  y_max_type: YAxisType = YAxisType.CALCULATED,
                  y_min: int | float | Item | str | None = None,
-                 y_max: int | float | Item | str | None = None):
+                 y_max: int | float | Item | str | None = None,
+                 host: str = ""):
         """
         Args:
             y_min_type: Y-axis minimum mode; use YAxisType.ITEM when passing an Item as y_min.
             y_max_type: Y-axis maximum mode; use YAxisType.ITEM when passing an Item as y_max.
             y_min: Fixed lower bound (number or string) or an Item when y_min_type is ITEM.
             y_max: Fixed upper bound (number or string) or an Item when y_max_type is ITEM.
+            host: Owner template or host technical name. Set automatically by add_graph().
+                Items are referenced on the owner, so items of linked templates resolve as inherited.
         """
         super().__init__(name)
+        self._host = host
         self.type = type
         self.show_triggers = show_triggers
         self.show_legend = show_legend
@@ -103,7 +107,7 @@ class Graph(ZbxEntity):
         if axis_type == YAxisType.ITEM:
             if not isinstance(value, Item):
                 raise ValueError(f"y_{axis}: type=ITEM requires an Item value")
-            setattr(self, f"y{axis}_item_1", {"host": value._host, "key": value.key})
+            setattr(self, f"y{axis}_item_1", {"host": self._host or value._host, "key": value.key})
         elif value is not None:
             if isinstance(value, Item):
                 raise ValueError(f"y_{axis}: Item value requires y_{axis}_type=ITEM")
@@ -123,7 +127,8 @@ class Graph(ZbxEntity):
         """
         if order == -1:
             order = len(self.graph_items)
-        self.graph_items.append(GraphItem(item, color, order, drawtype, calc_fnc, type, yaxisside))
+        self.graph_items.append(GraphItem(item, color, order, drawtype, calc_fnc, type, yaxisside,
+                                          host=self._host))
         return self
 
     @classmethod
@@ -144,13 +149,14 @@ class WithGraphs:
                   y_max_type: YAxisType = YAxisType.CALCULATED,
                   y_min: int | float | Item | str | None = None,
                   y_max: int | float | Item | str | None = None) -> Graph:
-        """Create, register and return a new Graph. Raises on duplicate name."""
+        """Create, register and return a new Graph owned by this entity. Raises on duplicate name."""
         if any(g.name == name for g in self._graphs):
             raise ValueError(
                 f"Duplicate graph '{name}' on '{getattr(self, 'name', self.__class__.__name__)}'"
             )
         graph = Graph(name, type=type, show_triggers=show_triggers, show_legend=show_legend,
-                      y_min_type=y_min_type, y_max_type=y_max_type, y_min=y_min, y_max=y_max)
+                      y_min_type=y_min_type, y_max_type=y_max_type, y_min=y_min, y_max=y_max,
+                      host=getattr(self, "name", ""))
         self._graphs.append(graph)
         return graph
 
