@@ -5,20 +5,10 @@ from tests.paths import FIXTURES_DIR, REFERENCE_DIR
 
 
 class TestZabbixExport:
-    def test_template_groups(self):
-        ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
-        tg = ctx.get_template_group("Templar Templates")
-        assert tg.name == "Templar Templates"
-
     def test_template_group_missing(self):
         ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
         with pytest.raises(ValueError, match="not found in context"):
             ctx.get_template_group("Nonexistent")
-
-    def test_host_groups(self):
-        ctx = Context().load(str(REFERENCE_DIR / "hosts.yml"))
-        hg = ctx.get_host_group("Templar Hosts")
-        assert hg.name == "Templar Hosts"
 
     def test_get_item(self):
         ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
@@ -44,7 +34,7 @@ class TestZabbixExport:
     def test_macros_from_templates(self):
         ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
         tmpl = ctx.get_template("Test Template")
-        assert "MY_MACRO" in tmpl.macros
+        assert tmpl.macros["MY_MACRO"].value == "1"
 
     def test_combined_file(self):
         ctx = Context().load(str(REFERENCE_DIR / "combined.yml"))
@@ -97,27 +87,30 @@ class TestDecree:
     def test_user_group(self):
         ctx = Context().load(str(FIXTURES_DIR / "user_group.decree.yml"))
         ug = ctx.get_user_group("Templar Users")
-        assert ug.name == "Templar Users"
+        assert ug.gui_access == "INTERNAL"
+        assert [(g.name, g.permission) for g in ug.host_groups] == [
+            ("Linux servers", "NONE"), ("Virtual machines", "READ"),
+        ]
 
     def test_user_group_collects_host_groups(self):
         ctx = Context().load(str(FIXTURES_DIR / "user_group.decree.yml"))
-        ctx.get_host_group("Linux servers")
-        ctx.get_host_group("Virtual machines")
+        assert sorted(ctx._host_groups) == ["Linux servers", "Virtual machines"]
 
     def test_user_group_collects_template_groups(self):
         ctx = Context().load(str(FIXTURES_DIR / "user_group.decree.yml"))
-        ctx.get_template_group("Test Template")
+        assert sorted(ctx._template_groups) == ["Test Template"]
 
     def test_add_user_collects_groups(self):
         ctx = Context().load(str(FIXTURES_DIR / "add_user.yml"))
-        ctx.get_user_group("Templar Users")
+        assert sorted(ctx._user_groups) == ["Templar Users"]
 
 
 class TestSetMacro:
-    def test_macro_names(self):
+    def test_macro_values(self):
         ctx = Context().load(str(FIXTURES_DIR / "set_macro.yml"))
-        ctx.get_macro("{$SNMP_COMMUNITY}")
-        ctx.get_macro("{$DB_PASSWORD}")
+        assert ctx.get_macro("{$SNMP_COMMUNITY}").value == "public"
+        secret = ctx.get_macro("{$DB_PASSWORD}")
+        assert (secret.value, secret.type) == ("MY_PASSWORD", "SECRET_TEXT")
 
 
 class TestMultipleLoads:
@@ -127,21 +120,17 @@ class TestMultipleLoads:
         ctx.load(str(REFERENCE_DIR / "hosts.yml"))
         ctx.load(str(FIXTURES_DIR / "set_macro.yml"))
         ctx.load(str(FIXTURES_DIR / "user_group.decree.yml"))
-        ctx.get_template_group("Templar Templates")
-        ctx.get_template_group("Test Template")
-        ctx.get_host_group("Linux servers")
-        ctx.get_host_group("Templar Hosts")
-        ctx.get_host_group("Virtual machines")
-        ctx.get_user_group("Templar Users")
-        ctx.get_macro("{$SNMP_COMMUNITY}")
+        assert sorted(ctx._template_groups) == ["Templar Templates", "Test Template"]
+        assert sorted(ctx._host_groups) == ["Linux servers", "Templar Hosts", "Virtual machines"]
+        assert sorted(ctx._user_groups) == ["Templar Users"]
+        assert sorted(ctx._macros) == ["DB_PASSWORD", "SNMP_COMMUNITY"]
 
     def test_chaining(self):
         ctx = (Context()
                .load(str(REFERENCE_DIR / "templates.yml"))
                .load(str(FIXTURES_DIR / "user_group.decree.yml")))
-        ctx.get_template_group("Templar Templates")
-        ctx.get_template_group("Test Template")
-        ctx.get_user_group("Templar Users")
+        assert sorted(ctx._template_groups) == ["Templar Templates", "Test Template"]
+        assert sorted(ctx._user_groups) == ["Templar Users"]
 
 
     def test_reverse_order_preserves_identity(self):
