@@ -18,8 +18,8 @@ class TriggerPriority(StrEnum):
 class Trigger(ZbxEntity, WithTags):
     def __init__(self, name: str, expression: TriggerExpr,
                  priority: TriggerPriority = TriggerPriority.NOT_CLASSIFIED,
-                 description: str | None = None):
-        super().__init__(name)
+                 description: str | None = None, host: str = ""):
+        super().__init__(name, uuid_seed=f"{host}/{name}")
         s = str(expression)
         self.expression = s[1:-1] if s.startswith("(") and s.endswith(")") else s
         self.priority = priority
@@ -61,7 +61,7 @@ class WithTriggers:
         if any(t.name == name for t in existing):
             raise ValueError(f"Duplicate trigger '{name}' on '{owner}'")
 
-        trigger = Trigger(name, expression, priority, description)
+        trigger = Trigger(name, expression, priority, description, host=owner)
         refs = expression.items()
         for item in refs:
             if not any(i is item for i in own_items):

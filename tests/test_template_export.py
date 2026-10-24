@@ -273,7 +273,8 @@ def test_owned_uuids_unique_per_template():
         item = template.add_item("Same Item", "item.same")
         graph = template.add_graph("Same Graph").link_item(item, "1A7C11")
         value_map = template.add_value_map("Same Map")
-        return item.uuid, graph.uuid, value_map.uuid
+        trigger = template.add_trigger("Same Trigger", functions.history.Last(item) > 1)
+        return item.uuid, graph.uuid, value_map.uuid, trigger.uuid
 
     first, second = build("First Template"), build("Second Template")
 

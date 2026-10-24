@@ -27,7 +27,7 @@ zabbix_export:
       trends: 365d
       triggers:
       - name: Simple trigger
-        uuid: 2968b019ed11459087759353780c7a15
+        uuid: 8528179bd1874fd189be8a9380f8879e
         expression: min(/Test Template/item.test[1],10) > {$MY_MACRO}
         priority: HIGH
         description: A single item trigger
@@ -383,7 +383,7 @@ zabbix_export:
       default: 'YES'
   triggers:
   - name: Complex trigger
-    uuid: bc81a964ebf94fb0926600eb7222a1a7
+    uuid: c2badbca2ec44316b7be784f66e20da6
     expression: (last(/Test Template/item.test[1]) > {$MY_MACRO}) and (last(/Test
       Template/item.test[2]) < {$MY_MACRO})
     priority: WARNING
