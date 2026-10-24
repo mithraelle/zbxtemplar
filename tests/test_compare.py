@@ -228,6 +228,37 @@ def test_ignore_policy(show):
     assert schema == []
 
 
+def test_pull_users_attaches_only_declared_token():
+    from unittest.mock import MagicMock
+
+    api = MagicMock()
+    api.role.get.return_value = [{"roleid": "1", "name": "User role"}]
+    api.mediatype.get.return_value = []
+    api.user.get.return_value = [
+        {"userid": "4", "username": "zbx-service", "roleid": "1", "usrgrps": [], "medias": []},
+        {"userid": "5", "username": "zbx-other", "roleid": "1", "usrgrps": [], "medias": []},
+    ]
+    api.token.get.return_value = [
+        {"userid": "4", "name": "hand-made", "expires_at": "0"},
+        {"userid": "4", "name": "monitoring-ro", "expires_at": "0"},
+        {"userid": "5", "name": "monitoring-ro", "expires_at": "0"},
+    ]
+
+    api_ctx = APIContext(api).pull_users(["zbx-service", "zbx-other"], {"zbx-service": "monitoring-ro"})
+
+    assert api_ctx.get_user("zbx-service").token.name == "monitoring-ro"
+    assert api_ctx.get_user("zbx-other").token is None
+
+
+def test_render_shows_entity_content():
+    from zbxtemplar.decree.Token import Token
+
+    text = _render([Diff("user.zbx-service.token", None, Token("monitoring-ro", Token.STDOUT, Token.EXPIRES_NEVER))])
+
+    assert '"name": "monitoring-ro"' in text
+    assert "object at" not in text
+
+
 def _template(history="90d", dashboard=False):
     from zbxtemplar.catalog.zabbix_7_4 import functions
     from zbxtemplar.zabbix.Template import Template, TemplateGroup

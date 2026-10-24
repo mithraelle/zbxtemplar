@@ -34,6 +34,11 @@ class Inquest:
         return comparator.checked(self._ctx, self._api_ctx)
 
 
+def json_default(value):
+    """JSON fallback for diff values: entities render as their dict, anything else as str."""
+    return value.to_dict() if hasattr(value, "to_dict") else str(value)
+
+
 _ANSI = {"g": "\033[32m", "y": "\033[33m", "r": "\033[31m", "dim": "\033[2m", "reset": "\033[0m"}
 _NO_ANSI = {k: "" for k in _ANSI}
 
@@ -76,10 +81,10 @@ def render(
         return f"  {col}{tag:<6}{c['reset']} {label:<16}{suffix}"
 
     def fmt_value(v) -> str:
-        s = json.dumps(v, default=str, sort_keys=False)
+        s = json.dumps(v, default=json_default, sort_keys=False)
         if len(s) <= 80:
             return s
-        return "\n        " + json.dumps(v, default=str, indent=2).replace("\n", "\n        ")
+        return "\n        " + json.dumps(v, default=json_default, indent=2).replace("\n", "\n        ")
 
     lines = [f"\nChecking declared state against {target} ({comparator})"]
 

@@ -37,7 +37,8 @@ class APIContext:
         if ctx._user_groups:
             api_ctx.pull_user_groups(list(ctx._user_groups))
         if ctx._users:
-            api_ctx.pull_users(list(ctx._users))
+            tokens = {name: u.token.name for name, u in ctx._users.items() if u.token}
+            api_ctx.pull_users(list(ctx._users), tokens)
         if ctx._saml is not None:
             api_ctx.pull_saml()
         if ctx._host_encryptions:
@@ -86,7 +87,8 @@ class APIContext:
             raise ValueError(f"User group '{name}' not found in API context")
         return self._user_groups[name]
 
-    def pull_users(self, users: list[str] | None = None):
+    def pull_users(self, users: list[str] | None = None, tokens: dict[str, str] | None = None):
+        """Pull users; ``tokens`` maps username to the token name to attach (other tokens are skipped)."""
         params: dict = {
             "output": ["userid", "username", "roleid"],
             "selectUsrgrps": ["name"],
@@ -100,14 +102,15 @@ class APIContext:
         mediatype_names = self._id_name_map("mediatype", "mediatypeid")
 
         by_userid = {raw["userid"]: raw for raw in raw_users}
-        if by_userid:
-            tokens = self._api.token.get(
+        if by_userid and tokens:
+            rows = self._api.token.get(
                 userids=list(by_userid),
+                filter={"name": sorted(set(tokens.values()))},
                 output=["userid", "name", "expires_at"],
             )
-            for t in tokens:
+            for t in rows:
                 raw = by_userid.get(t["userid"])
-                if raw is None or "token" in raw:
+                if raw is None or tokens.get(raw["username"]) != t["name"]:
                     continue
                 raw["token"] = {
                     "name": t["name"],

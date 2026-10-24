@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 from zabbix_utils import ZabbixAPI
 
 from zbxtemplar.inquest import Diff, Inquest, RawDiff, SchemaDiff, render
+from zbxtemplar.inquest.Inquest import json_default
 
 
 def _make_api(args):
@@ -30,7 +31,7 @@ def _target_host(args) -> str:
 def _print_json(diffs: list[Diff]) -> None:
     for diff in diffs:
         entry: dict = {"path": diff.path, "local": diff.local, "remote": diff.remote}
-        print(json.dumps(entry, default=str))
+        print(json.dumps(entry, default=json_default))
 
 
 def _emit_error(args, exc: BaseException) -> None:
