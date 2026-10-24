@@ -1,5 +1,6 @@
 from typing import Self
 
+from zbxtemplar.decree.Token import Token
 from zbxtemplar.dicts.Decree import Decree
 from zbxtemplar.dicts.Schema import Schema, field
 from zbxtemplar.zabbix.macro import Macro
@@ -19,8 +20,26 @@ class SuperAdmin(Schema):
     )
 
 
+class UserToken(Schema):
+    """API token for an existing Zabbix user. The user itself is not created or changed."""
+
+    username: str = field(
+        optional=False,
+        description="Existing Zabbix username that owns the token.",
+    )
+    token: Token = field(
+        optional=False,
+        str_type="Token",
+        description="API token provisioning configuration.",
+    )
+    force_token: bool | None = field(
+        str_type="bool",
+        description="Update and re-generate an existing token with the same name.",
+    )
+
+
 class Scroll(Schema):
-    """Ordered deployment scroll: bootstrap, global macros, imports, and decree."""
+    """Ordered deployment scroll: bootstrap, global macros, imports, decree, and tokens."""
 
     set_super_admin: SuperAdmin | None = field(
         str_type="SuperAdmin",
@@ -37,6 +56,10 @@ class Scroll(Schema):
     decree: Decree | None = field(
         str_type="Decree",
         description="Inline decree data, merged decree data list, or decree YAML path.",
+    )
+    set_token: list[UserToken] | None = field(
+        str_type="list[UserToken]",
+        description="API tokens to issue for existing users. Runs after decree.",
     )
 
     @classmethod

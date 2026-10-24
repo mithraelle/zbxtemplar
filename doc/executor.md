@@ -101,7 +101,7 @@ PSK secrets are write-only in Zabbix (the API never returns them), so PSK-mode h
 
 #### Apply: Decree `add_user`
 
-Token provisioning is configured inside each user in the `add_user` list:
+Token provisioning is configured inside each user in the `add_user` list. To issue a token for a user the decree does not manage, use [`set_token`](#set_token) instead:
 
 ```yaml
 add_user:
@@ -163,6 +163,7 @@ Runs an ordered deployment configuration file using the built-in action sequence
 - `set_macro`
 - `apply`
 - `decree`
+- `set_token`
 
 ```yaml
 set_super_admin:
@@ -173,6 +174,12 @@ apply:
   - templates.yml
   - hosts.yml
 decree: decree.yml
+set_token:
+  - username: api-reader
+    token:
+      name: api-reader-token
+      expires_at: NEVER
+      store_at: .secrets/api-reader.token
 ```
 
 ```bash
@@ -181,7 +188,7 @@ zbxtemplar-exec apply deploy.scroll.yml --from-action apply --url ... --token ..
 zbxtemplar-exec apply deploy.scroll.yml --only-action decree --url ... --token ...
 ```
 
-`--from-action` and `--only-action` are supported for scroll and decree files. Decree action names are `user_group`, `saml`, `add_user`, `actions`, and `encryption`; scroll action names are `set_super_admin`, `set_macro`, `apply`, and `decree`.
+`--from-action` and `--only-action` are supported for scroll and decree files. Decree action names are `user_group`, `saml`, `add_user`, `actions`, and `encryption`; scroll action names are `set_super_admin`, `set_macro`, `apply`, `decree`, and `set_token`.
 
 ### `set_macro`
 
@@ -202,6 +209,17 @@ Global macros support three storage types via the `type` field:
 | `vault` | Value is a Vault path. Zabbix fetches the actual secret from HashiCorp Vault at runtime. |
 
 Type values match the Zabbix native export format: `TEXT` (default), `SECRET_TEXT`, `VAULT`. Secret and vault macros keep credentials out of the Zabbix UI. Combined with `${ENV_VAR}` interpolation, the actual secret values never appear in committed YAML either.
+
+### `set_token`
+
+Issues an API token for a user that already exists in Zabbix. The user is looked up by username and is never created or changed — no role, groups, or media are needed:
+
+```bash
+zbxtemplar-exec set_token api-reader api-reader-token --store-at .secrets/api-reader.token --expires-at NEVER --url ... --token ...
+zbxtemplar-exec set_token api-reader api-reader-token --store-at STDOUT --force --url ... --token ...
+```
+
+In a scroll, `set_token` takes a list of entries with the same `token` block and `force_token` flag as `add_user`, and runs after `decree`, so it can also target users the decree just created. The token rules and output safety rails are the same as for [`add_user`](#apply-decree-add_user). A missing user fails the action before any token is touched. Like `set_macro`, `set_token` is an operation, not declared state: inquest does not check it.
 
 ### `set_super_admin`
 

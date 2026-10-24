@@ -6,6 +6,7 @@ from zbxtemplar.executor.Executor import StagedExecutor, ExecutorStage
 from zbxtemplar.executor.operations.ImportOperation import ImportOperation
 from zbxtemplar.executor.operations.MacroOperation import MacroOperation
 from zbxtemplar.executor.operations.SuperAdminOperation import SuperAdminOperation
+from zbxtemplar.executor.operations.TokenOperation import TokenOperation
 
 
 class ScrollExecutor(StagedExecutor):
@@ -14,6 +15,7 @@ class ScrollExecutor(StagedExecutor):
         ExecutorStage("set_macro", MacroOperation),
         ExecutorStage("apply", ImportOperation),
         ExecutorStage("decree", DecreeExecutor),
+        ExecutorStage("set_token", TokenOperation),
     ]
 
     def __init__(self, spec: Scroll, api, base_dir=None):

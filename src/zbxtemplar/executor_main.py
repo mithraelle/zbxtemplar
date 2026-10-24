@@ -61,6 +61,15 @@ def _set_macro(args, api):
     ScrollExecutor(scroll, api).execute(only_action="set_macro")
 
 
+def _set_token(args, api):
+    token = {"name": args.name, "store_at": args.store_at}
+    if args.expires_at:
+        token["expires_at"] = args.expires_at
+    _set_schema_base()
+    scroll = Scroll.from_data({"set_token": [{"username": args.username, "token": token, "force_token": args.force}]})
+    ScrollExecutor(scroll, api).execute(only_action="set_token")
+
+
 def _apply(args, api):
     path = os.path.abspath(args.file)
     base_dir = os.path.dirname(path)
@@ -121,6 +130,14 @@ def _build_parser():
     mac.add_argument("value", help="Macro value")
     mac.add_argument("--type", choices=["text", "secret", "vault"], default="text")
     mac.set_defaults(func=_set_macro)
+
+    tok = sub.add_parser("set_token", parents=[conn], help="Issue an API token for an existing user")
+    tok.add_argument("username", help="Existing Zabbix username that owns the token")
+    tok.add_argument("name", help="Token name")
+    tok.add_argument("--store-at", required=True, help="File path for the token secret, or STDOUT")
+    tok.add_argument("--expires-at", help="Unix timestamp or NEVER (required when the token is created)")
+    tok.add_argument("--force", action="store_true", help="Update and re-generate an existing token with the same name")
+    tok.set_defaults(func=_set_token)
 
     app = sub.add_parser("apply", parents=[conn], help="Apply a Zabbix export, scroll, or decree file")
     app.add_argument("file", help="Path to YAML file (auto-detected: zabbix export, scroll, or decree)")

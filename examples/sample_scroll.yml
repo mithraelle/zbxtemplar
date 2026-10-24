@@ -15,3 +15,9 @@ decree:
   - sample_saml_config.yml
   - sample_actions_decree.yml
   - sample_encryption_decree.yml
+set_token:
+  - username: zbx-admin
+    token:
+      name: zbx-admin-token
+      expires_at: NEVER
+      store_at: .secrets/zbx-admin.token
