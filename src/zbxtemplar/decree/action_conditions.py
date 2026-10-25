@@ -1,5 +1,7 @@
 from enum import IntEnum
 
+from zbxtemplar.zabbix.Host import Host, HostGroup
+from zbxtemplar.zabbix.Template import Template
 from zbxtemplar.zabbix.Trigger import Trigger, TriggerPriority
 
 
@@ -161,7 +163,7 @@ class HostGroupCondition(Condition):
     conditiontype = 0
     Op = _EqualsOp
 
-    def __init__(self, group, op=_EqualsOp.EQUALS):
+    def __init__(self, group: HostGroup | str, op: _EqualsOp = _EqualsOp.EQUALS):
         self.value = _name(group)
         self.op = op
 
@@ -171,7 +173,7 @@ class HostCondition(Condition):
     conditiontype = 1
     Op = _EqualsOp
 
-    def __init__(self, host, op=_EqualsOp.EQUALS):
+    def __init__(self, host: Host | str, op: _EqualsOp = _EqualsOp.EQUALS):
         self.value = _name(host)
         self.op = op
 
@@ -181,7 +183,7 @@ class TriggerCondition(Condition):
     conditiontype = 2
     Op = _EqualsOp
 
-    def __init__(self, trigger: Trigger | str, op=_EqualsOp.EQUALS):
+    def __init__(self, trigger: Trigger | str, op: _EqualsOp = _EqualsOp.EQUALS):
         """Accepts a Trigger object or a ``"host/trigger name"`` string."""
         self.value = f"{trigger._host}/{trigger.name}" if isinstance(trigger, Trigger) else trigger
         self.op = op
@@ -192,7 +194,7 @@ class EventNameCondition(Condition):
     conditiontype = 3
     Op = _ContainsOp
 
-    def __init__(self, pattern, op=_ContainsOp.CONTAINS):
+    def __init__(self, pattern: str, op: _ContainsOp = _ContainsOp.CONTAINS):
         self.value = pattern
         self.op = op
 
@@ -202,7 +204,7 @@ class SeverityCondition(Condition):
     conditiontype = 4
     Op = _SeverityOp
 
-    def __init__(self, severity: TriggerPriority, op=_SeverityOp.GREATER_OR_EQUAL):
+    def __init__(self, severity: TriggerPriority, op: _SeverityOp = _SeverityOp.GREATER_OR_EQUAL):
         self.value = str(TriggerPriority(severity).api)
         self.op = op
 
@@ -212,7 +214,7 @@ class TimePeriodCondition(Condition):
     conditiontype = 6
     Op = _InOp
 
-    def __init__(self, period, op=_InOp.IN):
+    def __init__(self, period: str, op: _InOp = _InOp.IN):
         self.value = period
         self.op = op
 
@@ -287,7 +289,7 @@ class HostTemplateCondition(Condition):
     conditiontype = 13
     Op = _EqualsOp
 
-    def __init__(self, template, op=_EqualsOp.EQUALS):
+    def __init__(self, template: Template | str, op: _EqualsOp = _EqualsOp.EQUALS):
         self.value = _name(template)
         self.op = op
 
@@ -297,7 +299,7 @@ class SuppressedCondition(Condition):
     conditiontype = 16
     Op = _SuppressedOp
 
-    def __init__(self, op=_SuppressedOp.NO):
+    def __init__(self, op: _SuppressedOp = _SuppressedOp.NO):
         self.value = ""
         self.op = op
 
@@ -333,7 +335,7 @@ class ProxyCondition(Condition):
     conditiontype = 20
     Op = _EqualsOp
 
-    def __init__(self, proxy, op=_EqualsOp.EQUALS):
+    def __init__(self, proxy: str, op: _EqualsOp = _EqualsOp.EQUALS):
         self.value = proxy
         self.op = op
 
@@ -356,7 +358,7 @@ class HostNameCondition(Condition):
     conditiontype = 22
     Op = _PatternOp
 
-    def __init__(self, pattern, op=_PatternOp.CONTAINS):
+    def __init__(self, pattern: str, op: _PatternOp = _PatternOp.CONTAINS):
         self.value = pattern
         self.op = op
 
@@ -383,7 +385,7 @@ class HostMetadataCondition(Condition):
     conditiontype = 24
     Op = _PatternOp
 
-    def __init__(self, pattern, op=_PatternOp.CONTAINS):
+    def __init__(self, pattern: str, op: _PatternOp = _PatternOp.CONTAINS):
         self.value = pattern
         self.op = op
 
@@ -393,7 +395,7 @@ class TagCondition(Condition):
     conditiontype = 25
     Op = _TagOp
 
-    def __init__(self, tag, op=_TagOp.EQUALS):
+    def __init__(self, tag: str, op: _TagOp = _TagOp.EQUALS):
         self.value = tag
         self.op = op
 
@@ -403,7 +405,7 @@ class TagValueCondition(Condition):
     conditiontype = 26
     Op = _TagOp
 
-    def __init__(self, tag, tag_value, op=_TagOp.EQUALS):
+    def __init__(self, tag: str, tag_value: str, op: _TagOp = _TagOp.EQUALS):
         self.value = tag
         self.value2 = tag_value
         self.op = op

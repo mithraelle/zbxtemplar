@@ -1,6 +1,10 @@
 import re
 from typing import Self
 
+from zbxtemplar.decree.User import User
+from zbxtemplar.decree.UserGroup import UserGroup
+from zbxtemplar.zabbix.Host import HostGroup
+from zbxtemplar.zabbix.Template import Template
 from zbxtemplar.zabbix.macro import Macro
 
 
@@ -49,9 +53,9 @@ class SendMessageOperation:
 
     operationtype = 0
 
-    def __init__(self, users: list | None = None,
-                 groups: list | None = None,
-                 media_type=None,
+    def __init__(self, users: list[User | str] | None = None,
+                 groups: list[UserGroup | str] | None = None,
+                 media_type: str | None = None,
                  subject: str | None = None,
                  message: str | None = None,
                  step_from: int | None = None,
@@ -128,9 +132,9 @@ class TriggerOperations:
     def __init__(self):
         self._ops: list[SendMessageOperation] = []
 
-    def send_message(self, users: list | None = None,
-                     groups: list | None = None,
-                     media_type=None,
+    def send_message(self, users: list[User | str] | None = None,
+                     groups: list[UserGroup | str] | None = None,
+                     media_type: str | None = None,
                      subject: str | None = None,
                      message: str | None = None,
                      step_from: int = 1, step_to: int = 1,
@@ -171,7 +175,7 @@ class AddHostOperation:
 class AddToGroupOperation:
     operationtype = 4
 
-    def __init__(self, group):
+    def __init__(self, group: HostGroup | str):
         self.group = _name(group)
 
     def to_dict(self) -> dict:
@@ -189,7 +193,7 @@ class AddToGroupOperation:
 class LinkTemplateOperation:
     operationtype = 6
 
-    def __init__(self, template):
+    def __init__(self, template: Template | str):
         self.template = _name(template)
 
     def to_dict(self) -> dict:
@@ -253,9 +257,9 @@ class AutoregistrationOperations:
     def __init__(self):
         self._ops: list = []
 
-    def send_message(self, users: list | None = None,
-                     groups: list | None = None,
-                     media_type=None,
+    def send_message(self, users: list[User | str] | None = None,
+                     groups: list[UserGroup | str] | None = None,
+                     media_type: str | None = None,
                      subject: str | None = None,
                      message: str | None = None) -> Self:
         """Append a send-message step. Returns self for chaining."""
@@ -270,12 +274,12 @@ class AutoregistrationOperations:
         self._ops.append(AddHostOperation())
         return self
 
-    def add_to_group(self, group) -> Self:
+    def add_to_group(self, group: HostGroup | str) -> Self:
         """Add host to a host group. Accepts HostGroup object or name string."""
         self._ops.append(AddToGroupOperation(group))
         return self
 
-    def link_template(self, template) -> Self:
+    def link_template(self, template: Template | str) -> Self:
         """Link a template to the host. Accepts Template object or name string."""
         self._ops.append(LinkTemplateOperation(template))
         return self
@@ -323,9 +327,9 @@ class TriggerAckOperations:
     def __init__(self):
         self._ops: list[SendMessageOperation] = []
 
-    def send_message(self, users: list | None = None,
-                     groups: list | None = None,
-                     media_type=None,
+    def send_message(self, users: list[User | str] | None = None,
+                     groups: list[UserGroup | str] | None = None,
+                     media_type: str | None = None,
                      subject: str | None = None,
                      message: str | None = None) -> Self:
         """Append a send-message step. Returns self for chaining."""
