@@ -19,13 +19,21 @@ class ActionOperation(Executor):
             self._lookups[key] = {item[name_field]: item[id_field] for item in items}
         return self._lookups[key]
 
+    def _trigger_id_map(self) -> dict[str, str]:
+        # Trigger names are unique per host only, so the key is "host/name".
+        key = ("trigger", "triggerid", "host/description")
+        if key not in self._lookups:
+            items = self._api.trigger.get(output=["triggerid", "description"], selectHosts=["host"])
+            self._lookups[key] = {f"{t['hosts'][0]['host']}/{t['description']}": t["triggerid"] for t in items}
+        return self._lookups[key]
+
     def _resolve_conditions(self, conditions):
         for cond in conditions:
             ct = cond["conditiontype"]
             if ct not in CONDITION_RESOLVERS:
                 continue
             api_name, id_field, label = CONDITION_RESOLVERS[ct]
-            lookup = self._name_id_map(api_name, id_field)
+            lookup = self._trigger_id_map() if api_name == "trigger" else self._name_id_map(api_name, id_field)
             name = cond["value"]
             if name not in lookup:
                 raise ValueError(f"{label} '{name}' not found in Zabbix")

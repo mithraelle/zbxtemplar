@@ -19,16 +19,18 @@ class Trigger(ZbxEntity, WithTags):
                  priority: TriggerPriority = TriggerPriority.NOT_CLASSIFIED,
                  description: str | None = None, host: str = ""):
         super().__init__(name, uuid_seed=f"{host}/{name}")
+        self._host = host
         s = str(expression)
         self.expression = s[1:-1] if s.startswith("(") and s.endswith(")") else s
         self.priority = priority
         self.description = description
 
     @classmethod
-    def from_dict(cls, data: dict):
+    def from_dict(cls, data: dict, host: str = ""):
         obj = cls.__new__(cls)
         ZbxEntity.__init__(obj, data["name"])
         WithTags.__init__(obj)
+        obj._host = host
         obj.expression = data.get("expression", "")
         obj.priority = TriggerPriority(data.get("priority", "NOT_CLASSIFIED"))
         obj.description = data.get("description")
@@ -72,6 +74,15 @@ class WithTriggers:
         else:
             self._triggers.append(trigger)
         return trigger
+
+    def get_trigger(self, name: str) -> Trigger:
+        """Look up a trigger by name, including single-item triggers inlined on items.
+        Raises KeyError if not found.
+        """
+        for trigger in self._triggers + [t for it in getattr(self, "items", []) for t in it.triggers]:
+            if trigger.name == name:
+                return trigger
+        raise KeyError(f"Trigger '{name}' not found on '{getattr(self, 'name', type(self).__name__)}'")
 
     @property
     def triggers(self):

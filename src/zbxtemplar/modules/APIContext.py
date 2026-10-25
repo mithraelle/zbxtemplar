@@ -56,6 +56,14 @@ class APIContext:
             self._api_id_name[key] = {item[id_field]: item[name_field] for item in items}
         return self._api_id_name[key]
 
+    def _trigger_name_map(self) -> dict[str, str]:
+        # Trigger names are unique per host only, so the name is "host/name".
+        key = ("trigger", "triggerid", "host/description")
+        if key not in self._api_id_name:
+            items = self._api.trigger.get(output=["triggerid", "description"], selectHosts=["host"])
+            self._api_id_name[key] = {t["triggerid"]: f"{t['hosts'][0]['host']}/{t['description']}" for t in items}
+        return self._api_id_name[key]
+
     def pull_user_groups(self, groups: list[str] | None = None):
         params: dict = {
             "output": ["name", "gui_access", "users_status"],
@@ -239,7 +247,7 @@ class APIContext:
                 cond["conditiontype"] = ctype
                 if ctype in CONDITION_RESOLVERS:
                     api_name, id_field, _ = CONDITION_RESOLVERS[ctype]
-                    names_map = self._id_name_map(api_name, id_field)
+                    names_map = self._trigger_name_map() if api_name == "trigger" else self._id_name_map(api_name, id_field)
                     if cond.get("value") in names_map:
                         cond["value"] = names_map[cond["value"]]
             if f.get("conditions"):

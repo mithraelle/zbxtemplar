@@ -1,6 +1,6 @@
 from enum import IntEnum
 
-from zbxtemplar.zabbix.Trigger import TriggerPriority
+from zbxtemplar.zabbix.Trigger import Trigger, TriggerPriority
 
 
 # --- Eval types ---
@@ -181,8 +181,9 @@ class TriggerCondition(Condition):
     conditiontype = 2
     Op = _EqualsOp
 
-    def __init__(self, trigger, op=_EqualsOp.EQUALS):
-        self.value = _name(trigger)
+    def __init__(self, trigger: Trigger | str, op=_EqualsOp.EQUALS):
+        """Accepts a Trigger object or a ``"host/trigger name"`` string."""
+        self.value = f"{trigger._host}/{trigger.name}" if isinstance(trigger, Trigger) else trigger
         self.op = op
 
 

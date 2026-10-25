@@ -142,7 +142,7 @@ class Item(ZbxEntity, WithTags):
         for t in data.get("tags", []):
             item.add_tag(t["tag"], t.get("value", ""))
         for tr in data.get("triggers", []):
-            item.triggers.append(Trigger.from_dict(tr))
+            item.triggers.append(Trigger.from_dict(tr, host=host))
         if "inventory_link" in data:
             item.inventory_link = str(data["inventory_link"])
         return item

@@ -10,7 +10,7 @@ from zbxtemplar.decree import (
 )
 from zbxtemplar.catalog.zabbix_7_4 import MediaType, UserRole
 from zbxtemplar.zabbix import TriggerPriority
-from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition, SeverityCondition
+from zbxtemplar.decree.action_conditions import HostGroupCondition, HostCondition, HostTemplateCondition, HostMetadataCondition, SeverityCondition, TriggerCondition
 from zbxtemplar.decree.action_operations import SetInventoryModeOperation
 
 
@@ -18,6 +18,7 @@ class SampleDecree(DecreeModule):
     def compose(self, alert_email: str = "alerts@example.com", admin_slack: str = ""):
         test_host_group = self.context.get_host_group("Templar Hosts")
         test_template = self.context.get_template("Test Template")
+        templar_host = self.context.get_host("Templar Host")
 
         ops_group = self.add_user_group("Templar Users", gui_access=GuiAccess.INTERNAL)
         ops_group.link_host_group("Linux servers", Permission.NONE)
@@ -55,14 +56,17 @@ class SampleDecree(DecreeModule):
         test_action.update_operations.send_message(groups=[ops_group], message="Acknowledged").send_message(users=[service])
         group_condition = HostGroupCondition(test_host_group)
         template_condition = HostTemplateCondition(test_template)
-        test_action.set_conditions(group_condition | template_condition)
+        host_condition = HostCondition(templar_host)
+        test_action.set_conditions(group_condition | template_condition | host_condition)
         test_action.set_notify_if_canceled(True)
         test_action.set_pause_symptoms(False)
         test_action.set_operation_step(duration_macro)
 
         severity_action = self.add_trigger_action("Test Severity")
         severity_action.operations.send_message(groups=[ops_group], message="Severity test")
-        severity_action.set_conditions(SeverityCondition(TriggerPriority.HIGH))
+        severity_action.set_conditions(
+            SeverityCondition(TriggerPriority.HIGH) & TriggerCondition(templar_host.get_trigger("Host Simple trigger"))
+        )
 
         test_registration = self.add_autoregistration_action("Test Registration")
         test_registration.operations.add_host().add_to_group(test_host_group)

@@ -71,7 +71,7 @@ actions:
   notify_if_canceled: 1
   filter:
     evaltype: 3
-    formula: A or B
+    formula: A or B or C
     conditions:
     - conditiontype: 0
       operator: 0
@@ -81,6 +81,10 @@ actions:
       operator: 0
       value: Test Template
       formulaid: B
+    - conditiontype: 1
+      operator: 0
+      value: Templar Host
+      formulaid: C
 - eventsource: 0
   name: Test Severity
   status: 0
@@ -100,12 +104,16 @@ actions:
   notify_if_canceled: 1
   filter:
     evaltype: 3
-    formula: A
+    formula: A and B
     conditions:
     - conditiontype: 4
       operator: 5
       value: '4'
       formulaid: A
+    - conditiontype: 2
+      operator: 0
+      value: Templar Host/Host Simple trigger
+      formulaid: B
 - eventsource: 2
   name: Test Registration
   status: 1
