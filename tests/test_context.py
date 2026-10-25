@@ -16,6 +16,11 @@ class TestZabbixExport:
         assert item.name == "Item 1"
         assert item._host == "Test Template"
 
+    def test_root_level_trigger_keeps_owner(self):
+        ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
+        trigger = ctx.get_template("Test Template").get_trigger("Complex trigger")
+        assert trigger._host == "Test Template"
+
     def test_get_item_missing(self):
         ctx = Context().load(str(REFERENCE_DIR / "templates.yml"))
         with pytest.raises(ValueError, match="not found on template"):

@@ -66,6 +66,7 @@ class SampleDecree(DecreeModule):
         severity_action.operations.send_message(groups=[ops_group], message="Severity test")
         severity_action.set_conditions(
             SeverityCondition(TriggerPriority.HIGH) & TriggerCondition(templar_host.get_trigger("Host Simple trigger"))
+            & TriggerCondition(test_template.get_trigger("Complex trigger"))
         )
 
         test_registration = self.add_autoregistration_action("Test Registration")

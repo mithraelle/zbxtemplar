@@ -60,6 +60,7 @@ class ZabbixExport(Schema):
             if not owner:
                 continue
             name = owner.group(1)
+            tr._host = name
             if name in templates:
                 templates[name]._triggers.append(tr)
             elif name in hosts:
