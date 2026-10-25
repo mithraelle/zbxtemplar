@@ -142,3 +142,21 @@ trigger = template.add_trigger(
 trigger.add_tag("scope", "availability")   # Trigger also supports add_tag()
 # also: host.add_trigger(...)
 ```
+
+## Trigger lookup
+
+`get_trigger(name)` returns a trigger by name from a template or host, wherever it is
+emitted (under an item or on the owner). Raises `KeyError` if not found.
+
+```python
+trigger = template.get_trigger("High CPU")
+# also: host.get_trigger(...)
+```
+
+Use it in a decree module to reference a trigger from a `--context` host in a trigger
+condition:
+
+```python
+host = self.context.get_host("Templar Host")
+action.set_conditions(TriggerCondition(host.get_trigger("Host Simple trigger")))
+```
