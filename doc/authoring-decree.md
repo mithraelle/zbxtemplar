@@ -213,7 +213,7 @@ Decree YAML references Zabbix objects by name, never by ID. This is the rule acr
 - User media references media types by name
 - SAML JIT rules reference roles, user groups, and media types by name
 - Host encryption references the host by name
-- Action conditions reference host groups, hosts, triggers, templates by name
+- Action conditions reference host groups, hosts, templates by name, and triggers as `host-or-template/trigger name`
 - Action operations reference user groups, users, media types by name
 
 The executor resolves those names to live Zabbix IDs at apply time. That is what makes decree YAML reviewable in a PR and portable across dev, staging, and prod — you never have to pre-fetch an ID table, and the same YAML applies cleanly to any Zabbix instance where the referenced names exist.

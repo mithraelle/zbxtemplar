@@ -7,7 +7,7 @@
 ```python
 from zbxtemplar.decree.action_conditions import (
     EvalType, ConditionList,
-    HostGroupCondition, HostCondition, HostTemplateCondition,
+    HostGroupCondition, HostCondition, HostTemplateCondition, TriggerCondition,
     SeverityCondition, EventNameCondition,
     TimePeriodCondition, SuppressedCondition,
     TagCondition, TagValueCondition,
@@ -48,6 +48,22 @@ b = HostTemplateCondition(self.context.get_template("Linux"))
 c = SeverityCondition(TriggerPriority.HIGH)
 action.set_conditions((a | b) & c)   # auto-wrapped into ConditionExpression
 ```
+
+## Trigger conditions
+
+A trigger name is unique only on its host or template, so a trigger condition carries
+both. Get the trigger from its owner with `get_trigger()`:
+
+```python
+host = self.context.get_host("Web 01")
+template = self.context.get_template("Linux")
+action.set_conditions(
+    TriggerCondition(host.get_trigger("High CPU"))           # → "Web 01/High CPU"
+    | TriggerCondition(template.get_trigger("Disk full"))    # → "Linux/Disk full"
+)
+```
+
+A `"host-or-template/trigger name"` string works too: `TriggerCondition("Web 01/High CPU")`.
 
 ## Condition types
 

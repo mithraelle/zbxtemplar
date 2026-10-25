@@ -262,7 +262,7 @@ The cheapest failures happen first.
 
 ## Name Resolution in Actions
 
-Actions follow the general decree rule: conditions reference host groups, hosts, triggers, and templates by name; operation targets reference user groups, users, and media types by name. Everything resolves to live Zabbix IDs at apply time.
+Actions follow the general decree rule: conditions reference host groups, hosts, and templates by name, and triggers as `host-or-template/trigger name`; operation targets reference user groups, users, and media types by name. Everything resolves to live Zabbix IDs at apply time.
 
 For the full picture of the name-based contract across all decree sections, see [Authoring Decree — Names Now, IDs at Apply Time](./authoring-decree.md#names-now-ids-at-apply-time).
 
