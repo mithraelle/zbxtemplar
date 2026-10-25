@@ -4,7 +4,6 @@ from zbxtemplar.decree.action_conditions import (
     ConditionExpression,
     HostGroupCondition,
     SeverityCondition,
-    TriggerValueCondition,
     EventNameCondition,
     TagCondition,
     TagValueCondition,
@@ -40,15 +39,6 @@ def test_severity_default_gte():
         "conditiontype": 4,
         "operator": 5,
         "value": Severity.HIGH,
-    }
-
-
-def test_trigger_value():
-    c = TriggerValueCondition(TriggerValueCondition.PROBLEM)
-    assert c.to_dict() == {
-        "conditiontype": 5,
-        "operator": 0,
-        "value": "PROBLEM",
     }
 
 

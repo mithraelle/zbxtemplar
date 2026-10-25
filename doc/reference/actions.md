@@ -8,7 +8,7 @@
 from zbxtemplar.decree.action_conditions import (
     EvalType, ConditionList,
     HostGroupCondition, HostCondition, HostTemplateCondition,
-    SeverityCondition, TriggerValueCondition, EventNameCondition,
+    SeverityCondition, EventNameCondition,
     TimePeriodCondition, SuppressedCondition,
     TagCondition, TagValueCondition,
     HostNameCondition, HostMetadataCondition, ProxyCondition,
@@ -58,7 +58,6 @@ action.set_conditions((a | b) & c)   # auto-wrapped into ConditionExpression
 | TriggerCondition | 2 | EQUALS | EQUALS, NOT_EQUALS |
 | EventNameCondition | 3 | CONTAINS | CONTAINS, NOT_CONTAINS |
 | SeverityCondition | 4 | GREATER_OR_EQUAL | EQUALS, NOT_EQUALS, GREATER_OR_EQUAL, LESS_OR_EQUAL |
-| TriggerValueCondition | 5 | EQUALS | EQUALS |
 | TimePeriodCondition | 6 | IN | IN, NOT_IN |
 | HostIPCondition | 7 | EQUALS | EQUALS, NOT_EQUALS |
 | DiscoveredServiceTypeCondition | 8 | EQUALS | EQUALS, NOT_EQUALS |
@@ -81,7 +80,6 @@ action.set_conditions((a | b) & c)   # auto-wrapped into ConditionExpression
 | ServiceNameCondition | 28 | EQUALS | EQUALS, NOT_EQUALS |
 
 Value constants on condition classes:
-- `TriggerValueCondition`: `.OK`, `.PROBLEM`
 - `DiscoveryStatusCondition`: `"UP"`, `"DOWN"`, `"DISCOVERED"`, `"LOST"`
 - `DiscoveryObjectCondition`: `"HOST"`, `"SERVICE"`
 - `EventTypeCondition`: `"ITEM_NOT_SUPPORTED"`, `"ITEM_NORMAL"`, `"LLD_NOT_SUPPORTED"`, `"LLD_NORMAL"`, `"TRIGGER_UNKNOWN"`, `"TRIGGER_NORMAL"`

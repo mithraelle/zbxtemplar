@@ -83,7 +83,7 @@ SeverityCondition("HIGH", SeverityCondition.Op.GREATER_OR_EQUAL)
 
 `SeverityCondition.Op` contains `EQUALS`, `NOT_EQUALS`, `GREATER_OR_EQUAL`, `LESS_OR_EQUAL`. There is no `CONTAINS` — because Zabbix does not support it for severity conditions.
 
-All 26 Zabbix condition types are covered:
+All 25 Zabbix condition types are covered:
 
 | Condition class | Valid operators |
 |---|---|
@@ -92,7 +92,6 @@ All 26 Zabbix condition types are covered:
 | `TriggerCondition` | EQUALS, NOT_EQUALS |
 | `EventNameCondition` | CONTAINS, NOT_CONTAINS |
 | `SeverityCondition` | EQUALS, NOT_EQUALS, GREATER_OR_EQUAL, LESS_OR_EQUAL |
-| `TriggerValueCondition` | EQUALS |
 | `TimePeriodCondition` | IN, NOT_IN |
 | `HostIPCondition` | EQUALS, NOT_EQUALS |
 | `DiscoveredServiceTypeCondition` | EQUALS, NOT_EQUALS |

@@ -204,19 +204,6 @@ class SeverityCondition(Condition):
         self.op = op
 
 
-class TriggerValueCondition(Condition):
-    """Trigger value — conditiontype 5."""
-    conditiontype = 5
-    Op = _EqualsOnlyOp
-
-    OK = "OK"
-    PROBLEM = "PROBLEM"
-
-    def __init__(self, value=PROBLEM, op=_EqualsOnlyOp.EQUALS):
-        self.value = value
-        self.op = op
-
-
 class TimePeriodCondition(Condition):
     """Time period — conditiontype 6."""
     conditiontype = 6
