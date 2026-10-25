@@ -10,7 +10,7 @@ class ActiveStatus(ApiStrEnum):
 
 
 class Severity(ApiStrEnum):
-    """Trigger severity levels."""
+    """Severity levels for user media filters."""
     NOT_CLASSIFIED = "NOT_CLASSIFIED", 1
     INFORMATION    = "INFORMATION",    2
     WARNING        = "WARNING",        4

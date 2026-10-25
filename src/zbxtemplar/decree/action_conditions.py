@@ -1,5 +1,7 @@
 from enum import IntEnum
 
+from zbxtemplar.zabbix.Trigger import TriggerPriority
+
 
 # --- Eval types ---
 
@@ -199,8 +201,8 @@ class SeverityCondition(Condition):
     conditiontype = 4
     Op = _SeverityOp
 
-    def __init__(self, severity, op=_SeverityOp.GREATER_OR_EQUAL):
-        self.value = severity
+    def __init__(self, severity: TriggerPriority, op=_SeverityOp.GREATER_OR_EQUAL):
+        self.value = str(TriggerPriority(severity).api)
         self.op = op
 
 

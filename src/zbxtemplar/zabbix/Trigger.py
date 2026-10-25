@@ -1,18 +1,17 @@
-from enum import StrEnum
-
+from zbxtemplar.dicts.Schema import ApiStrEnum
 from zbxtemplar.zabbix.ZbxEntity import ZbxEntity, WithTags
 from zbxtemplar.zabbix.trigger_expression import TriggerExpr
 
 
-class TriggerPriority(StrEnum):
+class TriggerPriority(ApiStrEnum):
     """Trigger severity level."""
 
-    NOT_CLASSIFIED = "NOT_CLASSIFIED"
-    INFO = "INFO"
-    WARNING = "WARNING"
-    AVERAGE = "AVERAGE"
-    HIGH = "HIGH"
-    DISASTER = "DISASTER"
+    NOT_CLASSIFIED = "NOT_CLASSIFIED", 0
+    INFO           = "INFO",           1
+    WARNING        = "WARNING",        2
+    AVERAGE        = "AVERAGE",        3
+    HIGH           = "HIGH",           4
+    DISASTER       = "DISASTER",       5
 
 
 class Trigger(ZbxEntity, WithTags):

@@ -150,6 +150,31 @@ actions:
       operator: 0
       value: Test Template
       formulaid: B
+- eventsource: 0
+  name: Test Severity
+  status: 0
+  operations:
+  - operationtype: 0
+    opmessage:
+      default_msg: 0
+      message: Severity test
+    opmessage_grp:
+    - usrgrpid: Templar Users
+    esc_step_from: 1
+    esc_step_to: 1
+    esc_period: 0
+  esc_period: 1h
+  pause_symptoms: 1
+  pause_suppressed: 1
+  notify_if_canceled: 1
+  filter:
+    evaltype: 3
+    formula: A
+    conditions:
+    - conditiontype: 4
+      operator: 5
+      value: '4'
+      formulaid: A
 - eventsource: 2
   name: Test Registration
   status: 1
@@ -161,6 +186,9 @@ actions:
   - operationtype: 6
     optemplate:
     - templateid: Test Template
+  - operationtype: 10
+    opinventory:
+      inventory_mode: 1
   - operationtype: 0
     opmessage:
       default_msg: 0

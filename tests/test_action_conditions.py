@@ -10,7 +10,7 @@ from zbxtemplar.decree.action_conditions import (
     SuppressedCondition,
     HostNameCondition,
 )
-from zbxtemplar.decree import Severity
+from zbxtemplar.zabbix import TriggerPriority
 
 
 # --- Condition to_dict ---
@@ -34,11 +34,11 @@ def test_host_group_not_equals():
 
 
 def test_severity_default_gte():
-    c = SeverityCondition(Severity.HIGH)
+    c = SeverityCondition(TriggerPriority.HIGH)
     assert c.to_dict() == {
         "conditiontype": 4,
         "operator": 5,
-        "value": Severity.HIGH,
+        "value": "4",
     }
 
 
@@ -74,7 +74,7 @@ def test_condition_list_and_or():
     cl = ConditionList(EvalType.AND_OR)
     cl.add(HostGroupCondition("Production"))
     cl.add(HostGroupCondition("Staging"))
-    cl.add(SeverityCondition(Severity.HIGH))
+    cl.add(SeverityCondition(TriggerPriority.HIGH))
 
     d = cl.to_dict()
     assert d["evaltype"] == 0
@@ -97,7 +97,7 @@ def test_condition_list_or():
 
 def test_simple_and():
     a = HostGroupCondition("Production")
-    b = SeverityCondition(Severity.HIGH)
+    b = SeverityCondition(TriggerPriority.HIGH)
 
     expr = ConditionExpression(a & b)
     d = expr.to_dict()
@@ -123,7 +123,7 @@ def test_or_and_precedence():
     """(a | b) & c should parenthesize the OR."""
     a = HostGroupCondition("Production")
     b = HostGroupCondition("Staging")
-    c = SeverityCondition(Severity.HIGH)
+    c = SeverityCondition(TriggerPriority.HIGH)
 
     expr = ConditionExpression((a | b) & c)
     d = expr.to_dict()
@@ -135,7 +135,7 @@ def test_or_and_precedence():
 def test_and_or_no_extra_parens():
     """a & b | c — no parentheses needed."""
     a = HostGroupCondition("Production")
-    b = SeverityCondition(Severity.HIGH)
+    b = SeverityCondition(TriggerPriority.HIGH)
     c = TagCondition("scope")
 
     expr = ConditionExpression(a & b | c)
@@ -148,8 +148,8 @@ def test_complex_expression():
     """(a | b) & (c | d)"""
     a = HostGroupCondition("Production")
     b = HostGroupCondition("Staging")
-    c = SeverityCondition(Severity.HIGH)
-    d = SeverityCondition(Severity.DISASTER)
+    c = SeverityCondition(TriggerPriority.HIGH)
+    d = SeverityCondition(TriggerPriority.DISASTER)
 
     expr = ConditionExpression((a | b) & (c | d))
     result = expr.to_dict()
@@ -173,7 +173,7 @@ def test_not_simple():
 def test_not_in_and():
     """(a & ~b) | (~a & b) — XOR pattern, reuses labels."""
     a = HostGroupCondition("Production")
-    b = SeverityCondition(Severity.HIGH)
+    b = SeverityCondition(TriggerPriority.HIGH)
 
     expr = ConditionExpression((a & ~b) | (~a & b))
     d = expr.to_dict()
@@ -205,6 +205,6 @@ def test_not_preserves_original():
 def test_bool_raises():
     import pytest
     a = HostGroupCondition("Production")
-    b = SeverityCondition(Severity.HIGH)
+    b = SeverityCondition(TriggerPriority.HIGH)
     with pytest.raises(TypeError, match="Use &"):
         a and b

@@ -9,7 +9,9 @@ from zbxtemplar.decree import (
     UsersStatus,
 )
 from zbxtemplar.catalog.zabbix_7_4 import MediaType, UserRole
-from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition
+from zbxtemplar.zabbix import TriggerPriority
+from zbxtemplar.decree.action_conditions import HostGroupCondition, HostTemplateCondition, HostMetadataCondition, SeverityCondition
+from zbxtemplar.decree.action_operations import SetInventoryModeOperation
 
 
 class SampleDecree(DecreeModule):
@@ -58,9 +60,14 @@ class SampleDecree(DecreeModule):
         test_action.set_pause_symptoms(False)
         test_action.set_operation_step(duration_macro)
 
+        severity_action = self.add_trigger_action("Test Severity")
+        severity_action.operations.send_message(groups=[ops_group], message="Severity test")
+        severity_action.set_conditions(SeverityCondition(TriggerPriority.HIGH))
+
         test_registration = self.add_autoregistration_action("Test Registration")
         test_registration.operations.add_host().add_to_group(test_host_group)
         test_registration.operations.link_template(test_template)
+        test_registration.operations.set_inventory_mode(SetInventoryModeOperation.AUTOMATIC)
         test_registration.operations.send_message(groups=[ops_group], message="Registered")
         test_registration.set_conditions(HostMetadataCondition("test", HostMetadataCondition.Op.CONTAINS))
         test_registration.set_state(enabled=False)

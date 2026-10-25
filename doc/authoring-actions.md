@@ -149,7 +149,7 @@ This generates:
     "conditions": [
         {"conditiontype": 0, "operator": 0, "value": "Production", "formulaid": "A"},
         {"conditiontype": 0, "operator": 0, "value": "Staging", "formulaid": "B"},
-        {"conditiontype": 4, "operator": 5, "value": "HIGH", "formulaid": "C"},
+        {"conditiontype": 4, "operator": 5, "value": "4", "formulaid": "C"},
         {"conditiontype": 16, "operator": 11, "formulaid": "D"}
     ]
 }

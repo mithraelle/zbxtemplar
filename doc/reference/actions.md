@@ -17,7 +17,7 @@ from zbxtemplar.decree.action_conditions import (
     HostIPCondition, UptimeCondition, ReceivedValueCondition,
     EventTypeCondition, ServiceCondition, ServiceNameCondition,
 )
-from zbxtemplar.decree import Severity
+from zbxtemplar.zabbix import TriggerPriority
 ```
 
 ## Action types
@@ -34,7 +34,7 @@ cl = ConditionList(EvalType.AND_OR)   # EvalType: AND_OR, AND, OR
 # AND_OR: same-type conditions are OR'd, groups are AND'd
 cl.add(HostGroupCondition("Production"))
 cl.add(HostGroupCondition("Staging"))    # OR'd with Production
-cl.add(SeverityCondition(Severity.HIGH)) # AND'd with host group block
+cl.add(SeverityCondition(TriggerPriority.HIGH)) # AND'd with host group block
 action.set_conditions(cl)
 ```
 
@@ -45,7 +45,7 @@ Use `&`, `|`, `~` — Python `and`/`or`/`not` keywords raise `TypeError`.
 ```python
 a = HostGroupCondition(self.context.get_host_group("Production"))
 b = HostTemplateCondition(self.context.get_template("Linux"))
-c = SeverityCondition(Severity.HIGH)
+c = SeverityCondition(TriggerPriority.HIGH)
 action.set_conditions((a | b) & c)   # auto-wrapped into ConditionExpression
 ```
 
@@ -86,7 +86,7 @@ Value constants on condition classes:
 
 Override op via the class's `.Op` enum:
 ```python
-SeverityCondition(Severity.WARNING, SeverityCondition.Op.GREATER_OR_EQUAL)
+SeverityCondition(TriggerPriority.WARNING, SeverityCondition.Op.GREATER_OR_EQUAL)
 HostNameCondition("prod-", HostNameCondition.Op.MATCHES)
 TagValueCondition("env", "prod", TagValueCondition.Op.NOT_EQUALS)
 ```
