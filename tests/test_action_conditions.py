@@ -9,8 +9,11 @@ from zbxtemplar.decree.action_conditions import (
     TagValueCondition,
     SuppressedCondition,
     HostNameCondition,
+    TriggerCondition,
 )
-from zbxtemplar.zabbix import TriggerPriority
+from zbxtemplar.catalog.zabbix_7_4.functions.history import Last
+from zbxtemplar.zabbix import Host, TriggerPriority
+from zbxtemplar.zabbix.Item import Item
 
 
 # --- Condition to_dict ---
@@ -40,6 +43,23 @@ def test_severity_default_gte():
         "operator": 5,
         "value": "4",
     }
+
+
+def test_trigger_condition_from_added_trigger():
+    item = Item("CPU", "cpu.util", host="web01")
+    host = Host("web01", groups=[])
+    host.items.append(item)
+    trigger = host.add_trigger("CPU high", Last(item) > 90)
+    assert TriggerCondition(trigger).to_dict()["value"] == "web01/CPU high"
+
+
+def test_trigger_condition_from_loaded_trigger():
+    item = Item.from_dict({"name": "CPU", "key": "cpu.util", "triggers": [{"name": "CPU high"}]}, host="web01")
+    assert TriggerCondition(item.triggers[0]).to_dict()["value"] == "web01/CPU high"
+
+
+def test_trigger_condition_from_string():
+    assert TriggerCondition("web01/CPU high").to_dict()["value"] == "web01/CPU high"
 
 
 def test_suppressed_no_value():

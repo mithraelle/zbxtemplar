@@ -250,6 +250,27 @@ def test_pull_users_attaches_only_declared_token():
     assert api_ctx.get_user("zbx-other").token is None
 
 
+def test_pull_actions_names_trigger_condition_by_host_and_name():
+    from unittest.mock import MagicMock
+
+    api = MagicMock()
+    api.action.get.return_value = [{
+        "actionid": "9", "name": "Notify", "eventsource": "0", "status": "0", "esc_period": "1h",
+        "filter": {"evaltype": "0", "conditions": [
+            {"conditiontype": "2", "operator": "0", "value": "32", "formulaid": "A"},
+        ]},
+        "operations": [], "recovery_operations": [], "update_operations": [],
+    }]
+    api.trigger.get.return_value = [
+        {"triggerid": "31", "description": "CPU high", "hosts": [{"host": "web01"}]},
+        {"triggerid": "32", "description": "CPU high", "hosts": [{"host": "web02"}]},
+    ]
+
+    api_ctx = APIContext(api).pull_actions(["Notify"])
+
+    assert api_ctx.get_action("Notify").to_dict()["filter"]["conditions"][0]["value"] == "web02/CPU high"
+
+
 def test_render_shows_entity_content():
     from zbxtemplar.decree.Token import Token
 

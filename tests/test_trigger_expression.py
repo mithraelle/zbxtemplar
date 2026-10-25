@@ -162,3 +162,23 @@ def test_returned_trigger_is_taggable(item_a):
     owner = FakeOwner("myhost", [item_a])
     owner.add_trigger("t", Last(item_a) > 90).add_tag("scope", "availability")
     assert item_a.triggers[0].to_dict()["tags"] == [{"tag": "scope", "value": "availability"}]
+
+
+# --- WithTriggers.get_trigger ---
+
+def test_get_trigger_finds_inlined_trigger(item_a):
+    owner = FakeOwner("myhost", [item_a])
+    trigger = owner.add_trigger("t", Last(item_a) > 90)
+    assert owner.get_trigger("t") is trigger
+
+
+def test_get_trigger_finds_owned_trigger(item_a, item_b):
+    owner = FakeOwner("myhost", [item_a, item_b])
+    trigger = owner.add_trigger("t", (Last(item_a) > 90) & (Last(item_b) < 100))
+    assert owner.get_trigger("t") is trigger
+
+
+def test_get_trigger_unknown_raises(item_a):
+    owner = FakeOwner("myhost", [item_a])
+    with pytest.raises(KeyError, match="Trigger 'missing' not found on 'myhost'"):
+        owner.get_trigger("missing")

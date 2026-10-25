@@ -83,6 +83,27 @@ def test_unknown_condition_entity_raises():
         op.execute()
 
 
+def test_resolves_trigger_condition_by_host_and_name():
+    api = _api()
+    api.trigger.get.return_value = [
+        {"triggerid": "31", "description": "CPU high", "hosts": [{"host": "web01"}]},
+        {"triggerid": "32", "description": "CPU high", "hosts": [{"host": "web02"}]},
+    ]
+    action = Action.from_dict({
+        "name": "Test",
+        "eventsource": 0,
+        "filter": {
+            "evaltype": 0,
+            "conditions": [{"conditiontype": 2, "operator": 0, "value": "web02/CPU high"}],
+        },
+        "operations": [],
+    })
+    op = ActionOperation([action], api)
+    op.execute()
+    call = api.action.create.call_args[1]
+    assert call["filter"]["conditions"][0]["value"] == "32"
+
+
 def test_resolves_opmessage_grp():
     api = _api()
     action = Action.from_dict({
